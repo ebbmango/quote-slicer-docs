@@ -11,10 +11,10 @@
 
 <div class="flex w-full h-dvh">
 	<!-- sidebar --- docs - topics -->
-	<div class="flex w-90 h-dvh bg-gray-300"></div>
+	<div class="flex min-w-70 h-dvh bg-gray-300"></div>
 	{@render children()}
 	<!-- sidebar --- page chapters -->
-	<div class="flex w-90 h-dvh bg-gray-300"></div>
+	<div class="flex min-w-70 h-dvh bg-gray-300"></div>
 
 </div>
 
