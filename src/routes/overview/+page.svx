@@ -1,3 +1,9 @@
+---
+title: Overview
+---
+
+# {title}
+
 **Quote Slicer** is a tool built to power \[project V's\] core feature: linking words to their translations.
 
 Behind this simple interaction is a surprisingly complex data structure. **Quote Slicer** makes building that structure intuitive. It allows the user to:
