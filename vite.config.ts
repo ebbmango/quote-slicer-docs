@@ -7,6 +7,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+
 const dirname =
 	typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,9 +15,7 @@ const dirname =
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
 	test: {
-		expect: {
-			requireAssertions: true
-		},
+		expect: { requireAssertions: true },
 		projects: [
 			{
 				extends: './vite.config.ts',
@@ -25,12 +24,7 @@ export default defineConfig({
 					browser: {
 						enabled: true,
 						provider: playwright(),
-						instances: [
-							{
-								browser: 'chromium',
-								headless: true
-							}
-						]
+						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
 					exclude: ['src/lib/server/**']
@@ -60,11 +54,7 @@ export default defineConfig({
 						enabled: true,
 						headless: true,
 						provider: playwright({}),
-						instances: [
-							{
-								browser: 'chromium'
-							}
-						]
+						instances: [{ browser: 'chromium' }]
 					},
 					setupFiles: ['.storybook/vitest.setup.ts']
 				}

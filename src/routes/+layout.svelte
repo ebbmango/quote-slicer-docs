@@ -12,7 +12,9 @@
 <div class="flex w-full h-dvh">
 	<!-- sidebar --- docs - topics -->
 	<div class="flex min-w-70 h-dvh bg-gray-300"></div>
-	{@render children()}
+	<main class="flex-col mx-12 prose dark:prose-invert">
+		{@render children()}
+	</main>
 	<!-- sidebar --- page chapters -->
 	<div class="flex min-w-70 h-dvh bg-gray-300"></div>
 

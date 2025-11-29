@@ -1,0 +1,11 @@
+**Quote Slicer** is a tool built to power \[project V's\] core feature: linking words to their translations.
+
+Behind this simple interaction is a surprisingly complex data structure. **Quote Slicer** makes building that structure intuitive. It allows the user to:
+
+1. Map many-to-many relationships between segments of the original text and of its translation.
+
+2. Organize both sides into paragraphs with clean line breaks.
+
+3. Instantly preview how the linked display will work.
+
+It does so through means of its four Interaction Modes, described in-depth each in their own article.
