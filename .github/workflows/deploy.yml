@@ -27,11 +27,16 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Configure npm auth
+      - name: Configure Font Awesome npm auth
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          cat > ~/.npmrc <<EOF
+          @awesome.me:registry=https://npm.fontawesome.com/
+          @fortawesome:registry=https://npm.fontawesome.com/
+          //npm.fontawesome.com/:_authToken=${FONTAWESOME_TOKEN}
+          always-auth=true
+          EOF
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          FONTAWESOME_TOKEN: ${{ secrets.FONTAWESOME_TOKEN }}
 
       - name: Install dependencies
         run: npm ci
