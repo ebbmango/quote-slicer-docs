@@ -15,7 +15,7 @@
 	<Sidebar/>
 
 	<main class="flex flex-col w-full items-center">
-		<article class="prose dark:prose-invert mt-12">
+		<article class="w-full h-full prose dark:prose-invert sm:px-8">
 			{@render children()}
 		</article>
 	</main>
