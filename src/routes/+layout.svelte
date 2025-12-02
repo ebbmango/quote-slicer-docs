@@ -2,15 +2,19 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import Sidebar from '../components/Sidebar.svelte';
+	import { setContext } from 'svelte';
 
 	let { children } = $props();
+
+	let theme = $state({ dark: false });
+	setContext('theme', theme);
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="flex h-dvh w-full">
+<div class="flex h-dvh w-full" class:dark={theme.dark}>
 	<!-- sidebar --- docs - topics -->
 	<Sidebar />
 
