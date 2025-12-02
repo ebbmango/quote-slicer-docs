@@ -18,11 +18,11 @@
 	<!-- sidebar --- docs - topics -->
 	<Sidebar />
 
-	<main class="flex w-full flex-col items-center dark:bg-umbra">
-		<article class="prose h-full w-full sm:px-8 dark:prose-invert">
+	<main class="flex w-full flex-col items-center duration-300 dark:bg-umbra">
+		<article class="prose h-full w-full py-10 duration-300 sm:px-8 dark:prose-invert">
 			{@render children()}
 		</article>
 	</main>
 	<!-- sidebar --- page chapters -->
-	<div class="flex h-dvh min-w-70 bg-gray-300 dark:bg-umbra"></div>
+	<div class="flex h-dvh min-w-70 duration-300 dark:bg-umbra"></div>
 </div>
