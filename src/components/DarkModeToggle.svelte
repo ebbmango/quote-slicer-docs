@@ -4,8 +4,6 @@
 	import { getContext } from 'svelte';
 	import type { Theme } from '$lib/types';
 
-	let rotate = $state(false);
-
 	const theme: Theme = getContext('theme');
 
 	const toggle = () => {
