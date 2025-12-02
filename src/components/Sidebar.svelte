@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { docsStructure } from '$lib/docs-structure';
+	import { docsStructure } from '$lib/constants/docs-structure';
 	import Fa from 'svelte-fa';
 	import Dropdown from './Dropdown.svelte';
 	import Navlink from './Navlink.svelte';

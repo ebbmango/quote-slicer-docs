@@ -5,7 +5,6 @@
 	import { setContext } from 'svelte';
 
 	let { children } = $props();
-
 	let theme = $state({ dark: false });
 	setContext('theme', theme);
 </script>

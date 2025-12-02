@@ -20,7 +20,7 @@ export const docsStructure: NavItem[] = [
 		children: [
 			{ title: 'Tokenization', slug: '/functionalities/tokenization' },
 			{ title: 'Quote Tokenization', slug: '/functionalities/quote-tokenization' },
-			{ title: 'Translation Tokenization', slug: '/functionalities/quote-tokenization' }
+			{ title: 'Translation Tokenization', slug: '/functionalities/translation-tokenization' }
 		]
 	},
 	{ title: 'Development Diary', slug: '/development-diary' }
