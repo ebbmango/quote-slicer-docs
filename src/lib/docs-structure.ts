@@ -6,22 +6,22 @@ export type NavItem = {
 };
 
 export const docsStructure: NavItem[] = [
-	{ title: 'Overview', slug: 'overview' },
+	{ title: 'Overview', slug: '/overview' },
 	{
 		title: 'Components',
-		children: [{ title: 'Quote Workbench', slug: 'components/quote-workbench' }]
+		children: [{ title: 'Quote Workbench', slug: '/components/quote-workbench' }]
 	},
 	{
 		title: 'Data Structures',
-		children: [{ title: 'Mapping', slug: 'data-structures/mapping' }]
+		children: [{ title: 'Mapping', slug: '/data-structures/mapping' }]
 	},
 	{
 		title: 'Functionalities',
 		children: [
-			{ title: 'Tokenization', slug: 'functionalities/tokenization' },
-			{ title: 'Quote Tokenization', slug: 'functionalities/quote-tokenization' },
-			{ title: 'Translation Tokenization', slug: 'functionalities/quote-tokenization' }
+			{ title: 'Tokenization', slug: '/functionalities/tokenization' },
+			{ title: 'Quote Tokenization', slug: '/functionalities/quote-tokenization' },
+			{ title: 'Translation Tokenization', slug: '/functionalities/quote-tokenization' }
 		]
 	},
-	{ title: 'Development Diary', slug: 'development-diary' }
+	{ title: 'Development Diary', slug: '/development-diary' }
 ];
