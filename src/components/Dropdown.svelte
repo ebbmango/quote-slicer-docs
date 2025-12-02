@@ -1,38 +1,39 @@
 <script lang="ts">
-	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 	import Fa from 'svelte-fa';
-	const { section, color } = $props();
+	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 
 	let hover = $state(false);
+	let open = $state(false);
+	let element: HTMLDivElement | null = $state(null);
 
-	$inspect(color);
+	const { section, color } = $props();
+
+	$effect(() => {
+		console.log(section.title, element);
+	});
 </script>
 
-{#if section.children}
+<div>
 	<button
-		class="group flex w-full items-center justify-between font-inter text-[14px] font-medium"
-		onmouseenter={() => {
-			hover = true;
-		}}
-		onmouseleave={() => {
-			hover = false;
-		}}
-	>
-		<span class="duration-300 group-hover:ms-2" style="color: {hover && color}"
-			>{section.title.toUpperCase()}</span
-		>
-
-		<Fa icon={faChevronDown} />
-	</button>
-{:else}
-	<a
-		href={section.slug}
 		class="group flex w-full items-center justify-between font-inter text-[14px] font-medium"
 		onmouseenter={() => (hover = true)}
 		onmouseleave={() => (hover = false)}
+		onclick={() => (open = !open)}
 	>
-		<span class="duration-300 group-hover:ms-2" style="color: {hover ? color : ''}">
+		<span class="duration-300 group-hover:ms-2" style="color: {hover && color}">
 			{section.title.toUpperCase()}
 		</span>
-	</a>
-{/if}
+		<Fa icon={faChevronDown} />
+	</button>
+
+	<div
+		bind:this={element}
+		class="ms-2 flex flex-col gap-2 overflow-hidden text-silver duration-400"
+		style:height={open ? element.scrollHeight + 'px' : 0}
+		class:mt-4={open}
+	>
+		{#each section.children as child, i}
+			<a href={child.slug}>{child.title}</a>
+		{/each}
+	</div>
+</div>
