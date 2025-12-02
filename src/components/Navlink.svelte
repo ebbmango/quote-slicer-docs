@@ -1,7 +1,13 @@
 <script lang="ts">
-	const { section, color } = $props();
+	import { getContext } from 'svelte';
+	import type { Theme } from '$lib/types';
+	import pickColor from '../utils/pickColor';
+
 	let hover = $state(false);
-	$inspect(color);
+
+	const { section, index } = $props();
+	const theme: Theme = getContext('theme');
+	let color = $derived(pickColor(index, theme));
 </script>
 
 <a

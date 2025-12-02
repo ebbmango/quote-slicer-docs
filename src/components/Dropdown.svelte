@@ -1,12 +1,18 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
+	import { getContext } from 'svelte';
+	import type { Theme } from '$lib/types';
+	import pickColor from '../utils/pickColor';
+	import DropdownLink from './DropdownLink.svelte';
 
 	let hover = $state(false);
 	let open = $state(false);
 	let element: HTMLDivElement | null = $state(null);
 
-	const { section, color } = $props();
+	const { section, index } = $props();
+	const theme: Theme = getContext('theme');
+	let color = $derived(pickColor(index, theme));
 
 	$effect(() => {
 		console.log(section.title, element);
@@ -32,8 +38,8 @@
 		style:height={open ? element.scrollHeight + 'px' : 0}
 		class:mt-4={open}
 	>
-		{#each section.children as child, i}
-			<a href={child.slug}>{child.title}</a>
+		{#each section.children as { slug, title }, index}
+			<DropdownLink {slug} {title} {index} />
 		{/each}
 	</div>
 </div>

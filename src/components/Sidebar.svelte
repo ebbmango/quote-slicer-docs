@@ -5,20 +5,9 @@
 	import Navlink from './Navlink.svelte';
 	import { faSquareQuote } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 	import DarkModeToggle from './DarkModeToggle.svelte';
+	import { colors } from '$lib/constants/colors';
 
 	const sections = docsStructure;
-
-	const colors = [
-		'#aac834',
-		'#67c492',
-		'#88c8d7',
-		'#8291df',
-		'#b18ae1',
-		'#d69bd8',
-		'#d87d8f',
-		'#e4a67c',
-		'#d1b953'
-	];
 </script>
 
 <div
@@ -37,9 +26,9 @@
 		<div class="hide-bar flex h-full w-full flex-col gap-8 overflow-scroll pb-12">
 			{#each sections as section, i}
 				{#if section.children}
-					<Dropdown {section} color={colors[i % colors.length]} />
+					<Dropdown {section} index={i} />
 				{:else}
-					<Navlink {section} color={colors[i % colors.length]} />
+					<Navlink {section} index={i} />
 				{/if}
 			{/each}
 		</div>

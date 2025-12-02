@@ -23,5 +23,6 @@ export const docsStructure: NavItem[] = [
 			{ title: 'Translation Tokenization', slug: '/functionalities/translation-tokenization' }
 		]
 	},
+
 	{ title: 'Development Diary', slug: '/development-diary' }
 ];
