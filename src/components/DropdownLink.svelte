@@ -4,9 +4,8 @@
 	import type { Theme } from '$lib/types';
 
 	const { slug, title, index } = $props();
-
 	const theme: Theme = getContext('theme');
-	const color = pickColor(index, theme);
+	const color = $derived(pickColor(index, theme));
 
 	let hover: boolean = $state(false);
 </script>
