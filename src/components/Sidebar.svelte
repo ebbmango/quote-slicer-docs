@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="flex h-dvh min-w-70 flex-col items-center justify-between overflow-hidden border-0 border-r border-gray-200 px-8 duration-300 dark:border-[#404040] dark:bg-umbra dark:text-gray-300"
+	class="flex h-dvh min-w-70 flex-col items-center justify-between overflow-hidden bg-gray-50 px-8 duration-300 dark:bg-noctis dark:text-gray-300"
 >
 	<!-- Logo -->
 	<div class="flex min-h-30 items-center justify-center gap-2">

@@ -23,5 +23,5 @@
 		</article>
 	</main>
 	<!-- sidebar --- page chapters -->
-	<div class="flex h-dvh min-w-70 duration-300 dark:bg-umbra"></div>
+	<div class="flex h-dvh min-w-70 bg-gray-50 duration-300 dark:bg-noctis"></div>
 </div>

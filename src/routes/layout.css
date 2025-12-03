@@ -17,6 +17,7 @@
 
 @theme {
 	--color-applesour: var(--applesour-gloss-hanzi-light);
+	--color-noctis: #1b1b1b;
 	--color-steel: #4a4a4a;
 	--color-umbra: #1f1f1f;
 	--color-carbon: #2e2e2e;
