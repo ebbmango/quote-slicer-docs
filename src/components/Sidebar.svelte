@@ -5,7 +5,6 @@
 	import Navlink from './Navlink.svelte';
 	import { faSquareQuote } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import { colors } from '$lib/constants/colors';
 
 	const sections = docsStructure;
 </script>

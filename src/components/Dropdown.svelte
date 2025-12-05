@@ -13,10 +13,6 @@
 	const { section, index } = $props();
 	const theme: Theme = getContext('theme');
 	let color = $derived(pickColor(index, theme));
-
-	$effect(() => {
-		console.log(section.title, element);
-	});
 </script>
 
 <div>
