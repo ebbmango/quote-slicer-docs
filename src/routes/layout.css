@@ -16,7 +16,15 @@
 }
 
 @theme {
-	--color-applesour: var(--applesour-gloss-hanzi-light);
+	/* --color-applesour: var(--applesour-gloss-hanzi-light);
+	--color-lush: var(--lush-gloss-hanzi-light);
+	--color-seabreeze: var(--seabreeze-gloss-hanzi-light);
+	--color-azure: var(--azure-gloss-hanzi-light);
+	--color-compostella: var(--compostella-gloss-hanzi-light);
+	--color-sugar: var(--sugar-gloss-hanzi-light);
+	--color-strawberry: var(--strawberry-gloss-hanzi-light);
+	--color-maple: var(--maple-gloss-hanzi-light);
+	--color-beeswax: var(--beeswax-gloss-hanzi-light); */
 	--color-noctis: #1b1b1b;
 	--color-steel: #4a4a4a;
 	--color-umbra: #1f1f1f;

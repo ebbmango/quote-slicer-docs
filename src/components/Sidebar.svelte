@@ -5,12 +5,20 @@
 	import Navlink from './Navlink.svelte';
 	import { faSquareQuote } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 	import DarkModeToggle from './DarkModeToggle.svelte';
+	import { getContext } from 'svelte';
+	import type { Width } from '$lib/types';
 
 	const sections = docsStructure;
+
+	const width: Width = getContext('width');
 </script>
 
 <div
-	class="flex h-dvh min-w-70 flex-col items-center justify-between overflow-hidden bg-gray-50 px-8 duration-300 dark:bg-noctis dark:text-gray-300"
+	class="h-vh flex flex-col items-center justify-between overflow-hidden bg-gray-50 duration-300 dark:bg-noctis dark:text-gray-300"
+	class:px-8={width.current > 800}
+	class:px-6={width.current <= 800}
+	class:min-w-70={width.current > 800}
+	class:min-w-60={width.current <= 800}
 >
 	<!-- Logo -->
 	<div class="flex min-h-30 items-center justify-center gap-2">
