@@ -5,6 +5,8 @@
 	import Menubar from '../components/Menubar.svelte';
 	import Sidebar from '../components/Sidebar.svelte';
 	import type { Theme, Width } from '$lib/types';
+	import { slide } from 'svelte/transition';
+	import { Spring } from 'svelte/motion';
 
 	let { children } = $props();
 
@@ -12,6 +14,17 @@
 	setContext('theme', theme);
 	let width: Width = $state({ current: 0 });
 	setContext('width', width);
+
+	let contentsSidebarWidth = new Spring(0, { stiffness: 0.08, damping: 0.7 });
+
+	$effect(() => {
+		if (width.current >= 1220) {
+			const target = Math.max(240, Math.min(280, width.current / 2 - 370));
+			contentsSidebarWidth.target = target;
+		} else {
+			contentsSidebarWidth.target = 0;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -34,8 +47,11 @@
 			</article>
 		</main>
 		<!-- sidebar --- page chapters (contents) -->
-		{#if width.current >= 1220}
-			<div class="contents-sidebar h-vh bg-gray-50 dark:bg-noctis"></div>
+		{#if width.current >= 1220 || contentsSidebarWidth.current > 0}
+			<div
+				class="contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
+				style="width: {contentsSidebarWidth.current}px; min-width: {contentsSidebarWidth.current}px; flex: 0 0 auto; overflow: hidden;"
+			></div>
 		{/if}
 	</div>
 {/if}
@@ -50,9 +66,4 @@
 <!-- smaller than that: it should disappear completely, and be toggleable by a discrete button on -->
 <!-- the right-hand side of the screen, but as an overlay -->
 <style>
-	.contents-sidebar {
-		width: clamp(240px, calc(50vw - 370px), 280px);
-		min-width: clamp(240px, calc(50vw - 370px), 280px);
-		flex: 0 0 auto;
-	}
 </style>
