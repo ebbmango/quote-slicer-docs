@@ -1,11 +1,8 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import { setContext } from 'svelte';
-	import Menubar from '../components/Menubar.svelte';
-	import Sidebar from '../components/Sidebar.svelte';
+	import { setContext, onMount } from 'svelte';
 	import type { Theme, Width } from '$lib/types';
-	import { slide } from 'svelte/transition';
 	import { Spring } from 'svelte/motion';
 
 	let { children } = $props();
@@ -15,15 +12,35 @@
 	let width: Width = $state({ current: 0 });
 	setContext('width', width);
 
-	let contentsSidebarWidth = new Spring(0, { stiffness: 0.08, damping: 0.7 });
+	function scaleMain(w: number): number {
+		if (w > 1200) {
+			return Math.max(240, Math.min(280, w * 0.2));
+		} else if (w >= 800) {
+			return Math.max(240, Math.min(280, w * 0.3));
+		}
+		return 0;
+	}
+
+	function scaleSide(w: number): number {
+		if (w >= 1200) {
+			return Math.max(240, Math.min(280, w * 0.2));
+		}
+		return 0;
+	}
+
+	let mainWidth = new Spring(0, { stiffness: 0.05, damping: 0.7 });
+	let sideWidth = new Spring(0, { stiffness: 0.05, damping: 0.7 });
+
+	onMount(() => {
+		// Set initial values without animation
+		mainWidth.set(scaleMain(width.current), { instant: true });
+		sideWidth.set(scaleSide(width.current), { instant: true });
+	});
 
 	$effect(() => {
-		if (width.current >= 1220) {
-			const target = Math.max(240, Math.min(280, width.current / 2 - 370));
-			contentsSidebarWidth.target = target;
-		} else {
-			contentsSidebarWidth.target = 0;
-		}
+		// Only animate after mount
+		mainWidth.target = scaleMain(width.current);
+		sideWidth.target = scaleSide(width.current);
 	});
 </script>
 
@@ -33,37 +50,28 @@
 
 <svelte:window bind:innerWidth={width.current} />
 {#if width.current > 0}
-	{#if width.current <= 700}
-		<Menubar />
-	{/if}
 	<div class="flex h-dvh w-full" class:dark={theme.dark}>
-		<!-- sidebar --- docs - topics -->
-		{#if width.current > 700}
-			<Sidebar />
+		<!-- Mainbar: Navigation -->
+		{#if width.current > 700 || mainWidth.current > 0}
+			<nav
+				class="h-vh flex w-70 flex-col items-center justify-between overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
+				style="width: {mainWidth.current}px; min-width: {mainWidth.current}px; flex: 0 0 auto; overflow: hidden;"
+			></nav>
 		{/if}
 		<main class="flex w-full flex-col items-center duration-300 dark:bg-umbra">
 			<article class="prose h-full w-full px-8 py-7 duration-300 dark:prose-invert">
 				{@render children()}
 			</article>
 		</main>
-		<!-- sidebar --- page chapters (contents) -->
-		{#if width.current >= 1220 || contentsSidebarWidth.current > 0}
-			<div
+		<!-- Sidebar: Contents -->
+		{#if width.current >= 1220 || sideWidth.current > 0}
+			<aside
 				class="contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
-				style="width: {contentsSidebarWidth.current}px; min-width: {contentsSidebarWidth.current}px; flex: 0 0 auto; overflow: hidden;"
-			></div>
+				style="width: {sideWidth.current}px; min-width: {sideWidth.current}px; flex: 0 0 auto; overflow: hidden;"
+			></aside>
 		{/if}
 	</div>
 {/if}
 
-<!-- sidebar: it should preserve its normal size (min-w-70) until the screen reaches 800px width -->
-<!-- it should somehow squeeze (margins and paddings included) up to min-w-60 until the screen -->
-<!-- reaches a min. of 700px; then it should disappear completely, and be toggleable by a button -->
-<!-- on the horizontal navbar attached to the top, but as an overlay; the design must be reworked then -->
-
-<!-- contents: 1300px+ > should have min-w-70 (280px). -->
-<!-- smaller than that: it should shrink until it reaches its min. at min-w-60 (240px) at 1220px -->
-<!-- smaller than that: it should disappear completely, and be toggleable by a discrete button on -->
-<!-- the right-hand side of the screen, but as an overlay -->
 <style>
 </style>
