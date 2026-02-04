@@ -20,7 +20,7 @@ export function scaleSide(screenWidth: number): number {
 export function deriveLayout(screenWidth: number): Layout {
 	return {
 		mode: getMode(screenWidth),
-		mainWidth: scaleMain(screenWidth),
-		sideWidth: scaleSide(screenWidth)
+		webWidth: scaleMain(screenWidth),
+		artWidth: scaleSide(screenWidth)
 	};
 }

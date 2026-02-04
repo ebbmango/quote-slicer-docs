@@ -5,6 +5,7 @@
 	import type { Layout, Theme, Viewport } from '$lib/types';
 	import { Spring } from 'svelte/motion';
 	import { deriveLayout, scaleMain, scaleSide } from '$lib/utils/layout';
+	import Navbar from '../components/Navbar.svelte';
 
 	let { children } = $props();
 
@@ -20,29 +21,29 @@
 		get mode() {
 			return computedLayout.mode;
 		},
-		get mainWidth() {
-			return computedLayout.mainWidth;
+		get webWidth() {
+			return computedLayout.webWidth;
 		},
-		get sideWidth() {
-			return computedLayout.sideWidth;
+		get artWidth() {
+			return computedLayout.artWidth;
 		}
 	};
 
 	setContext('layout', layout);
 
-	let mainWidth = new Spring(0, { stiffness: 0.05, damping: 0.7 });
-	let sideWidth = new Spring(0, { stiffness: 0.05, damping: 0.7 });
+	let webWidth = new Spring(0, { stiffness: 0.05, damping: 0.7 });
+	let artWidth = new Spring(0, { stiffness: 0.05, damping: 0.7 });
 
 	onMount(() => {
 		// Set initial values without animation
-		mainWidth.set(scaleMain(viewport.width), { instant: true });
-		sideWidth.set(scaleSide(viewport.width), { instant: true });
+		webWidth.set(scaleMain(viewport.width), { instant: true });
+		artWidth.set(scaleSide(viewport.width), { instant: true });
 	});
 
 	$effect(() => {
 		// Only animate after mount
-		mainWidth.target = layout.mainWidth;
-		sideWidth.target = layout.sideWidth;
+		webWidth.target = layout.webWidth;
+		artWidth.target = layout.artWidth;
 	});
 </script>
 
@@ -50,15 +51,14 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<!-- TODO: restore the navbar structure (in sidebar.svelte) -->
+
 <svelte:window bind:innerWidth={viewport.width} />
 {#if viewport.width > 0}
 	<div class="flex h-dvh w-full" class:dark={theme.dark}>
 		<!-- Mainbar: Navigation -->
-		{#if viewport.width > 700 || mainWidth.current > 0}
-			<nav
-				class="h-vh flex w-70 flex-col items-center justify-between overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
-				style="width: {mainWidth.current}px; min-width: {mainWidth.current}px; flex: 0 0 auto; overflow: hidden;"
-			></nav>
+		{#if viewport.width > 700 || webWidth.current > 0}
+			<Navbar width={webWidth.current} />
 		{/if}
 		<main class="flex w-full flex-col items-center duration-300 dark:bg-umbra">
 			<article class="prose h-full w-full px-8 py-7 duration-300 dark:prose-invert">
@@ -66,10 +66,10 @@
 			</article>
 		</main>
 		<!-- Sidebar: Contents -->
-		{#if viewport.width >= 1220 || sideWidth.current > 0}
+		{#if viewport.width >= 1220 || artWidth.current > 0}
 			<aside
 				class="contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
-				style="width: {sideWidth.current}px; min-width: {sideWidth.current}px; flex: 0 0 auto; overflow: hidden;"
+				style="width: {artWidth.current}px; min-width: {artWidth.current}px; flex: 0 0 auto; overflow: hidden;"
 			></aside>
 		{/if}
 	</div>
