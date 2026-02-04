@@ -15,15 +15,17 @@
 </script>
 
 <nav
-	class="transition-mode h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
+	class="colors-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
-	<div class="absolute top-0 flex h-20 w-full justify-center">
+	<a href="/" class="absolute top-0 mt-6 flex w-full justify-center">
 		<Logo />
-	</div>
+	</a>
 
 	<div class="hide-bar relative mt-16 w-full -translate-y-8 overflow-scroll px-7 py-24">
-		<div class="hide-bar flex h-full w-full flex-col gap-8 overflow-scroll">
+		<div
+			class="hide-bar flex h-full w-full flex-col gap-8 overflow-scroll overflow-x-hidden text-nowrap"
+		>
 			{#each sections as section, i}
 				{#if section.children}
 					<Dropdown {section} index={i} />
@@ -40,7 +42,7 @@
 </nav>
 
 <style>
-	.transition-mode {
+	.colors-transition {
 		transition:
 			color 300ms,
 			background-color 300ms;
