@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { docsStructure } from '$lib/constants/docs-structure';
-	import Fa from 'svelte-fa';
 	import DarkModeToggle from './DarkModeToggle.svelte';
 	import Dropdown from './Dropdown.svelte';
 	import Navlink from './Navlink.svelte';
-	import { faSquareQuote } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 	import Logo from './Logo.svelte';
+	import { resolve } from '$app/paths';
 
 	type Props = { width: number };
 
@@ -18,7 +17,7 @@
 	class="colors-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
-	<a href="/" class="absolute top-0 mt-6 flex w-full justify-center">
+	<a href={resolve('/')} class="absolute top-0 mt-6 flex w-full justify-center">
 		<Logo />
 	</a>
 
