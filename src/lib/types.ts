@@ -1,6 +1,8 @@
-export type Theme = {
-	dark: boolean;
-};
+export type Mode = 'dark' | 'light';
+
+export interface ThemeContext {
+	current: Mode; // yes, this is correct even if implemented via get/set
+}
 
 export type LayoutMode = 'none' | 'mini' | 'half' | 'full';
 

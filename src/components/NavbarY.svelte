@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { docsStructure } from '$lib/constants/docs-structure';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import Dropdown from './Dropdown.svelte';
+	import Dropdown from './NavbarDropdown.svelte';
 	import Navlink from './Navlink.svelte';
 	import Logo from './Logo.svelte';
 	import { resolve } from '$app/paths';
