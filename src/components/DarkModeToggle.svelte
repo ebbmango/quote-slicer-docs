@@ -9,25 +9,20 @@
 	const toggle = () => {
 		theme.current = theme.current === 'dark' ? 'light' : 'dark';
 	};
-
-	const isDark = $derived(theme.current === 'dark');
 </script>
 
 <div
-	class="group bg-gray-10 absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full duration-500"
-	class:rotate-180={isDark}
+	class="group bg-gray-10 absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full duration-500 dark:rotate-180"
 >
 	<button
 		onclick={toggle}
-		class="hover: duration-500 group-hover:-translate-y-0.5 group-hover:scale-115"
-		class:-rotate-180={isDark}
+		class="duration-500 group-hover:-translate-y-0.5 group-hover:scale-115 dark:-rotate-180"
 	>
 		<Fa icon={faSunBright} class="text-2xl text-amber-500" />
 	</button>
 	<button
 		onclick={toggle}
-		class="duration-500 group-hover:translate-y-0.5 group-hover:scale-115"
-		class:-rotate-180={isDark}
+		class="duration-500 group-hover:translate-y-0.5 group-hover:scale-115 dark:-rotate-180"
 	>
 		<Fa icon={faMoon} class="text-xl text-gray-400" />
 	</button>
