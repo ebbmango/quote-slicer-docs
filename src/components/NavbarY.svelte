@@ -24,7 +24,7 @@
 
 	<section aria-label="Articles" class="hide-bar relative mt-16 w-full -translate-y-8 overflow-scroll px-7 py-24">
 		<ul
-			class="acc-cycle hide-bar flex h-full w-full flex-col gap-8 overflow-scroll overflow-x-hidden text-nowrap"
+			class="acc-cycle hide-bar flex h-full w-full flex-col overflow-scroll overflow-x-hidden text-nowrap"
 		>
 			{#each sections as section, i}
 				<li>
