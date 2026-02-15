@@ -1,0 +1,46 @@
+/* Thin accent layer (inherits light/dark via underlying token vars) */
+:root {
+	--acc-0: var(--applesour-token-latin);
+	--acc-1: var(--lush-token-latin);
+	--acc-2: var(--seabreeze-token-latin);
+	--acc-3: var(--azure-token-latin);
+	--acc-4: var(--compostella-token-latin);
+	--acc-5: var(--sugar-token-latin);
+	--acc-6: var(--strawberry-token-latin);
+	--acc-7: var(--maple-token-latin);
+	--acc-8: var(--beeswax-token-latin);
+}
+
+.dark {
+	--acc-0: var(--applesour-token-hanzi);
+	--acc-1: var(--lush-token-hanzi);
+	--acc-2: var(--seabreeze-token-hanzi);
+	--acc-3: var(--azure-token-hanzi);
+	--acc-4: var(--compostella-token-hanzi);
+	--acc-5: var(--sugar-token-hanzi);
+	--acc-6: var(--strawberry-token-hanzi);
+	--acc-7: var(--maple-token-hanzi);
+	--acc-8: var(--beeswax-token-hanzi);
+}
+
+/* Optional explicit picker */
+.acc-0 { --acc: var(--acc-0); } 
+.acc-1 { --acc: var(--acc-1); }
+.acc-2 { --acc: var(--acc-2); }
+.acc-3 { --acc: var(--acc-3); }
+.acc-4 { --acc: var(--acc-4); }
+.acc-5 { --acc: var(--acc-5); }
+.acc-6 { --acc: var(--acc-6); }
+.acc-7 { --acc: var(--acc-7); }
+.acc-8 { --acc: var(--acc-8); }
+
+/* Automatic cycling for list-like containers */
+.acc-cycle > :nth-child(9n + 1) { --acc: var(--acc-0); }
+.acc-cycle > :nth-child(9n + 2) { --acc: var(--acc-1); }
+.acc-cycle > :nth-child(9n + 3) { --acc: var(--acc-2); }
+.acc-cycle > :nth-child(9n + 4) { --acc: var(--acc-3); }
+.acc-cycle > :nth-child(9n + 5) { --acc: var(--acc-4); }
+.acc-cycle > :nth-child(9n + 6) { --acc: var(--acc-5); }
+.acc-cycle > :nth-child(9n + 7) { --acc: var(--acc-6); }
+.acc-cycle > :nth-child(9n + 8) { --acc: var(--acc-7); }
+.acc-cycle > :nth-child(9n + 9) { --acc: var(--acc-8); }
