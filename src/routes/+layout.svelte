@@ -1,6 +1,5 @@
-<!-- src/routes/+layout.svelte -->
 <script lang="ts">
-	import './layout.css';
+	import '../lib/styles/index.css'
 	import favicon from '$lib/assets/favicon.svg';
 	import { setContext, onMount } from 'svelte';
 	import type { Layout, ThemeContext, Viewport } from '$lib/types';
@@ -15,7 +14,6 @@
 	let theme: ThemeContext = adaptiveTheme();
 	setContext('theme', theme);
 
-	// ✅ Make Tailwind dark mode global: put `.dark` on <html>
 	$effect(() => {
 		if (typeof document === 'undefined') return;
 		const isDark = theme.current === 'dark';
@@ -64,7 +62,6 @@
 
 <svelte:window bind:innerWidth={viewport.width} />
 {#if viewport.width > 0}
-	<!-- ✅ no class:dark here anymore; it's on <html> -->
 	<div class="flex h-dvh w-full">
 		<!-- Mainbar: Navigation -->
 		{#if viewport.width > 700 || webWidth.current > 0}

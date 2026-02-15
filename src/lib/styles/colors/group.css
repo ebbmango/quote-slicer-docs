@@ -1,0 +1,138 @@
+:root {
+	--applesour-group-text: #556124;
+	--applesour-group-base: #d9ea96;
+	--applesour-group-back: #a1b066;
+	--applesour-group-botm: #eff6d3;
+	--applesour-group-link: #838e59;
+	--applesour-group-flag: #dbe9a2;
+	--applesour-group-numb: #667c10;
+
+	--lush-group-text: #266845;
+	--lush-group-base: #8ae1b2;
+	--lush-group-back: #60ae84;
+	--lush-group-botm: #cef2df;
+	--lush-group-link: #61977b;
+	--lush-group-flag: #aee1c6;
+	--lush-group-numb: #216943;
+
+	--seabreeze-group-text: #255f6c;
+	--seabreeze-group-base: #92d8e0;
+	--seabreeze-group-back: #64a5af;
+	--seabreeze-group-botm: #d1eff2;
+	--seabreeze-group-link: #3e686d;
+	--seabreeze-group-flag: #ace4ea;
+	--seabreeze-group-numb: #1c5f6e;
+
+	--azure-group-text: #212e6f;
+	--azure-group-base: #9ea8dc;
+	--azure-group-back: #6a75ae;
+	--azure-group-botm: #d6daf0;
+	--azure-group-link: #616c9d;
+	--azure-group-flag: #b7c2f9;
+	--azure-group-numb: #314299;
+
+	--compostella-group-text: #3f1b6c;
+	--compostella-group-base: #c1a2e7;
+	--compostella-group-back: #8a69b3;
+	--compostella-group-botm: #e5d9f5;
+	--compostella-group-link: #725495;
+	--compostella-group-flag: #dcc1fd;
+	--compostella-group-numb: #7528af;
+
+	--sugar-group-text: #582259;
+	--sugar-group-base: #df9de1;
+	--sugar-group-back: #a669a8;
+	--sugar-group-botm: #f2d6f2;
+	--sugar-group-link: #865887;
+	--sugar-group-flag: #f7c8f8;
+	--sugar-group-numb: #99299b;
+
+	--strawberry-group-text: #511824;
+	--strawberry-group-base: #e396a6;
+	--strawberry-group-back: #a7616f;
+	--strawberry-group-botm: #f3d3da;
+	--strawberry-group-link: #82505b;
+	--strawberry-group-flag: #f6bdc9;
+	--strawberry-group-numb: #81273a;
+
+	--maple-group-text: #522c13;
+	--maple-group-base: #ecb48f;
+	--maple-group-back: #ab7b5b;
+	--maple-group-botm: #f7e0d0;
+	--maple-group-link: #83624c;
+	--maple-group-flag: #ffcdac;
+	--maple-group-numb: #873e0e;
+
+	--beeswax-group-text: #4d4213;
+	--beeswax-group-base: #f3df8d;
+	--beeswax-group-back: #ad9c5a;
+	--beeswax-group-botm: #fbf2cf;
+	--beeswax-group-link: #81774b;
+	--beeswax-group-flag: #f1e1a1;
+	--beeswax-group-numb: #735d02;
+}
+
+.dark {
+	--applesour-group-base: #afc06b;
+	--applesour-group-back: #8b9a4f;
+	--applesour-group-botm: #6a7147;
+	--applesour-group-link: #d9ea96;
+	--applesour-group-flag: #92a83b;
+	--applesour-group-numb: var(--color-white);
+
+	--lush-group-base: #68c894;
+	--lush-group-back: #4ca072;
+	--lush-group-botm: #466f5a;
+	--lush-group-link: #aee1c6;
+	--lush-group-flag: #479d6f;
+	--lush-group-numb: var(--color-white);
+
+	--seabreeze-group-base: #6dc4ce;
+	--seabreeze-group-back: #4f9aa5;
+	--seabreeze-group-botm: #3e686d;
+	--seabreeze-group-link: #ace4ea;
+	--seabreeze-group-flag: #3ea0aa;
+	--seabreeze-group-numb: var(--color-white);
+
+	--azure-group-base: #7184e3;
+	--azure-group-back: #4e61b3;
+	--azure-group-botm: #4c526e;
+	--azure-group-link: #b7c2f9;
+	--azure-group-flag: #677be0;
+	--azure-group-numb: var(--color-white);
+
+	--compostella-group-base: #9b6ed2;
+	--compostella-group-back: #744ba7;
+	--compostella-group-botm: #614c7b;
+	--compostella-group-link: #dcc1fd;
+	--compostella-group-flag: #9c69db;
+	--compostella-group-numb: var(--color-white);
+
+	--sugar-group-base: #de81e1;
+	--sugar-group-back: #a85bab;
+	--sugar-group-botm: #704e71;
+	--sugar-group-link: #fdc2ff;
+	--sugar-group-flag: #d169d4;
+	--sugar-group-numb: var(--color-white);
+
+	--strawberry-group-base: #eb768e;
+	--strawberry-group-back: #ab4f61;
+	--strawberry-group-botm: #72454e;
+	--strawberry-group-link: #f6bdc9;
+	--strawberry-group-flag: #d1657b;
+	--strawberry-group-numb: var(--color-white);
+
+	--maple-group-base: #e6a173;
+	--maple-group-back: #a8704b;
+	--maple-group-botm: #805d44;
+	--maple-group-link: #ffcdac;
+	--maple-group-flag: #d7844d;
+	--maple-group-numb: var(--color-white);
+
+	--beeswax-group-base: #ecd579;
+	--beeswax-group-back: #a9974d;
+	--beeswax-group-botm: #7b6f3f;
+	--beeswax-group-link: #f3df8d;
+	--beeswax-group-flag: #bc9a15;
+	--beeswax-group-numb: var(--color-white);
+}

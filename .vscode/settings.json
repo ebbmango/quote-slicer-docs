@@ -17,6 +17,6 @@
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"[tailwindcss]": {
-		"editor.defaultFormatter": "numso.prettier-standard-vscode"
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	}
 }

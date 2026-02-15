@@ -1,0 +1,40 @@
+:root {
+	--applesour-token-hanzi: #aac834; /* 01 */
+	--applesour-token-latin: #89ac00; /* 02 */
+
+	--lush-token-hanzi: #67c492; /* 03 */
+	--lush-token-latin: #00ac50; /* 04 */
+
+	--seabreeze-token-hanzi: #88c8d7; /* 05 */
+	--seabreeze-token-latin: #00a0c4; /* 06 */
+
+	--azure-token-hanzi: #8291df; /* 07 */
+	--azure-token-latin: #5d71da; /* 08 */
+
+	--compostella-token-hanzi: #b18ae1; /* 09 */
+	--compostella-token-latin: #8443d3; /* 10 */
+
+	--sugar-token-hanzi: #d69bd8; /* 11 */
+	--sugar-token-latin: #cf5cd3; /* 12 */
+
+	--strawberry-token-hanzi: #d87d8f; /* 13 */
+	--strawberry-token-latin: #c1314e; /* 14 */
+
+	--maple-token-hanzi: #e4a67c; /* 15 */
+	--maple-token-latin: #cd6d2c; /* 16 */
+
+	--beeswax-token-hanzi: #d1b953; /* 17 */
+	--beeswax-token-latin: #ba9e27; /* 18 */
+}
+
+.dark {
+	--applesour-token-latin: var(--applesour-token-hanzi);
+	--lush-token-latin: var(--lush-token-hanzi);
+	--seabreeze-token-latin: var(--seabreeze-token-hanzi);
+	--azure-token-latin: var(--azure-token-hanzi);
+	--compostella-token-latin: var(--compostella-token-hanzi);
+	--sugar-token-latin: var(--sugar-token-hanzi);
+	--strawberry-token-latin: var(--strawberry-token-hanzi);
+	--maple-token-latin: var(--maple-token-hanzi);
+	--beeswax-token-latin: var(--beeswax-token-hanzi);
+}

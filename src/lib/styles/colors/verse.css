@@ -1,0 +1,57 @@
+:root {
+	--applesour-verse-text: #607021;
+	--applesour-verse-back: #d9ea96;
+
+	--lush-verse-text: #266845;
+	--lush-verse-back: #8ae1b2;
+
+	--seabreeze-verse-text: #255f6c;
+	--seabreeze-verse-back: #92d8e0;
+
+	--azure-verse-text: #212e6f;
+	--azure-verse-back: #9ea8dc;
+
+	--compostella-verse-text: #3f1b6c;
+	--compostella-verse-back: #c1a2e7;
+
+	--sugar-verse-text: #582259;
+	--sugar-verse-back: #df9de1;
+
+	--strawberry-verse-text: #511824;
+	--strawberry-verse-back: #e396a6;
+
+	--maple-verse-text: #522c13;
+	--maple-verse-back: #ecb48f;
+
+	--beeswax-verse-text: #4d4213;
+	--beeswax-verse-back: #f3df8d;
+}
+
+.dark {
+	--applesour-verse-text: #d9ea96;
+	--applesour-verse-back: #343923;
+
+	--lush-verse-text: #a1f4c7;
+	--lush-verse-back: #2d4136;
+
+	--seabreeze-verse-text: #b3ecf2;
+	--seabreeze-verse-back: #2d4548;
+
+	--azure-verse-text: #b3bdf2;
+	--azure-verse-back: #2f3347;
+
+	--compostella-verse-text: #c6a1f4;
+	--compostella-verse-back: #3e344c;
+
+	--sugar-verse-text: #f3a1f4;
+	--sugar-verse-back: #432f43;
+
+	--strawberry-verse-text: #f4a1b3;
+	--strawberry-verse-back: #473438;
+
+	--maple-verse-text: #f4c2a1;
+	--maple-verse-back: #483b33;
+
+	--beeswax-verse-text: #f4e5a1;
+	--beeswax-verse-back: #454132;
+}

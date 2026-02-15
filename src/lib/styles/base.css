@@ -1,0 +1,28 @@
+/* --- Zero-flash baseline: render correctly before JS/hydration --- */
+:root {
+	color-scheme: light;
+}
+
+html.dark {
+	color-scheme: dark;
+}
+
+/* Avoid transition “fades” on first paint if you use transition-colors etc. */
+html.preload *,
+html.preload {
+	transition: none !important;
+}
+
+/* Page backdrop follows the explicit .dark class on <html> */
+html,
+body {
+	min-height: 100%;
+	background-color: white;
+	color: black;
+}
+
+html.dark,
+html.dark body {
+	background-color: var(--color-noctis);
+	color: white;
+}

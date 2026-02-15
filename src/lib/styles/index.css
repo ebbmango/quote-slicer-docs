@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import 'tailwindcss';
+
+@import './base.css';
+@import './theme.css';
+
+@import './colors/accents.css';
+@import './colors/gloss.css';
+@import './colors/group.css';
+@import './colors/tokens.css';
+@import './colors/verse.css';
+
+@plugin '@tailwindcss/typography';
+@custom-variant dark (&:where(.dark, .dark *));

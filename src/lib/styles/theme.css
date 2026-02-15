@@ -1,0 +1,20 @@
+@theme {
+	--font-inter: 'Inter', sans-serif;
+
+	/* colors */
+
+	--color-noctis: #1b1b1b;
+	--color-steel: #4a4a4a;
+	--color-umbra: #1f1f1f;
+	--color-carbon: #2e2e2e;
+	--color-silver: #8f8f8f;
+	--color-whitesmoke: #f4f4f4;
+	--color-tin: #bebebe;
+	--color-white: #ffffff;
+}
+
+.inter {
+	font-family: 'Inter', sans-serif;
+	font-optical-sizing: auto;
+	font-style: normal;
+}

@@ -1,0 +1,75 @@
+:root {
+	--applesour-gloss-hanzi: #aac834;
+	--applesour-gloss-latin: #607021;
+	--applesour-gloss-backg: #e6f2b6;
+
+	--lush-gloss-hanzi: #67c492;
+	--lush-gloss-latin: #266845;
+	--lush-gloss-backg: #b1eccd;
+
+	--seabreeze-gloss-hanzi: #88c8d7;
+	--seabreeze-gloss-latin: #255f6c;
+	--seabreeze-gloss-backg: #b9e9ee;
+
+	--azure-gloss-hanzi: #8291df;
+	--azure-gloss-latin: #212e6f;
+	--azure-gloss-backg: #c0c8f0;
+
+	--compostella-gloss-hanzi: #b18ae1;
+	--compostella-gloss-latin: #3f1b6c;
+	--compostella-gloss-backg: #d9c4f4;
+
+	--sugar-gloss-hanzi: #d69bd8;
+	--sugar-gloss-latin: #582259;
+	--sugar-gloss-backg: #edc0ef;
+
+	--strawberry-gloss-hanzi: #d87d8f;
+	--strawberry-gloss-latin: #511824;
+	--strawberry-gloss-backg: #f4bdc8;
+
+	--maple-gloss-hanzi: #e4a67c;
+	--maple-gloss-latin: #522c13;
+	--maple-gloss-backg: #f8d9c5;
+
+	--beeswax-gloss-hanzi: #d1b953;
+	--beeswax-gloss-latin: #4d4213;
+	--beeswax-gloss-backg: #f9eaae;
+}
+
+.dark {
+	--applesour-gloss-hanzi: #afc06b;
+	--applesour-gloss-latin: #d9ea96;
+	--applesour-gloss-backg: #363b21;
+
+	--lush-gloss-hanzi: #68c894;
+	--lush-gloss-latin: #a1f4c7;
+	--lush-gloss-backg: #324b3d;
+
+	--seabreeze-gloss-hanzi: #6dc4ce;
+	--seabreeze-gloss-latin: #b3ecf2;
+	--seabreeze-gloss-backg: #304e52;
+
+	--azure-gloss-hanzi: #687bcd;
+	--azure-gloss-latin: #a6baff;
+	--azure-gloss-backg: #32364c;
+
+	--compostella-gloss-hanzi: #9b6ed2;
+	--compostella-gloss-latin: #ddc2ff;
+	--compostella-gloss-backg: #433950;
+
+	--sugar-gloss-hanzi: #de81e1;
+	--sugar-gloss-latin: #fdc2ff;
+	--sugar-gloss-backg: #5a3e5b;
+
+	--strawberry-gloss-hanzi: #eb768e;
+	--strawberry-gloss-latin: #ffb9c7;
+	--strawberry-gloss-backg: #603840;
+
+	--maple-gloss-hanzi: #e6a173;
+	--maple-gloss-latin: #ffd5ba;
+	--maple-gloss-backg: #634734;
+
+	--beeswax-gloss-hanzi: #ecd579;
+	--beeswax-gloss-latin: #ffeeaa;
+	--beeswax-gloss-backg: #5d5331;
+}
