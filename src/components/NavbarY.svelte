@@ -15,7 +15,7 @@
 
 <nav
 	aria-label="Docs navigation"
-	class="colors-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
+	class="transition-settings h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
 	<a href={resolve('/')} class="absolute top-0 mt-6 flex w-full justify-center">
@@ -42,10 +42,3 @@
 	</footer>
 </nav>
 
-<style>
-	.colors-transition {
-		transition:
-			color 300ms,
-			background-color 300ms;
-	}
-</style>

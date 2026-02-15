@@ -4,7 +4,8 @@
 
 <a
 	href={section.slug}
-	class="font-inter block text-[14px] font-medium duration-300 hover:ms-2 hover:text-(--acc) mb-7"
+	class="font-inter block text-[14px] font-medium transition-settings hover:translate-x-2 hover:text-(--acc) mb-7"
 >
 	{section.title.toUpperCase()}
 </a>
+

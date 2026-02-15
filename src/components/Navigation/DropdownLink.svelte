@@ -4,7 +4,8 @@
 
 <a
 	href={slug}
-	class="w-full duration-250 hover:ps-1 hover:text-(--acc)"
+	class="block w-full transition-settings hover:translate-x-1 hover:text-(--acc)"
 >
 	{title}
 </a>
+

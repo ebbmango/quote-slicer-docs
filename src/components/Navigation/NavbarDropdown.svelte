@@ -12,17 +12,19 @@
 
 <div>
 	<button
-		class="group flex w-full items-center justify-between font-inter text-[14px] font-medium"
+		class="group hover:text-(--acc) flex w-full items-center justify-between font-inter text-[14px] font-medium"
 		onclick={() => (open = !open)}
 	>
-		<span class="duration-300 group-hover:ms-2 group-hover:text-(--acc)">
+		<span class="group-hover:translate-x-2 transition-settings ">
 			{section.title.toUpperCase()}
 		</span>
-		<Fa icon={faChevronDown} />
+		<div class="duration-400 opacity-30" class:rotate-180={open} class:opacity-60={open}>
+			<Fa icon={faChevronDown} />
+		</div>
 	</button>
 <ul
 	bind:this={element}
-	class="acc-cycle ms-2 flex flex-col gap-2 overflow-hidden text-silver duration-400 fade-bottom"
+	class="acc-cycle ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-settings fade-bottom"
 	style:height={open ? (element.scrollHeight + 28) + 'px' : 0}
 	style:padding-bottom={open ? '28px' : '0'}
 	style:margin-bottom={open ? '0' : '28px'}

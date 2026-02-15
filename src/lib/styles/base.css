@@ -26,3 +26,14 @@ html.dark body {
 	background-color: var(--color-noctis);
 	color: white;
 }
+
+.transition-settings {
+	transition:
+		color 300ms,
+		background-color 300ms,
+		translate 250ms,
+		height 400ms,
+		padding 400ms,
+		margin 400ms;
+	}
+
