@@ -3,7 +3,7 @@
 	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
 	import { getContext } from 'svelte';
 	import type { Theme } from '$lib/types';
-	import pickColor from '../utils/pickColor';
+	import pickColor from '../../utils/pickColor';
 	import DropdownLink from './DropdownLink.svelte';
 
 	let hover = $state(false);
@@ -34,8 +34,12 @@
 		style:height={open ? element.scrollHeight + 'px' : 0}
 		class:mt-4={open}
 	>
-		{#each section.children as { slug, title }, index}
-			<DropdownLink {slug} {title} {index} />
-		{/each}
+		<ul>
+			{#each section.children as { slug, title }, index}
+				<li>
+					<DropdownLink {slug} {title} {index} />
+				</li>	
+			{/each}
+		</ul>
 	</div>
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import pickColor from '../utils/pickColor';
+	import pickColor from '../../utils/pickColor';
 	import type { Theme } from '$lib/types';
 
 	const { slug, title, index } = $props();

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import type { Theme } from '$lib/types';
-	import pickColor from '../utils/pickColor';
+	import pickColor from '../../utils/pickColor';
 
 	let hover = $state(false);
 

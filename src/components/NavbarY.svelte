@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { docsStructure } from '$lib/constants/docs-structure';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import Dropdown from './NavbarDropdown.svelte';
-	import Navlink from './Navlink.svelte';
+	import Dropdown from './Navigation/NavbarDropdown.svelte';
+	import Navlink from './Navigation/Navlink.svelte';
 	import Logo from './Logo.svelte';
 	import { resolve } from '$app/paths';
 
@@ -14,6 +14,7 @@
 </script>
 
 <nav
+	aria-label="Docs navigation"
 	class="colors-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
@@ -21,23 +22,24 @@
 		<Logo />
 	</a>
 
-	<div class="hide-bar relative mt-16 w-full -translate-y-8 overflow-scroll px-7 py-24">
-		<div
+	<section aria-label="Articles" class="hide-bar relative mt-16 w-full -translate-y-8 overflow-scroll px-7 py-24">
+		<ul
 			class="hide-bar flex h-full w-full flex-col gap-8 overflow-scroll overflow-x-hidden text-nowrap"
 		>
 			{#each sections as section, i}
-				{#if section.children}
-					<Dropdown {section} index={i} />
-				{:else}
-					<Navlink {section} index={i} />
-				{/if}
+				<li>
+					{#if section.children}
+						<Dropdown {section} index={i} />
+					{:else}
+						<Navlink {section} index={i} />
+					{/if}
+				</li>
 			{/each}
-		</div>
-	</div>
-
-	<div class="absolute bottom-0 flex h-20 w-full justify-center">
+		</ul>
+	</section>
+	<footer class="absolute bottom-0 flex h-20 w-full justify-center">
 		<DarkModeToggle />
-	</div>
+	</footer>
 </nav>
 
 <style>
