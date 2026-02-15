@@ -1,10 +1,7 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import { faMoon, faSunBright } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
-	import { getContext } from 'svelte';
-	import type { ThemeContext } from '$lib/types';
-
-	const theme = getContext<ThemeContext>('theme');
+	import { theme } from '$lib/theme';
 
 	const toggle = () => {
 		theme.current = theme.current === 'dark' ? 'light' : 'dark';

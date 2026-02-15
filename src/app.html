@@ -7,19 +7,17 @@
 
 		<script>
 			(() => {
-				// Debugging aid: if this doesn't run, you'll know.
-				// Remove logs once confirmed.
 				try {
 					const LEGACY_INVERT_KEY = 'theme-invert';
 					const MANUAL_MODE_KEY = 'theme-manual-mode';
 					const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 					const systemMode = systemIsDark ? 'dark' : 'light';
-					const storedManualMode = localStorage.getItem(MANUAL_MODE_KEY);
+					const storedManualMode = sessionStorage.getItem(MANUAL_MODE_KEY);
 					const manualMode =
 						storedManualMode === 'dark' || storedManualMode === 'light' ? storedManualMode : null;
 
 					// Legacy fallback: "invert=true" means "opposite of current system mode".
-					const legacyInvert = localStorage.getItem(LEGACY_INVERT_KEY) === 'true';
+					const legacyInvert = sessionStorage.getItem(LEGACY_INVERT_KEY) === 'true';
 					const fallbackManualMode = legacyInvert ? (systemMode === 'dark' ? 'light' : 'dark') : null;
 
 					let normalizedManualMode = manualMode ?? fallbackManualMode;
@@ -31,11 +29,11 @@
 					document.documentElement.style.colorScheme = effectiveIsDark ? 'dark' : 'light';
 
 					if (normalizedManualMode) {
-						localStorage.setItem(MANUAL_MODE_KEY, normalizedManualMode);
+						sessionStorage.setItem(MANUAL_MODE_KEY, normalizedManualMode);
 					} else {
-						localStorage.removeItem(MANUAL_MODE_KEY);
+						sessionStorage.removeItem(MANUAL_MODE_KEY);
 					}
-					localStorage.setItem(LEGACY_INVERT_KEY, String(effectiveMode !== systemMode));
+					sessionStorage.setItem(LEGACY_INVERT_KEY, String(effectiveMode !== systemMode));
 
 					// console.log('[theme init]', { systemIsDark, stored, invert, effectiveIsDark });
 				} catch (e) {

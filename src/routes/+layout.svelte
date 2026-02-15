@@ -2,17 +2,13 @@
 	import '../lib/styles/index.css'
 	import favicon from '$lib/assets/favicon.svg';
 	import { setContext, onMount } from 'svelte';
-	import type { Layout, ThemeContext, Viewport } from '$lib/types';
+	import type { Layout, Viewport } from '$lib/types';
 	import { Spring } from 'svelte/motion';
 	import { deriveLayout, scaleMain, scaleSide } from '$lib/utils/layout';
 	import Navbar from '../components/NavbarY.svelte';
-	import { adaptiveTheme } from '$lib/systemTheme';
+	import { theme } from '$lib/theme';
 
 	let { children } = $props();
-
-	// theme (reactive getter/setter object)
-	let theme: ThemeContext = adaptiveTheme();
-	setContext('theme', theme);
 
 	$effect(() => {
 		if (typeof document === 'undefined') return;

@@ -1,6 +1,6 @@
 export type Mode = 'dark' | 'light';
 
-export interface ThemeContext {
+export interface Theme {
 	current: Mode; // yes, this is correct even if implemented via get/set
 }
 

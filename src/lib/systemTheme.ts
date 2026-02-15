@@ -3,9 +3,13 @@ import { browser } from '$app/environment';
 
 type Mode = 'dark' | 'light';
 type MaybeMode = Mode | null;
+type ThemeMessage =
+	| { type: 'request'; source: string }
+	| { type: 'state'; source: string; manualMode: MaybeMode };
 
 const LEGACY_INVERT_KEY = 'theme-invert';
 const MANUAL_MODE_KEY = 'theme-manual-mode';
+const THEME_CHANNEL = 'theme-sync';
 
 function toMode(systemIsDark: boolean): Mode {
 	return systemIsDark ? 'dark' : 'light';
@@ -18,6 +22,13 @@ function opposite(mode: Mode): Mode {
 function parseMode(value: string | null): MaybeMode {
 	if (value === 'dark' || value === 'light') return value;
 	return null;
+}
+
+function getTabId(): string {
+	if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+		return crypto.randomUUID();
+	}
+	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 export function normalizeManualMode(systemMode: Mode, manualMode: MaybeMode): MaybeMode {
@@ -34,11 +45,11 @@ export function resolveEffectiveMode(systemMode: Mode, manualMode: MaybeMode): M
 }
 
 function readStoredManualMode(systemMode: Mode): MaybeMode {
-	const storedManualMode = parseMode(localStorage.getItem(MANUAL_MODE_KEY));
+	const storedManualMode = parseMode(sessionStorage.getItem(MANUAL_MODE_KEY));
 	if (storedManualMode) return storedManualMode;
 
 	// Legacy fallback: "invert=true" means "opposite of current system mode".
-	const legacyInvert = localStorage.getItem(LEGACY_INVERT_KEY) === 'true';
+	const legacyInvert = sessionStorage.getItem(LEGACY_INVERT_KEY) === 'true';
 	return legacyInvert ? opposite(systemMode) : null;
 }
 
@@ -48,13 +59,13 @@ function persistStoredThemeState(systemMode: Mode, manualMode: MaybeMode): Maybe
 	const invert = effectiveMode !== systemMode;
 
 	if (normalizedManualMode) {
-		localStorage.setItem(MANUAL_MODE_KEY, normalizedManualMode);
+		sessionStorage.setItem(MANUAL_MODE_KEY, normalizedManualMode);
 	} else {
-		localStorage.removeItem(MANUAL_MODE_KEY);
+		sessionStorage.removeItem(MANUAL_MODE_KEY);
 	}
 
 	// Keep legacy key in sync for backward compatibility and prepaint fallback.
-	localStorage.setItem(LEGACY_INVERT_KEY, String(invert));
+	sessionStorage.setItem(LEGACY_INVERT_KEY, String(invert));
 	return normalizedManualMode;
 }
 
@@ -72,8 +83,15 @@ export function adaptiveTheme() {
 	let systemMode = toMode(media.matches);
 	let manualMode = readStoredManualMode(systemMode);
 	manualMode = persistStoredThemeState(systemMode, manualMode);
+	const tabId = getTabId();
+	const channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(THEME_CHANNEL) : null;
 
 	let notify = () => {};
+	const broadcastState = () => {
+		if (!channel) return;
+		const message: ThemeMessage = { type: 'state', source: tabId, manualMode };
+		channel.postMessage(message);
+	};
 
 	const subscribe = createSubscriber((update) => {
 		notify = update;
@@ -81,30 +99,34 @@ export function adaptiveTheme() {
 		const handler = (e: MediaQueryListEvent) => {
 			systemMode = toMode(e.matches);
 			manualMode = persistStoredThemeState(systemMode, manualMode);
+			broadcastState();
 			update();
 		};
 
-		const onStorage = (e: StorageEvent) => {
-			if (e.key === MANUAL_MODE_KEY) {
-				manualMode = normalizeManualMode(systemMode, parseMode(e.newValue));
-				update();
+		const onMessage = (event: MessageEvent<ThemeMessage>) => {
+			const message = event.data;
+			if (!message || message.source === tabId) return;
+
+			if (message.type === 'request') {
+				broadcastState();
 				return;
 			}
 
-			// Legacy cross-tab sync support for older tabs still writing invert.
-			if (e.key === LEGACY_INVERT_KEY && localStorage.getItem(MANUAL_MODE_KEY) === null) {
-				const legacyInvert = e.newValue === 'true';
-				manualMode = legacyInvert ? opposite(systemMode) : null;
-				update();
-			}
+			if (message.type !== 'state') return;
+			const nextManualMode = normalizeManualMode(systemMode, message.manualMode);
+			if (nextManualMode === manualMode) return;
+
+			manualMode = persistStoredThemeState(systemMode, nextManualMode);
+			update();
 		};
 
 		media.addEventListener('change', handler);
-		window.addEventListener('storage', onStorage);
+		channel?.addEventListener('message', onMessage);
+		channel?.postMessage({ type: 'request', source: tabId } satisfies ThemeMessage);
 
 		return () => {
 			media.removeEventListener('change', handler);
-			window.removeEventListener('storage', onStorage);
+			channel?.removeEventListener('message', onMessage);
 		};
 	});
 
@@ -117,6 +139,7 @@ export function adaptiveTheme() {
 		set current(mode: Mode) {
 			manualMode = deriveManualModeFromUserChoice(systemMode, mode);
 			manualMode = persistStoredThemeState(systemMode, manualMode);
+			broadcastState();
 			notify();
 		}
 	};
