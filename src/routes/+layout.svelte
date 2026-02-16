@@ -9,7 +9,7 @@
 	import { theme } from '$lib/theme';
 
 	const MIN_LAYOUT_WIDTH = 320;
-	const MIN_LAYOUT_HEIGHT = 700;
+	const MIN_LAYOUT_HEIGHT = 455;
 
 	let { children } = $props();
 
