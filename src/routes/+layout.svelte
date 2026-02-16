@@ -8,6 +8,9 @@
 	import Navbar from '../components/NavbarY.svelte';
 	import { theme } from '$lib/theme';
 
+	const MIN_LAYOUT_WIDTH = 320;
+	const MIN_LAYOUT_HEIGHT = 700;
+
 	let { children } = $props();
 
 	$effect(() => {
@@ -20,7 +23,8 @@
 	let viewport: Viewport = $state({ width: 0 });
 	setContext('viewport', viewport);
 
-	let computedLayout = $derived(deriveLayout(viewport.width));
+	let boundedWidth = $derived(Math.max(viewport.width, MIN_LAYOUT_WIDTH));
+	let computedLayout = $derived(deriveLayout(boundedWidth));
 
 	const layout: Layout = {
 		get mode() {
@@ -41,8 +45,8 @@
 
 	onMount(() => {
 		// Set initial values without animation
-		webWidth.set(scaleMain(viewport.width), { instant: true });
-		artWidth.set(scaleSide(viewport.width), { instant: true });
+		webWidth.set(scaleMain(boundedWidth), { instant: true });
+		artWidth.set(scaleSide(boundedWidth), { instant: true });
 	});
 
 	$effect(() => {
@@ -58,7 +62,10 @@
 
 <svelte:window bind:innerWidth={viewport.width} />
 {#if viewport.width > 0}
-	<div class="flex h-dvh w-full">
+	<div
+		class="flex h-dvh w-full overflow-auto"
+		style="min-width: {MIN_LAYOUT_WIDTH}px; min-height: {MIN_LAYOUT_HEIGHT}px;"
+	>
 		<!-- Mainbar: Navigation -->
 		{#if viewport.width > 700 || webWidth.current > 0}
 			<Navbar width={webWidth.current} />
