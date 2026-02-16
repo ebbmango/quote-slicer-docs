@@ -60,11 +60,22 @@ html.dark body {
 	transition-timing-function: var(--ui-transition-timing-function);
 }
 
+.prose-transition,
 .prose-transition *,
 .prose-transition *::before,
 .prose-transition *::after,
 .prose-transition *::marker {
-	transition-property: color, background-color, border-color, fill, stroke;
-	transition-duration: var(--ui-transition-duration);
-	transition-timing-function: var(--ui-transition-timing-function);
+	transition:
+		color var(--ui-transition-duration) var(--ui-transition-timing-function),
+		background-color var(--ui-transition-duration) var(--ui-transition-timing-function),
+		border-color var(--ui-transition-duration) var(--ui-transition-timing-function),
+		text-decoration-color var(--ui-transition-duration) var(--ui-transition-timing-function),
+		fill var(--ui-transition-duration) var(--ui-transition-timing-function),
+		stroke var(--ui-transition-duration) var(--ui-transition-timing-function) !important;
+}
+
+.prose-transition p,
+.prose-transition li,
+.prose-transition li > p {
+	color: var(--tw-prose-body);
 }
