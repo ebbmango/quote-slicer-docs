@@ -12,23 +12,23 @@
 <button
 	type="button"
 	aria-expanded={open}
-	class="group flex w-full items-center justify-between font-inter text-[14px] font-medium transition-colors duration-400"
+	class="group flex w-full items-center justify-between font-inter text-[14px] font-medium"
 	onclick={() => (open = !open)}
 >
-		<span class="group-hover:translate-x-2 group-hover:text-(--acc) transition-[color,translate] duration-400">
+		<span class="ui-link-transition group-hover:translate-x-2 group-hover:text-(--acc)">
 			{section.title.toUpperCase()}
 		</span>
-	<div class="duration-400 opacity-30" class:rotate-180={open} class:opacity-60={open}>
+	<div class="ui-transform-opacity-transition opacity-30" class:rotate-180={open} class:opacity-60={open}>
 		<Fa icon={faChevronDown} />
 	</div>
 </button>
 <ul
 	bind:this={element}
-	class="acc-cycle ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom] duration-400 fade-bottom"
+	class="ui-layout-transition acc-cycle ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom,margin-top] fade-bottom"
 	style:height={open && element ? `${element.scrollHeight + 28}px` : '0px'}
 	style:padding-bottom={open ? '28px' : '0'}
 	style:margin-bottom={open ? '0' : '28px'}
-	class:mt-4={open}
+	style:margin-top={open ? '16px' : '0'}
 >
 	{#each section.children as { slug, title }}
 		<li>

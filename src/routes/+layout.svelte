@@ -64,7 +64,7 @@
 			<Navbar width={webWidth.current} />
 		{/if}
 
-		<main class="colors-transition flex w-full flex-col items-center bg-white dark:bg-umbra">
+		<main class="ui-surface-transition flex w-full flex-col items-center bg-white dark:bg-umbra">
 			<article class="prose-transition prose h-full w-full px-8 py-7 dark:prose-invert">
 				{@render children()}
 			</article>
@@ -73,17 +73,9 @@
 		<!-- Sidebar: Contents -->
 		{#if viewport.width >= 1220 || artWidth.current > 0}
 			<aside
-				class="colors-transition contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
+				class="ui-surface-transition contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
 				style="width: {artWidth.current}px; min-width: {artWidth.current}px; flex: 0 0 auto; overflow: hidden;"
 			></aside>
 		{/if}
 	</div>
 {/if}
-
-<style>
-	.colors-transition {
-		transition:
-			color 400ms,
-			background-color 400ms;
-	}
-</style>

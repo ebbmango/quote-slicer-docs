@@ -4,7 +4,7 @@
 
 <a
 	href={slug}
-	class="block w-full transition-[color,translate] duration-400 hover:translate-x-1 hover:text-(--acc)"
+	class="ui-link-transition block w-full hover:translate-x-1 hover:text-(--acc)"
 >
 	{title}
 </a>

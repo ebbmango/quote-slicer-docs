@@ -15,7 +15,7 @@
 
 <nav
 	aria-label="Docs navigation"
-	class="h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 duration-400 dark:bg-noctis dark:text-gray-300"
+	class="ui-surface-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
 	<a href={resolve('/')} class="absolute top-0 mt-6 flex w-full justify-center">

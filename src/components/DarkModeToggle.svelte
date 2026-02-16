@@ -9,17 +9,17 @@
 </script>
 
 <div
-	class="group bg-gray-10 absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full duration-500 dark:rotate-180"
+	class="group bg-gray-10 absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full transition-transform duration-500 dark:rotate-180"
 >
 	<button
 		onclick={toggle}
-		class="duration-500 group-hover:-translate-y-0.5 group-hover:scale-115 dark:-rotate-180"
+		class="transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-115 dark:-rotate-180"
 	>
 		<Fa icon={faSunBright} class="text-2xl text-amber-500" />
 	</button>
 	<button
 		onclick={toggle}
-		class="duration-500 group-hover:translate-y-0.5 group-hover:scale-115 dark:-rotate-180"
+		class="transition-transform duration-500 group-hover:translate-y-0.5 group-hover:scale-115 dark:-rotate-180"
 	>
 		<Fa icon={faMoon} class="text-xl text-gray-400" />
 	</button>
