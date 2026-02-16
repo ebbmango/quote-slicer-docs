@@ -27,13 +27,9 @@ html.dark body {
 	color: white;
 }
 
-.transition-settings {
-	transition:
-		color 300ms,
-		background-color 300ms,
-		translate 250ms,
-		height 400ms,
-		padding 400ms,
-		margin 400ms;
-	}
-
+.prose-transition,
+.prose-transition :where(*, *::before, *::after) {
+	transition-property: color, background-color, border-color, fill, stroke;
+	transition-duration: 400ms;
+	transition-timing-function: ease;
+}

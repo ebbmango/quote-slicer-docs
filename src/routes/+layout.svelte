@@ -64,8 +64,8 @@
 			<Navbar width={webWidth.current} />
 		{/if}
 
-		<main class="flex w-full flex-col items-center bg-white duration-300 dark:bg-umbra">
-			<article class="prose h-full w-full px-8 py-7 duration-300 dark:prose-invert">
+		<main class="colors-transition flex w-full flex-col items-center bg-white dark:bg-umbra">
+			<article class="prose-transition prose h-full w-full px-8 py-7 dark:prose-invert">
 				{@render children()}
 			</article>
 		</main>
@@ -83,7 +83,7 @@
 <style>
 	.colors-transition {
 		transition:
-			color 300ms,
-			background-color 300ms;
+			color 400ms,
+			background-color 400ms;
 	}
 </style>
