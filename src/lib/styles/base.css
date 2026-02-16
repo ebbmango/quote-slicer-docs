@@ -43,6 +43,12 @@ html.dark body {
 	transition-timing-function: var(--ui-transition-timing-function);
 }
 
+.ui-gradient-transition {
+	transition-property: --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity;
+	transition-duration: var(--ui-transition-duration);
+	transition-timing-function: var(--ui-transition-timing-function);
+}
+
 .ui-link-transition {
 	transition-property: color, translate, transform;
 	transition-duration: var(--ui-transition-duration);

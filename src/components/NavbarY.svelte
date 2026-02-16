@@ -5,18 +5,22 @@
 	import Navlink from './Navigation/Navlink.svelte';
 	import Logo from './Logo.svelte';
 	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
 
 	type Props = { width: number };
 
 	let { width }: Props = $props();
 	let viewportHeight = $state(0);
+	let menuScroller: HTMLDivElement | null = $state(null);
+	let showTopFade = $state(false);
+	let showBottomFade = $state(false);
 
 	const sections = docsStructure;
 	const NAV_MIN_HEIGHT = 560;
 	const NAV_MAX_HEIGHT = 900;
 	const SAFE_MARGIN = 8;
 	const LOGO_TOP = 24;
-	const LOGO_HEIGHT = 68;
+	const LOGO_HEIGHT = 50;
 	const TOGGLE_HEIGHT = 80;
 	const TOGGLE_VERTICAL_MARGIN = 4;
 	const MENU_GAP_MIN = 2;
@@ -25,7 +29,9 @@
 	const MENU_SHIFT_MAX = -32;
 	const MENU_PADDING_MIN = 12;
 	const MENU_PADDING_MAX = 36;
-	const BOTTOM_SAFE_EXTRA = 4;
+	const BOTTOM_SAFE_EXTRA = 30;
+	const SCROLL_EDGE_FADE = 28;
+	const SCROLLBAR_CLEARANCE = 14;
 
 	const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 	const lerp = (min: number, max: number, t: number) => min + (max - min) * t;
@@ -44,6 +50,33 @@
 	);
 	// Keep the scroll area clear of the toggle/footer stack near the bottom.
 	let menuBottomInset = $derived(footerHeight + BOTTOM_SAFE_EXTRA);
+
+	const updateScrollFades = () => {
+		if (!menuScroller) return;
+		const maxScrollTop = Math.max(menuScroller.scrollHeight - menuScroller.clientHeight, 0);
+		showTopFade = menuScroller.scrollTop > 0;
+		showBottomFade = menuScroller.scrollTop < maxScrollTop;
+	};
+
+	onMount(() => {
+		const scroller = menuScroller;
+		if (!scroller) return;
+		updateScrollFades();
+		const resizeObserver = new ResizeObserver(updateScrollFades);
+		resizeObserver.observe(scroller);
+		if (scroller.firstElementChild instanceof HTMLElement) {
+			resizeObserver.observe(scroller.firstElementChild);
+		}
+		return () => resizeObserver.disconnect();
+	});
+
+	$effect(() => {
+		viewportHeight;
+		menuTop;
+		menuBottomInset;
+		menuPaddingY;
+		queueMicrotask(updateScrollFades);
+	});
 </script>
 
 <svelte:window bind:innerHeight={viewportHeight} />
@@ -59,22 +92,41 @@
 
 	<section
 		aria-label="Articles"
-		class="hide-bar relative w-full overflow-scroll px-7"
-		style="margin-top: {menuTop}px; max-height: calc(100% - {menuTop}px - {menuBottomInset}px); transform: translateY({menuShift}px); padding-top: {menuPaddingY}px; padding-bottom: {menuPaddingY}px;"
+		class="relative w-full overflow-hidden px-7"
+		style="margin-top: {menuTop}px; max-height: calc(100% - {menuTop}px - {menuBottomInset}px); transform: translateY({menuShift}px);"
 	>
-		<ul
-			class="acc-cycle hide-bar flex h-full w-full flex-col overflow-scroll overflow-x-hidden text-nowrap"
+		<div
+			bind:this={menuScroller}
+			class="hide-bar h-full overflow-y-scroll overflow-x-hidden"
+			style="padding-top: {menuPaddingY}px; padding-bottom: {menuPaddingY}px; padding-right: {SCROLLBAR_CLEARANCE}px; margin-right: -{SCROLLBAR_CLEARANCE}px; scrollbar-gutter: stable;"
+			onscroll={updateScrollFades}
 		>
-			{#each sections as section, i}
-				<li>
-					{#if section.children}
-						<Dropdown {section} />
-					{:else}
-						<Navlink {section} />
-					{/if}
-				</li>
-			{/each}
-		</ul>
+			<ul class="acc-cycle flex w-full flex-col text-nowrap">
+				{#each sections as section, i}
+					<li>
+						{#if section.children}
+							<Dropdown {section} />
+						{:else}
+							<Navlink {section} />
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		</div>
+		{#if showTopFade}
+			<div
+				aria-hidden="true"
+				class="ui-gradient-transition pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-gray-50 to-transparent dark:from-noctis"
+				style="height: {SCROLL_EDGE_FADE}px;"
+			></div>
+		{/if}
+		{#if showBottomFade}
+			<div
+				aria-hidden="true"
+				class="ui-gradient-transition pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-gray-50 to-transparent dark:from-noctis"
+				style="height: {SCROLL_EDGE_FADE}px;"
+			></div>
+		{/if}
 	</section>
 	<footer class="absolute bottom-0 flex w-full justify-center" style="height: {footerHeight}px;">
 		<DarkModeToggle />
