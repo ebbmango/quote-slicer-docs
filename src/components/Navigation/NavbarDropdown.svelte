@@ -43,13 +43,13 @@
 		-webkit-mask-image: linear-gradient(
 			to bottom,
 			black 0,
-    		black calc(100% - 28px),
+    		black calc(100% - 35px),
     		transparent 100%
 		);
 		mask-image: linear-gradient(
 			to bottom,
 			black 0,
-			black calc(100% - 28px),
+			black calc(100% - 35px),
 			transparent 100%
 		);
 	}
