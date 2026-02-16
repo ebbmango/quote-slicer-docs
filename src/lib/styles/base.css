@@ -2,7 +2,7 @@
 :root {
 	color-scheme: light;
 	--ui-transition-duration: 400ms;
-	--ui-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	--ui-transition-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
 	--default-transition-duration: var(--ui-transition-duration);
 	--default-transition-timing-function: var(--ui-transition-timing-function);
 }
@@ -60,22 +60,61 @@ html.dark body {
 	transition-timing-function: var(--ui-transition-timing-function);
 }
 
-.prose-transition,
-.prose-transition *,
-.prose-transition *::before,
-.prose-transition *::after,
-.prose-transition *::marker {
+.prose-transition {
+	--ui-prose-foreground: #000;
+	color: var(--ui-prose-foreground);
 	transition:
 		color var(--ui-transition-duration) var(--ui-transition-timing-function),
 		background-color var(--ui-transition-duration) var(--ui-transition-timing-function),
 		border-color var(--ui-transition-duration) var(--ui-transition-timing-function),
 		text-decoration-color var(--ui-transition-duration) var(--ui-transition-timing-function),
 		fill var(--ui-transition-duration) var(--ui-transition-timing-function),
-		stroke var(--ui-transition-duration) var(--ui-transition-timing-function) !important;
+		stroke var(--ui-transition-duration) var(--ui-transition-timing-function);
 }
 
-.prose-transition p,
-.prose-transition li,
-.prose-transition li > p {
-	color: var(--tw-prose-body);
+html.dark .prose-transition {
+	--ui-prose-foreground: #fff;
+}
+
+.prose-transition :where(
+	p,
+	li,
+	li > p,
+	a,
+	strong,
+	b,
+	code,
+	kbd,
+	samp,
+	h1,
+	h2,
+	h3,
+	h4,
+	blockquote,
+	dt,
+	figcaption,
+	thead,
+	thead th,
+	tbody,
+	tbody tr,
+	tbody td,
+	tfoot,
+	tfoot td,
+	th,
+	td,
+	ol > li,
+	ul > li
+) {
+	color: inherit !important;
+	transition: none !important;
+}
+
+.prose-transition :where(ol > li, ul > li)::marker {
+	color: inherit !important;
+	transition: none !important;
+}
+
+.prose-transition *::before,
+.prose-transition *::after {
+	transition: none !important;
 }
