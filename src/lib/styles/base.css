@@ -1,8 +1,8 @@
 /* --- Zero-flash baseline: render correctly before JS/hydration --- */
 :root {
 	color-scheme: light;
-	--ui-transition-duration: 400ms;
-	--ui-transition-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+	--ui-transition-duration: 500ms;
+	--ui-transition-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
 	--default-transition-duration: var(--ui-transition-duration);
 	--default-transition-timing-function: var(--ui-transition-timing-function);
 }
