@@ -1,10 +1,7 @@
 <script lang="ts">
-	const { slug, title } = $props();
+	const { path, title } = $props();
 </script>
 
-<a
-	href={slug}
-	class="ui-link-transition block w-full hover:translate-x-1 hover:text-(--acc)"
->
+<a href={path} class="ui-link-transition block w-full hover:translate-x-1 hover:text-(--acc)">
 	{title}
 </a>

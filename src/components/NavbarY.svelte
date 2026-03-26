@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import { docsStructure } from '$lib/constants/docs-structure';
 	import DarkModeToggle from './DarkModeToggle.svelte';
 	import Dropdown from './Navigation/NavbarDropdown.svelte';
 	import Logo from './Logo.svelte';
 	import Navlink from './Navigation/Navlink.svelte';
+	import { isSection, worldTree } from '$lib/worldTree';
 
 	type Props = { width: number };
 
@@ -14,8 +14,6 @@
 
 	let menuScroller: HTMLDivElement | null = $state(null);
 
-	const navSections = docsStructure;
-	
 	// Prevent fade on scrollbar
 	let showTopFade = $state(false);
 	let showBottomFade = $state(false);
@@ -73,7 +71,11 @@
 	class="ui-surface-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden bg-gray-50 dark:bg-noctis dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
-	<a href={resolve('/')} class="absolute top-0 flex w-full justify-center" style="margin-top: {LOGO_TOP}px;">
+	<a
+		href={resolve('/')}
+		class="absolute top-0 flex w-full justify-center"
+		style="margin-top: {LOGO_TOP}px;"
+	>
 		<Logo />
 	</a>
 
@@ -84,17 +86,17 @@
 	>
 		<div
 			bind:this={menuScroller}
-			class="hide-bar h-full overflow-y-scroll overflow-x-hidden"
+			class="hide-bar h-full overflow-x-hidden overflow-y-scroll"
 			style="padding-right: {SCROLLBAR_CLEARANCE}px; margin-right: -{SCROLLBAR_CLEARANCE}px; scrollbar-gutter: stable;"
 			onscroll={updateScrollFades}
 		>
 			<ul class="acc-cycle flex w-full flex-col text-nowrap">
-				{#each navSections as section}
+				{#each worldTree as node}
 					<li>
-						{#if section.children}
-							<Dropdown {section} />
+						{#if isSection(node)}
+							<Dropdown section={node} />
 						{:else}
-							<Navlink {section} />
+							<Navlink article={node} />
 						{/if}
 					</li>
 				{/each}

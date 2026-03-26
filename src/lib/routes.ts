@@ -1,0 +1,1 @@
+const pages = import.meta.glob('/src/routes/**/+page.svx', { eager: true });

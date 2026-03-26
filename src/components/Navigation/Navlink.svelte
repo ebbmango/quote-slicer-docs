@@ -1,10 +1,10 @@
 <script lang="ts">
-	const { section } = $props();
+	const { article } = $props();
 </script>
 
 <a
-	href={section.slug}
-	class="ui-link-transition font-inter mb-7 block text-[14px] font-medium hover:translate-x-2 hover:text-(--acc)"
+	href={article.path}
+	class="ui-link-transition mb-7 block font-inter text-[14px] font-medium hover:translate-x-2 hover:text-(--acc)"
 >
-	{section.title.toUpperCase()}
+	{article.title.toUpperCase()}
 </a>

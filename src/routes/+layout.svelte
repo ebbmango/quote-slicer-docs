@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '../lib/styles/index.css'
+	import '../lib/styles/index.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { setContext, onMount } from 'svelte';
 	import type { Layout, Viewport } from '$lib/types';
