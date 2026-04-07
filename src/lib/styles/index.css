@@ -12,3 +12,14 @@
 
 @plugin '@tailwindcss/typography';
 @custom-variant dark (&:where(.dark, .dark *));
+
+.hidebar {
+	overflow-y: scroll;
+	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+.hidebar::-webkit-scrollbar {
+	/* WebKit */
+	width: 0;
+	height: 0;
+}

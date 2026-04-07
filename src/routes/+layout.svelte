@@ -54,6 +54,8 @@
 		webWidth.target = layout.webWidth;
 		artWidth.target = layout.artWidth;
 	});
+
+	let showChapters = $derived(viewport.width >= 1220 || artWidth.current > 0);
 </script>
 
 <svelte:head>
@@ -71,14 +73,19 @@
 			<Navbar width={webWidth.current} />
 		{/if}
 
+		<!-- todo: keep scrollbar if content sidebar doesn't exist -->
 		<main class="ui-surface-transition flex w-full flex-col items-center bg-white dark:bg-umbra">
-			<article class="prose-transition prose h-full w-full px-8 py-7 dark:prose-invert">
+			<!-- add this once you fix the weird placement -->
+			<!-- class:hidebar={showChapters} -->
+			<article
+				class="prose-transition hidebar prose h-dvh w-full overflow-scroll px-8 py-7 dark:prose-invert"
+			>
 				{@render children()}
 			</article>
 		</main>
 
 		<!-- Sidebar: Contents -->
-		{#if viewport.width >= 1220 || artWidth.current > 0}
+		{#if showChapters}
 			<aside
 				class="ui-surface-transition contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
 				style="width: {artWidth.current}px; min-width: {artWidth.current}px; flex: 0 0 auto; overflow: hidden;"
