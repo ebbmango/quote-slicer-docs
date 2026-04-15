@@ -106,7 +106,7 @@
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto;"
 >
 	<span
-		class="mb-4 bg-noctis px-2 text-gray-50 opacity-60 duration-500 dark:bg-gray-300 dark:text-noctis"
+		class="mb-4 bg-noctis px-2 text-gray-50 opacity-20 duration-500 dark:bg-gray-300 dark:text-noctis"
 		>{headings?.title}</span
 	>
 
