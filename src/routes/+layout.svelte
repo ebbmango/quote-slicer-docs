@@ -7,6 +7,7 @@
 	import { deriveLayout, scaleMain, scaleSide } from '$lib/utils/layout';
 	import Navbar from '../components/NavbarY.svelte';
 	import { theme } from '$lib/theme';
+	import Sidebar from '../components/Sidebar.svelte';
 
 	const MIN_LAYOUT_WIDTH = 320;
 	const MIN_LAYOUT_HEIGHT = 455;
@@ -86,10 +87,13 @@
 
 		<!-- Sidebar: Contents -->
 		{#if showChapters}
-			<aside
-				class="ui-surface-transition contents-sidebar h-vh bg-gray-50 dark:bg-noctis"
-				style="width: {artWidth.current}px; min-width: {artWidth.current}px; flex: 0 0 auto; overflow: hidden;"
-			></aside>
+			<Sidebar width={artWidth.current} />
 		{/if}
 	</div>
 {/if}
+
+<style>
+	article :global(:is(h1, h2, h3, h4, h5, h6)) {
+		scroll-margin-top: 1rem;
+	}
+</style>

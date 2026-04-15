@@ -82,35 +82,36 @@ html.dark .prose-transition {
 	--ui-prose-foreground: #fff;
 }
 
-.prose-transition :where(
-	p,
-	li,
-	li > p,
-	a,
-	strong,
-	b,
-	code,
-	kbd,
-	samp,
-	h1,
-	h2,
-	h3,
-	h4,
-	blockquote,
-	dt,
-	figcaption,
-	thead,
-	thead th,
-	tbody,
-	tbody tr,
-	tbody td,
-	tfoot,
-	tfoot td,
-	th,
-	td,
-	ol > li,
-	ul > li
-) {
+.prose-transition
+	:where(
+		p,
+		li,
+		li > p,
+		a,
+		strong,
+		b,
+		code,
+		kbd,
+		samp,
+		h1,
+		h2,
+		h3,
+		h4,
+		blockquote,
+		dt,
+		figcaption,
+		thead,
+		thead th,
+		tbody,
+		tbody tr,
+		tbody td,
+		tfoot,
+		tfoot td,
+		th,
+		td,
+		ol > li,
+		ul > li
+	) {
 	color: inherit !important;
 	transition: none !important;
 }
@@ -118,6 +119,36 @@ html.dark .prose-transition {
 .prose-transition :where(ol > li, ul > li)::marker {
 	color: inherit !important;
 	transition: none !important;
+}
+
+.prose-transition :where(hr, blockquote, table, thead, tbody, tr, th, td) {
+	transition:
+		border-color var(--ui-transition-duration) var(--ui-transition-timing-function),
+		background-color var(--ui-transition-duration) var(--ui-transition-timing-function);
+}
+
+.prose-transition :where(hr) {
+	border-color: color-mix(in srgb, var(--color-silver) 30%, transparent);
+}
+
+html.dark .prose-transition :where(hr) {
+	border-color: color-mix(in srgb, var(--color-silver) 30%, transparent);
+}
+
+.prose-transition :where(pre) {
+	background-color: var(--color-carbon);
+	transition:
+		background-color var(--ui-transition-duration) var(--ui-transition-timing-function),
+		border-color var(--ui-transition-duration) var(--ui-transition-timing-function);
+}
+
+html.dark .prose-transition :where(pre) {
+	background-color: color-mix(in srgb, var(--color-noctis) 72%, black);
+}
+
+.prose-transition :where(pre code) {
+	background-color: transparent;
+	transition: color var(--ui-transition-duration) var(--ui-transition-timing-function) !important;
 }
 
 .prose-transition *::before,

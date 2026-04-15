@@ -1,5 +1,8 @@
 @theme {
 	--font-inter: 'Inter', sans-serif;
+	--font-mono:
+		'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
 	--color-noctis: #1b1b1b;
 	--color-steel: #4a4a4a;
 	--color-umbra: #1f1f1f;
@@ -8,10 +11,4 @@
 	--color-whitesmoke: #f4f4f4;
 	--color-tin: #bebebe;
 	--color-white: #ffffff;
-}
-
-.inter {
-	font-family: 'Inter', sans-serif;
-	font-optical-sizing: auto;
-	font-style: normal;
 }

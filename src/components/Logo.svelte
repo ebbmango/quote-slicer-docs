@@ -4,7 +4,10 @@
 </script>
 
 <div class="flex h-min items-center justify-center gap-2 overflow-hidden text-nowrap">
-	<Fa class="ui-colors-transition text-6xl" icon={faSquareQuote}></Fa>
+	<Fa
+		class="ui-colors-transition text-6xl text-noctis dark:text-gray-300"
+		icon={faSquareQuote}
+	></Fa>
 	<div class="flex flex-col">
 		<span class="ui-colors-transition">Quote Slicer</span>
 		<span class="ui-colors-transition">Docs</span>
