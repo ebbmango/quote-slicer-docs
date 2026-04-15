@@ -58,6 +58,98 @@
 	const { width }: Props = $props();
 
 	let headings = $state<Heading | null>(null);
+	const accentTimers = new WeakMap<HTMLHeadingElement, number>();
+
+	function isHeadingAtScrollTarget(target: HTMLElement, container: HTMLElement) {
+		const targetRect = target.getBoundingClientRect();
+		const containerRect = container.getBoundingClientRect();
+		const scrollMarginTop = Number.parseFloat(getComputedStyle(target).scrollMarginTop || '0');
+		const expectedTop = containerRect.top + scrollMarginTop;
+
+		return Math.abs(targetRect.top - expectedTop) <= 2;
+	}
+
+	function clearHeadingEffects(target: HTMLHeadingElement) {
+		target.classList.remove('toc-target-flash');
+		target.classList.remove('toc-target-accent');
+		target.style.removeProperty('--toc-flash-accent');
+
+		const activeTimer = accentTimers.get(target);
+		if (activeTimer) {
+			window.clearTimeout(activeTimer);
+			accentTimers.delete(target);
+		}
+	}
+
+	function bumpHeading(target: HTMLHeadingElement) {
+		clearHeadingEffects(target);
+
+		void target.offsetWidth;
+		target.classList.add('toc-target-flash');
+
+		target.addEventListener(
+			'animationend',
+			() => {
+				target.classList.remove('toc-target-flash');
+			},
+			{ once: true }
+		);
+	}
+
+	function accentHeading(target: HTMLHeadingElement, source: HTMLElement | null) {
+		const accent = source ? getComputedStyle(source).getPropertyValue('--acc').trim() : '';
+
+		clearHeadingEffects(target);
+		if (accent) {
+			target.style.setProperty('--toc-flash-accent', accent);
+		}
+
+		requestAnimationFrame(() => {
+			target.classList.add('toc-target-accent');
+		});
+
+		const timer = window.setTimeout(() => {
+			target.classList.remove('toc-target-accent');
+			target.style.removeProperty('--toc-flash-accent');
+			accentTimers.delete(target);
+		}, 800);
+
+		accentTimers.set(target, timer);
+	}
+
+	function handleHeadingClick(heading: Heading, event: MouseEvent) {
+		const article = document.querySelector('article');
+		const source = (event.currentTarget as HTMLElement).closest('.tree-item') as HTMLElement | null;
+		const isAtTarget = article
+			? isHeadingAtScrollTarget(heading.element, article as HTMLElement)
+			: false;
+
+		if (isAtTarget) {
+			bumpHeading(heading.element);
+			return;
+		}
+
+		heading.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		accentHeading(heading.element, source);
+	}
+
+	function handleTopClick(event: MouseEvent) {
+		if (!headings?.element) return;
+
+		const article = document.querySelector('article');
+		const source = event.currentTarget as HTMLElement;
+		const isAtTarget = article
+			? isHeadingAtScrollTarget(headings.element, article as HTMLElement)
+			: false;
+
+		if (isAtTarget) {
+			bumpHeading(headings.element);
+			return;
+		}
+
+		headings.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		accentHeading(headings.element, source);
+	}
 
 	$effect(() => {
 		page.url.pathname; // dependency
@@ -85,7 +177,7 @@
 		<button
 			type="button"
 			class="tree-link my-1 w-fit text-left text-sm text-nowrap opacity-60 transition hover:translate-x-1 hover:text-(--acc) hover:opacity-100"
-			onclick={() => heading.element.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+			onclick={(event) => handleHeadingClick(heading, event)}
 		>
 			<span>
 				{heading.title}
@@ -101,14 +193,25 @@
 	</li>
 {/snippet}
 
+<!-- todo: derive whether or not this should be displayed, and hook it to the animation -->
 <aside
 	class="ui-surface-transition contents-sidebar h-vh flex flex-col items-center overflow-scroll bg-gray-50 py-5 font-mono dark:bg-noctis"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto;"
 >
-	<span
-		class="mb-4 bg-noctis px-2 text-gray-50 opacity-20 duration-500 dark:bg-gray-300 dark:text-noctis"
-		>{headings?.title}</span
+	<button
+		type="button"
+		class="mb-4 bg-noctis px-2 text-gray-50 opacity-20 dark:bg-gray-300 dark:text-noctis dark:hover:opacity-70"
+		style:transition-property={'background-color, border-color, color, opacity'}
+		style:transition-duration={'var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration), 180ms'}
+		style:transition-timing-function={
+			'var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function), ease-out'
+		}
+		onpointerenter={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.5')}
+		onpointerleave={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.2')}
+		onclick={handleTopClick}
 	>
+		{headings?.title}
+	</button>
 
 	{#if headings}
 		<ul class="contents-tree flex flex-col gap-3">
