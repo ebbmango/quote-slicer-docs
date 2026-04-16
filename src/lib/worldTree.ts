@@ -19,14 +19,23 @@ function toDisplayName(kebab: string) {
 		.join(' ');
 }
 
-const routeFolders = /\(\d{2}\)\//g;
-const articlePaths = import.meta.glob('/src/routes/**/+page.svx', { eager: true });
+const routeGroupPattern = /\([^/]+\)\//g;
+const pageModules = import.meta.glob('/src/routes/**/+page.svx', { eager: true });
+const articlePrefix = '/src/routes/';
+const articleSuffix = '/+page.svx';
 
-const websitePaths = Object.entries(articlePaths).map((path) =>
-	path[0].slice(17, -10).replace(routeFolders, '')
-);
+const websitePaths = Object.keys(pageModules)
+	.filter((path) => path.includes('/(articles)/'))
+	.sort()
+	.map((path) => normalizeRoutePath(path));
 
 export const worldTree = buildWorldTree(websitePaths);
+
+function normalizeRoutePath(filePath: string) {
+	return filePath
+		.slice(articlePrefix.length, -articleSuffix.length)
+		.replace(routeGroupPattern, '');
+}
 
 function buildWorldTree(appRoutes: string[]): (Article | Section)[] {
 	const worldTree: (Article | Section)[] = [];
