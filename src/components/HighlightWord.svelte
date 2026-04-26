@@ -6,6 +6,7 @@
 		active?: boolean;
 		delay?: number;
 		duration?: number;
+		padding?: string;
 		fillColor?: string;
 		activeTextColor?: string;
 		inactiveTextColor?: string;
@@ -18,6 +19,7 @@
 		active = false,
 		delay = 300,
 		duration = 300,
+		padding = '3px',
 		fillColor = '#ff0037',
 		activeTextColor = '#ffffff',
 		inactiveTextColor = '#000000',
@@ -59,7 +61,7 @@
 
 <span
 	class={`highlight-back ${displayedActive ? 'active' : ''}`}
-	style={`--highlight-duration: ${duration}ms; --highlight-fill: ${fillColor}; --highlight-text-active: ${activeTextColor}; --highlight-text-inactive: ${inactiveTextColor};`}
+	style={`--highlight-duration: ${duration}ms; --highlight-padding: ${padding}; --highlight-fill: ${fillColor}; --highlight-text-active: ${activeTextColor}; --highlight-text-inactive: ${inactiveTextColor};`}
 >
 	<span class={`highlight-word ${className}`}>
 		{#if text}
@@ -88,7 +90,7 @@
 
 	.highlight-word {
 		display: inline-block;
-		padding: 3px;
+		padding: var(--highlight-padding);
 		color: transparent;
 		background-image: linear-gradient(
 			to right,

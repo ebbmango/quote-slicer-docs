@@ -11,6 +11,7 @@
 			active: { control: 'boolean' },
 			delay: { control: 'number' },
 			duration: { control: 'number' },
+			padding: { control: 'text' },
 			fillColor: { control: 'color' },
 			activeTextColor: { control: 'color' },
 			inactiveTextColor: { control: 'color' }
@@ -20,6 +21,7 @@
 			active: false,
 			delay: 300,
 			duration: 300,
+			padding: '3px',
 			fillColor: '#ff0037',
 			activeTextColor: '#ffffff',
 			inactiveTextColor: '#000000'

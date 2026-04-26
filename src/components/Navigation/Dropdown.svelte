@@ -1,24 +1,47 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
+	import HighlightWord from '../HighlightWord.svelte';
 	import Droplink from './Droplink.svelte';
+	import { navigationHighlightWordProps } from './highlightWordProps';
 
 	let open = $state(false);
 	let element: HTMLUListElement | null = $state(null);
 
 	const { section } = $props();
+	let title = $derived(section.title.toUpperCase());
+	let active = $state(false);
+
+	const activate = () => {
+		active = true;
+	};
+
+	const deactivate = () => {
+		active = false;
+	};
 </script>
 
 <button
 	type="button"
 	aria-expanded={open}
-	class="group flex w-full items-center justify-between opacity-40 duration-500 hover:opacity-100"
+	onmouseenter={activate}
+	onfocus={activate}
+	onmouseleave={deactivate}
+	onblur={deactivate}
+	class="group flex w-full items-center justify-between opacity-40 duration-500 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
 	onclick={() => (open = !open)}
 >
-	<span
-		class="ui-link-transition font-mono font-light group-hover:translate-x-2 group-hover:text-(--acc)"
-	>
-		{section.title.toUpperCase()}
+	<span class="ui-link-transition group-hover:translate-x-2 group-focus-visible:translate-x-2">
+		<HighlightWord
+			{active}
+			class="font-mono font-light"
+			fillColor={navigationHighlightWordProps.fillColor}
+			delay={navigationHighlightWordProps.delay}
+			duration={navigationHighlightWordProps.duration}
+			padding={navigationHighlightWordProps.padding}
+		>
+			{title}
+		</HighlightWord>
 	</span>
 	<div
 		class="ui-transform-opacity-transition opacity-30"
