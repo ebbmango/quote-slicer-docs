@@ -58,6 +58,18 @@
 	},
 	"dependencies": {
 		"@awesome.me/kit-d1ffd5714e": "^1.0.2",
+		"@fortawesome/free-brands-svg-icons": "^7.2.0",
+		"@fortawesome/pro-duotone-svg-icons": "^7.2.0",
+		"@fortawesome/pro-light-svg-icons": "^7.2.0",
+		"@fortawesome/pro-thin-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-duotone-light-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-duotone-regular-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-duotone-solid-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-duotone-thin-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-light-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-regular-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-solid-svg-icons": "^7.2.0",
+		"@fortawesome/sharp-thin-svg-icons": "^7.2.0",
 		"svelte-fa": "^4.0.4"
 	}
 }
