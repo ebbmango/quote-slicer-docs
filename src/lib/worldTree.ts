@@ -27,11 +27,16 @@ const articlePrefix = '/src/routes/';
 const articleSuffix = '/+page.svx';
 
 const websitePaths = Object.keys(pageModules)
-	.filter((path) => path.includes('/(articles)/'))
+	.filter((path) => path.includes('/(article-shell)/(docs)/'))
 	.sort()
 	.map((path) => normalizeRoutePath(path));
 
 export const worldTree = buildWorldTree(websitePaths);
+export const diaryNavItem: Article = {
+	title: 'Development Diary',
+	path: '/development-diary',
+	accentIndex: worldTree.length % 9
+};
 const articleDirectory = new Map<string, Article>();
 
 for (const item of worldTree) {
@@ -46,7 +51,10 @@ for (const item of worldTree) {
 }
 
 export function findArticleByPath(path: string) {
-	return articleDirectory.get(path);
+	return (
+		articleDirectory.get(path) ??
+		(path === diaryNavItem.path || path.startsWith(`${diaryNavItem.path}/`) ? diaryNavItem : undefined)
+	);
 }
 
 function normalizeRoutePath(filePath: string) {

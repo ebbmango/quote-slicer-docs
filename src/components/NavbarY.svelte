@@ -5,7 +5,7 @@
 	import Dropdown from './Navigation/Dropdown.svelte';
 	import Logo from './Logo.svelte';
 	import Navlink from './Navigation/Navlink.svelte';
-	import { isSection, worldTree } from '$lib/worldTree';
+	import { diaryNavItem, isSection, worldTree } from '$lib/worldTree';
 
 	type Props = { width: number };
 
@@ -100,6 +100,9 @@
 						{/if}
 					</li>
 				{/each}
+				<li class={`acc-${diaryNavItem.accentIndex}`}>
+					<Navlink article={diaryNavItem} />
+				</li>
 			</ul>
 		</div>
 		<!-- Fade Overlays -->

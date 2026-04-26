@@ -1,0 +1,127 @@
+---
+title: Reactive Theme
+date: 2026-04-26
+summary: How the documentation site theme reacts to OS and user changes without losing synchronization across tabs.
+tags:
+  - theme
+  - svelte
+  - architecture
+published: true
+---
+
+# {title}
+
+## Introduction
+
+This documentation website supports two color themes: **light** and **dark**.
+
+### Overview
+
+By default, the application follows the operating system's preferred color scheme. It also reacts to later OS theme changes in real time.
+
+To afford the best user experience, it is also possible to switch between themes irrespective of the current OS preferences.
+
+### Desired Behavior
+
+Many websites implement theme selection as a three-way choice between light, dark, and auto. That approach is straightforward to implement, but it also pushes more state management onto the user.
+
+For this website, the intended UX is simpler: the application always follows OS changes, while still allowing the user to switch themes manually and with ease when desired.
+
+In practice, this means **the theme is determined by the most recent change**, regardless of whether that change came from the OS or from the user. This keeps the interface easy to understand while still respecting system preferences by default.
+
+Although the resulting UX is simple, the implementation is less so, because the application must handle pre-hydration rendering, runtime theme updates, and synchronization across multiple open tabs.
+
+### Necessary Steps
+
+To achieve the desired behavior, multiple functionalities have to be implemented.
+
+###### 1. Follow the system theme by default.
+
+The application should match the user's OS theme on first load. This prevents users who prefer dark mode from being met with a bright interface unexpectedly.
+
+###### 2. React to later OS theme changes.
+
+System theme changes usually reflect the user's broader device preferences, so the application should respect them as they happen. Moreover, since these changes typically occur only once or twice a day, they are infrequent enough that even an unintended switch is unlikely to become disruptive.
+
+###### 3. Share the current theme across all open tabs
+
+Theme changes should propagate across all open tabs and windows of the application so the experience remains consistent everywhere. We don't want a user to change the theme in one tab, only to be unexpectedly met by another tab's bright interface or strained by a darker one.
+
+###### 4. Allow the user to switch themes easily.
+
+Users should be able to change the theme at any time through a clear and accessible control. Because the only thing worse than an unexpected flashbang, which at this point we hope to have solved already, is not knowing how to turn it off.
+
+### Where to find it
+
+These functionalities are implemented across several different files:
+
+1. `src/app.html` applies the OS theme before hydration so the page does not flash in the wrong mode on first paint.
+2. `src/lib/systemTheme.ts` manages the runtime theme state, reacts to both OS and user changes, and synchronizes that state across open tabs with `BroadcastChannel`.
+3. `src/lib/theme.ts` exports a shared theme controller instance for the app.
+4. `src/routes/+layout.svelte` mirrors the current theme onto the root document element.
+5. `src/components/DarkModeToggle.svelte` provides the UI that lets users switch themes manually.
+
+---
+
+## The Deep Dive
+
+With the overall behavior and goals now established, we can begin breaking the system down piece by piece.
+
+Out of the four steps needed to implement this behavior, only two, namely 1 and 3, warrant a deeper explanation. They either rely on more advanced Svelte-specific tools or involve several interconnected pieces, some of which are easily overlooked.
+
+### Theme Initialization
+
+Let us begin with the very first requirement, following the system theme by default.
+
+#### The Shape of the Theme System
+
+The overall architecture of this system will become clearer as we go, but for now it is enough to know that the core theme logic lives in `systemTheme.ts`, specifically in the `adaptiveTheme()` function.
+
+In `theme.ts`, we create and export a single shared theme controller instance by calling `adaptiveTheme()` once and storing the result in `theme`.
+
+After the Svelte application loads and starts running in the browser, `+layout.svelte` reads from the shared theme controller and keeps the root document element in sync with the current theme:
+
+```svelte
+// src/routes/+layout.svelte (lines 16-21)
+
+$effect(() => {
+	if (typeof document === 'undefined') return;
+	const isDark = theme.current === 'dark';
+	document.documentElement.classList.toggle('dark', isDark);
+	document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+});
+```
+
+From this point onwards, the theme is accessible throughout the whole application.
+
+There is, however, a split second in time when this whole logic is momentarily suspended. For one brief moment, the application has no access to its own theme controller, in the interval between the browser's initial render, when the DOM is first created, and Svelte's hydration.
+
+#### Preventing Theme Flicker
+
+Because of that, and in pursuit of the smoothest possible user experience, a workaround is needed to pre-paint the website in the correct theme colors before hydration kicks in.
+
+**This prevents a brief flicker of incorrect colors during the initial page load.** Small detail, sure, but noticeable enough to be worth ironing out.
+
+And after a lengthy exposition, we arrive finally at the short and sweet solution: the script tag in `app.html`.
+
+```svelte
+<script>
+	const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+	document.documentElement.classList.toggle('dark', isDark);
+	document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+</script>
+
+// src/app.html (lines 8-12)
+```
+
+This ensures the correct theme is applied from the very moment the page loads, both through the `dark` class used by Tailwind and through the `color-scheme` value that controls the browser's built-in styling.
+
+---
+
+### The Theme Controller
+
+We now arrive at the core of the theme system: the `adaptiveTheme()` function in `systemTheme.ts`, which implements the runtime theme logic.
+
+Earlier, we identified four requirements needed to achieve the desired behavior. Out of those four, only two really warrant a deeper explanation: reacting to later OS theme changes and synchronizing the theme across multiple open tabs.
+
+Both features rely on slightly more advanced Svelte-specific tools, several interconnected pieces of logic, and a few design decisions whose motivations are not immediately obvious from the code alone.
