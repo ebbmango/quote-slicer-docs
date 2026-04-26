@@ -12,10 +12,12 @@
 <button
 	type="button"
 	aria-expanded={open}
-	class="group flex w-full items-center justify-between font-inter text-[14px] font-medium"
+	class="group flex w-full items-center justify-between opacity-40 duration-500 hover:opacity-100"
 	onclick={() => (open = !open)}
 >
-	<span class="ui-link-transition group-hover:translate-x-2 group-hover:text-(--acc)">
+	<span
+		class="ui-link-transition font-mono font-light group-hover:translate-x-2 group-hover:text-(--acc)"
+	>
 		{section.title.toUpperCase()}
 	</span>
 	<div

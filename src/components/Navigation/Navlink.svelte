@@ -6,7 +6,7 @@
 
 <a
 	href={resolve(article.path)}
-	class="ui-link-transition mb-7 block font-inter text-[14px] font-medium hover:translate-x-2 hover:text-(--acc)"
+	class="mb-7 block font-mono font-light opacity-40 duration-500 hover:translate-x-2 hover:text-(--acc) hover:opacity-100"
 >
 	{article.title.toUpperCase()}
 </a>
