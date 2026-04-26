@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import { tick } from 'svelte';
+	import { findArticleByPath } from '$lib/worldTree';
 
 	type Heading = {
 		title: string | null;
@@ -59,6 +61,14 @@
 
 	let headings = $state<Heading | null>(null);
 	const accentTimers = new WeakMap<HTMLHeadingElement, number>();
+	let currentArticle = $derived(findArticleByPath(normalizePathname(page.url.pathname)));
+
+	function normalizePathname(pathname: string) {
+		if (!base) return pathname || '/';
+
+		const trimmed = pathname.startsWith(base) ? pathname.slice(base.length) : pathname;
+		return trimmed || '/';
+	}
 
 	function isHeadingAtScrollTarget(target: HTMLElement, container: HTMLElement) {
 		const targetRect = target.getBoundingClientRect();
@@ -136,19 +146,7 @@
 	function handleTopClick(event: MouseEvent) {
 		if (!headings?.element) return;
 
-		const article = document.querySelector('article');
-		const source = event.currentTarget as HTMLElement;
-		const isAtTarget = article
-			? isHeadingAtScrollTarget(headings.element, article as HTMLElement)
-			: false;
-
-		if (isAtTarget) {
-			bumpHeading(headings.element);
-			return;
-		}
-
 		headings.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		accentHeading(headings.element, source);
 	}
 
 	$effect(() => {
@@ -200,13 +198,11 @@
 >
 	<button
 		type="button"
-		class="mb-4 bg-noctis px-2 text-gray-50 opacity-20 dark:bg-gray-300 dark:text-noctis dark:hover:opacity-70"
+		class={`toc-chip mb-4 bg-noctis px-2 text-gray-50 opacity-20 dark:bg-gray-300 dark:text-noctis ${currentArticle ? `acc-${currentArticle.accentIndex}` : ''}`}
 		style:transition-property={'background-color, border-color, color, opacity'}
-		style:transition-duration={'var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration), 180ms'}
-		style:transition-timing-function={
-			'var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function), ease-out'
-		}
-		onpointerenter={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.5')}
+		style:transition-duration={'var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration)'}
+		style:transition-timing-function={'var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function)'}
+		onpointerenter={(event) => ((event.currentTarget as HTMLElement).style.opacity = '1')}
 		onpointerleave={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.2')}
 		onclick={handleTopClick}
 	>
@@ -226,6 +222,14 @@
 	.contents-sidebar {
 		--tree-line: var(--color-tin);
 		--tree-label: color-mix(in srgb, currentColor 60%, transparent);
+	}
+
+	.toc-chip:hover {
+		background-color: var(--acc, var(--color-noctis));
+	}
+
+	:global(html.dark) .toc-chip:hover {
+		color: var(--color-noctis);
 	}
 
 	:global(html.dark) .contents-sidebar {

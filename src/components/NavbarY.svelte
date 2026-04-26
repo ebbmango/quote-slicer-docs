@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import Dropdown from './Navigation/NavbarDropdown.svelte';
+	import Dropdown from './Navigation/Dropdown.svelte';
 	import Logo from './Logo.svelte';
 	import Navlink from './Navigation/Navlink.svelte';
 	import { isSection, worldTree } from '$lib/worldTree';
@@ -90,9 +90,9 @@
 			style="padding-right: {SCROLLBAR_CLEARANCE}px; margin-right: -{SCROLLBAR_CLEARANCE}px; scrollbar-gutter: stable;"
 			onscroll={updateScrollFades}
 		>
-			<ul class="acc-cycle flex w-full flex-col text-nowrap">
+			<ul class="flex w-full flex-col text-nowrap">
 				{#each worldTree as node}
-					<li>
+					<li class={`acc-${node.accentIndex}`}>
 						{#if isSection(node)}
 							<Dropdown section={node} />
 						{:else}

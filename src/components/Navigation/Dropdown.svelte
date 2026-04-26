@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
-	import DropdownLink from './DropdownLink.svelte';
+	import Droplink from './Droplink.svelte';
 
 	let open = $state(false);
 	let element: HTMLUListElement | null = $state(null);
@@ -28,15 +28,15 @@
 </button>
 <ul
 	bind:this={element}
-	class="ui-layout-transition acc-cycle fade-bottom ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom,margin-top]"
+	class="ui-layout-transition fade-bottom ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom,margin-top]"
 	style:height={open && element ? `${element.scrollHeight + 28}px` : '0px'}
 	style:padding-bottom={open ? '28px' : '0'}
 	style:margin-bottom={open ? '0' : '28px'}
 	style:margin-top={open ? '16px' : '0'}
 >
-	{#each section.children as { path, title }}
-		<li>
-			<DropdownLink {path} {title} />
+	{#each section.children as { path, title, accentIndex }}
+		<li class={`acc-${accentIndex}`}>
+			<Droplink {path} {title} />
 		</li>
 	{/each}
 </ul>

@@ -1,10 +1,12 @@
 export type Article = {
 	title: string;
 	path: string;
+	accentIndex: number;
 };
 
 export type Section = {
 	title: string;
+	accentIndex: number;
 	children: Article[];
 };
 
@@ -30,6 +32,22 @@ const websitePaths = Object.keys(pageModules)
 	.map((path) => normalizeRoutePath(path));
 
 export const worldTree = buildWorldTree(websitePaths);
+const articleDirectory = new Map<string, Article>();
+
+for (const item of worldTree) {
+	if (isSection(item)) {
+		for (const article of item.children) {
+			articleDirectory.set(article.path, article);
+		}
+		continue;
+	}
+
+	articleDirectory.set(item.path, item);
+}
+
+export function findArticleByPath(path: string) {
+	return articleDirectory.get(path);
+}
 
 function normalizeRoutePath(filePath: string) {
 	return filePath
@@ -44,17 +62,26 @@ function buildWorldTree(appRoutes: string[]): (Article | Section)[] {
 		//
 		const segments = appRoutes[i].split('/');
 		let articleName: string, sectionName: string;
+		const accentIndex = worldTree.length % 9;
 
 		// If it is an article
 		if (segments.length === 1) {
 			articleName = segments[0];
-			worldTree.push({ title: toDisplayName(articleName), path: '/' + articleName });
+			worldTree.push({
+				title: toDisplayName(articleName),
+				path: '/' + articleName,
+				accentIndex
+			});
 			continue;
 		}
 
 		// If it is a section
 		sectionName = segments[0];
-		const node: Section = { title: toDisplayName(sectionName), children: [] };
+		const node: Section = {
+			title: toDisplayName(sectionName),
+			accentIndex,
+			children: []
+		};
 
 		let slughead = sectionName.length + 1;
 
@@ -64,7 +91,8 @@ function buildWorldTree(appRoutes: string[]): (Article | Section)[] {
 			articleName = appRoutes[j].slice(slughead);
 			node.children.push({
 				title: toDisplayName(articleName),
-				path: '/' + sectionName + '/' + articleName
+				path: '/' + sectionName + '/' + articleName,
+				accentIndex: node.children.length % 9
 			});
 			i = j;
 		}
