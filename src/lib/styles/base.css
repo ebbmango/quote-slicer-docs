@@ -35,6 +35,24 @@ article :where(h1, h2, h3, h4, h5, h6) {
 	font-family: var(--font-dm-serif);
 }
 
+article :where(code)::before,
+article :where(code)::after {
+	content: none;
+}
+
+article :where(:not(pre) > code) {
+	font-family: var(--font-mono);
+	font-size: 0.8em;
+	font-weight: 400;
+	background-color: color-mix(in srgb, currentColor 8%, transparent);
+	border-radius: 0.25rem;
+	padding: 0.08em 0.3em;
+}
+
+html.dark article :where(:not(pre) > code) {
+	background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
 .ui-colors-transition {
 	transition-property: color, fill, stroke;
 	transition-duration: var(--ui-transition-duration);
