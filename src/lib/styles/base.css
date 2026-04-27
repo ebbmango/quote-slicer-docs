@@ -31,6 +31,10 @@ html.dark body {
 	color: white;
 }
 
+article :where(h1, h2, h3, h4, h5, h6) {
+	font-family: var(--font-dm-serif);
+}
+
 .ui-colors-transition {
 	transition-property: color, fill, stroke;
 	transition-duration: var(--ui-transition-duration);
