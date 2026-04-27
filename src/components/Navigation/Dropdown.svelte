@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
-	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
+	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/regular';
 	import HighlightWord from '../HighlightWord.svelte';
 	import Droplink from './Droplink.svelte';
 	import { navigationHighlightWordProps } from './highlightWordProps';
@@ -31,8 +31,11 @@
 	class="group flex w-full items-center justify-between opacity-40 duration-500 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
 	onclick={() => (open = !open)}
 >
-	<span class="ui-link-transition group-hover:translate-x-2 group-focus-visible:translate-x-2">
-		<HighlightWord
+	<span
+		class="ui-link-transition font-mono font-light group-hover:translate-x-2 group-focus-visible:translate-x-2"
+	>
+		{title}
+		<!-- <HighlightWord
 			{active}
 			class="font-mono font-light"
 			fillColor={navigationHighlightWordProps.fillColor}
@@ -41,10 +44,10 @@
 			padding={navigationHighlightWordProps.padding}
 		>
 			{title}
-		</HighlightWord>
+		</HighlightWord> -->
 	</span>
 	<div
-		class="ui-transform-opacity-transition opacity-30"
+		class="ui-transform-opacity-transition opacity-20"
 		class:rotate-180={open}
 		class:opacity-60={open}
 	>
