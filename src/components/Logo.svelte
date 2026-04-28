@@ -4,7 +4,7 @@
 </script>
 
 <div
-	class="flex h-min items-center justify-center gap-2 overflow-hidden text-nowrap opacity-70 duration-200 hover:opacity-90"
+	class="flex h-min items-center justify-center gap-2 overflow-hidden text-nowrap opacity-70 duration-300 hover:opacity-80"
 >
 	<Fa class="ui-colors-transition font-dm-serif text-6xl dark:text-gray-300" icon={faSquareQuote}
 	></Fa>

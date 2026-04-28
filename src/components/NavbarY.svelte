@@ -68,7 +68,7 @@
 
 <nav
 	aria-label="Docs navigation"
-	class="ui-surface-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden dark:bg-noctis dark:text-gray-300"
+	class="ui-surface-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden dark:text-gray-300"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
 >
 	<a

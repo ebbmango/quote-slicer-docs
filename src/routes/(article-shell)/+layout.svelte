@@ -13,7 +13,7 @@
 </script>
 
 <!-- todo: keep scrollbar if content sidebar doesn't exist -->
-<main class="ui-surface-transition flex w-full flex-col items-center bg-white dark:bg-umbra">
+<main class="ui-surface-transition flex w-full flex-col items-center">
 	<!-- add this once you fix the weird placement -->
 	<!-- class:hidebar={showChapters} -->
 	<article

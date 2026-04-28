@@ -225,7 +225,7 @@
 
 <!-- todo: derive whether or not this should be displayed, and hook it to the animation -->
 <aside
-	class="ui-surface-transition contents-sidebar h-vh jut flex flex-col items-center justify-center overflow-scroll py-5 dark:bg-noctis"
+	class="ui-surface-transition contents-sidebar h-vh jut flex flex-col items-center justify-center overflow-scroll py-5"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto;"
 >
 	<!-- <button

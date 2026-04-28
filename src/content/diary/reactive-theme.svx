@@ -13,7 +13,7 @@ published: true
 
 ## Introduction
 
-This documentation website supports two color themes: **light** and **dark**.
+This documentation website supports two color themes: **light** and **dark**.
 
 ### Overview
 
@@ -23,9 +23,9 @@ To afford the best user experience, it is also possible to switch between themes
 
 ### Desired Behavior
 
-Many websites implement theme selection as a three-way choice between light, dark, and auto. That approach is straightforward to implement, but it also pushes more state management onto the user.
+Many websites implement theme selection as a three-way choice between light, dark, and auto. That approach is straightforward to implement, but it also pushes more state management onto the user.
 
-For this website, the intended UX is simpler: the application always follows OS changes, while still allowing the user to switch themes manually and with ease when desired.
+For this website, the intended UX is simpler: the application always follows OS changes, while still allowing the user to switch themes manually and with ease when desired.
 
 In practice, this means **the theme is determined by the most recent change**, regardless of whether that change came from the OS or from the user. This keeps the interface easy to understand while still respecting system preferences by default.
 
@@ -37,7 +37,7 @@ To achieve the desired behavior, multiple functionalities have to be implemented
 
 ###### 1. Follow the system theme by default.
 
-The application should match the user's OS theme on first load. This prevents users who prefer dark mode from being met with a bright interface unexpectedly.
+The application should match the user’s OS theme on first load. This prevents users who prefer dark mode from being met with a bright interface unexpectedly.
 
 ###### 2. React to later OS theme changes.
 
@@ -45,21 +45,21 @@ System theme changes usually reflect the user's broader device preferences, so t
 
 ###### 3. Share the current theme across all open tabs
 
-Theme changes should propagate across all open tabs and windows of the application so the experience remains consistent everywhere. We don't want a user to change the theme in one tab, only to be unexpectedly met by another tab's bright interface or strained by a darker one.
+Theme changes should propagate across all open tabs and windows of the application so the experience remains consistent everywhere. We don’t want a user to change the theme in one tab, only to be unexpectedly met by another tab’s bright interface or strained by a darker one.
 
 ###### 4. Allow the user to switch themes easily.
 
-Users should be able to change the theme at any time through a clear and accessible control. Because the only thing worse than an unexpected flashbang, which at this point we hope to have solved already, is not knowing how to turn it off.
+Users should be able to change the theme at any time through a clear and accessible control. Because the only thing worse than an unexpected flashbang — which, at this point, we hope to have solved already — is not knowing how to turn it off. (!!!)
 
 ### Where to find it
 
 These functionalities are implemented across several different files:
 
-1. `src/app.html` applies the OS theme before hydration so the page does not flash in the wrong mode on first paint.
-2. `src/lib/systemTheme.ts` manages the runtime theme state, reacts to both OS and user changes, and synchronizes that state across open tabs with `BroadcastChannel`.
-3. `src/lib/theme.ts` exports a shared theme controller instance for the app.
-4. `src/routes/+layout.svelte` mirrors the current theme onto the root document element.
-5. `src/components/DarkModeToggle.svelte` provides the UI that lets users switch themes manually.
+1. `src/app.html` applies the OS theme before hydration so the page does not flash in the wrong mode on first paint.
+2. `src/lib/systemTheme.ts` manages the runtime theme state, reacts to both OS and user changes, and synchronizes that state across open tabs with `BroadcastChannel`.
+3. `src/lib/theme.ts` exports a shared theme controller instance for the app.
+4. `src/routes/+layout.svelte` mirrors the current theme onto the root document element.
+5. `src/components/DarkModeToggle.svelte` provides the UI that lets users switch themes manually.
 
 ---
 
@@ -67,23 +67,23 @@ These functionalities are implemented across several different files:
 
 With the overall behavior and goals now established, we can begin breaking the system down piece by piece.
 
-Out of the four steps needed to implement this behavior, only two, namely 1 and 3, warrant a deeper explanation. They either rely on more advanced Svelte-specific tools or involve several interconnected pieces, some of which are easily overlooked.
+Out of the four steps needed to implement this behavior, only two (namely 1 and 3) warrant a deeper explanation. They either rely on more advanced Svelte-specific tools or involve several interconnected pieces, some of are easily overlooked. (!!!)
 
 ### Theme Initialization
 
-Let us begin with the very first requirement, following the system theme by default.
+Let us begin with the very first requirement — [[#1. Follow the system theme by default.|following the system theme by default]].
 
 #### The Shape of the Theme System
 
-The overall architecture of this system will become clearer as we go, but for now it is enough to know that the core theme logic lives in `systemTheme.ts`, specifically in the `adaptiveTheme()` function.
+The overall architecture of this system will become clearer as we go, but for now it is enough to know that the core theme logic lives in `systemTheme.ts`, specifically in the `adaptiveTheme()` function.
 
-In `theme.ts`, we create and export a single shared theme controller instance by calling `adaptiveTheme()` once and storing the result in `theme`.
+In `theme.ts`, we create and export a single shared theme controller instance by calling `adaptiveTheme()` once and storing the result in `theme`.
 
-After the Svelte application loads and starts running in the browser, `+layout.svelte` reads from the shared theme controller and keeps the root document element in sync with the current theme:
+After the Svelte application loads and starts running in the browser, `+layout.svelte` reads from the shared theme controller and keeps the root document element in sync with the current theme:
 
-```svelte
-// src/routes/+layout.svelte (lines 16-21)
+<!-- src/routes/+layout.svelte (lines 16–21) -->
 
+```js
 $effect(() => {
 	if (typeof document === 'undefined') return;
 	const isDark = theme.current === 'dark';
@@ -94,27 +94,29 @@ $effect(() => {
 
 From this point onwards, the theme is accessible throughout the whole application.
 
-There is, however, a split second in time when this whole logic is momentarily suspended. For one brief moment, the application has no access to its own theme controller, in the interval between the browser's initial render, when the DOM is first created, and Svelte's hydration.
+There is, however, a split second in time when this whole logic is momentarily suspended. For one brief moment, the application has no access to its own theme controller — in the interval between the browser’s initial render (when the DOM is first created) and Svelte’s hydration.
 
 #### Preventing Theme Flicker
 
 Because of that, and in pursuit of the smoothest possible user experience, a workaround is needed to pre-paint the website in the correct theme colors before hydration kicks in.
 
-**This prevents a brief flicker of incorrect colors during the initial page load.** Small detail, sure, but noticeable enough to be worth ironing out.
+**This prevents a brief flicker of incorrect colors during the initial page load.** Small detail, sure, but noticeable enough to be worth ironing out. No one wants to show up wearing wrinkled CSS, after all.
 
 And after a lengthy exposition, we arrive finally at the short and sweet solution: the script tag in `app.html`.
 
-```svelte
+<!-- src/app.html (lines 8–12) -->
+
+```html
 <script>
 	const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 	document.documentElement.classList.toggle('dark', isDark);
 	document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 </script>
-
-// src/app.html (lines 8-12)
 ```
 
-This ensures the correct theme is applied from the very moment the page loads, both through the `dark` class used by Tailwind and through the `color-scheme` value that controls the browser's built-in styling.
+This ensures the correct theme is applied from the very moment the page loads: both through the `dark` class used by Tailwind and through the `color-scheme` value that controls the browser’s built-in styling.
+
+If this section felt too dense, or if something still has not quite clicked yet, it may be worth taking a moment to read about how Svelte and SvelteKit work, what hydration is, and why it matters here — all of which can be found [[01. How this Website Works#Prerendering (Static Generation)|in this article]].
 
 ---
 
@@ -125,3 +127,161 @@ We now arrive at the core of the theme system: the `adaptiveTheme()` function in
 Earlier, we identified four requirements needed to achieve the desired behavior. Out of those four, only two really warrant a deeper explanation: reacting to later OS theme changes and synchronizing the theme across multiple open tabs.
 
 Both features rely on slightly more advanced Svelte-specific tools, several interconnected pieces of logic, and a few design decisions whose motivations are not immediately obvious from the code alone.
+
+#### Making the Theme Reactive
+
+We begin with the second requirement — [[#2. React to later OS theme changes.|reacting to later OS theme changes]].
+
+At the center of `adaptiveTheme()` is Svelte’s `createSubscriber()` utility, which warrants a more in-depth explanation, and which the docs describe as:
+
+> Returns a `subscribe` function that integrates external event-based systems with Svelte's reactivity.
+
+In our case, the reactive value is the current theme, as exposed through the shared theme controller. Meanwhile, the external events come from several sources:
+
+- changes to the browser’s `prefers-color-scheme` media query;
+- direct user interaction; and
+- messages broadcast by other open tabs.
+
+The integration point between those external events and the reactive value, the hinge on which the whole system turns, is the `update` callback.
+
+##### Reacting to External Events
+
+In our implementation, the subscriber is set up like this:
+
+```js
+const subscribe = createSubscriber((update) => {
+	// [...]
+});
+```
+
+The important detail is that we do not provide `update` ourselves. Svelte injects it when `subscribe()` is invoked **from a reactive context** and wires it into its reactivity system.
+
+Because of this design, our responsibility is simply to call `update()` whenever an external event changes the underlying theme state. When we do, Svelte re-runs any `$effect`, `$derived`, or template expressions that previously depended on the shared theme controller through `subscribe()`.
+
+For example, to react to changes in the operating system theme, we can call `update()` inside the corresponding media query listener:
+
+```js
+const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+const subscribe = createSubscriber((update) => {
+
+	const handler = (e: MediaQueryListEvent) => {
+		// [...]
+		update();
+	};
+
+	media.addEventListener('change', handler);
+});
+```
+
+Sometimes, however, we need to trigger the same reactive update outside the body of `createSubscriber()`. To make that possible, we store the callback in a variable defined in the outer scope:
+
+```js
+let notify = () => {};
+
+const subscribe = createSubscriber((update) => {
+	notify = update;
+	// [...]
+});
+```
+
+This works because both the subscriber callback and the `set current(...)` setter form closures over the same `notify` binding.
+
+As a result, even code outside the body of `createSubscriber()` still retains access to that shared variable, and can thus trigger reactive updates:
+
+```js
+set current(mode: Mode) {
+	// [...]
+	notify();
+}
+```
+
+In summary, we can say that:
+
+- `createSubscriber()` tells Svelte that a value depends on external events;
+- `update()` is how we notify Svelte that one of those events has changed that value.
+
+##### Connecting to a Reactive Context
+
+We previously described the `update()` callback as the hinge on which the whole system turns, and that is true: it is `update()` that allows external events to drive Svelte’s reactivity.
+
+However, that only works once the subscriber has been connected to a reactive context.
+
+This connection point is easy to miss because `adaptiveTheme()` itself is _not_ called reactively. The reactive link is established later, when `theme.current` is read inside a Svelte `$effect`:
+
+<!-- src/routes/+layout.svelte (lines 16–21) -->
+
+```js
+$effect(() => {
+	if (typeof document === 'undefined') return;
+	const isDark = theme.current === 'dark';
+	document.documentElement.classList.toggle('dark', isDark);
+	document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+});
+```
+
+At that moment, the getter invokes `subscribe()`, and the theme controller becomes registered as a dependency of the effect.
+
+##### The Complete Reactive Cycle
+
+When `src/routes/+layout.svelte` imports the shared theme controller:
+
+```js
+import { theme } from '$lib/theme';
+```
+
+It executes the following line from `src/lib/theme.ts`:
+
+```js
+export const theme = adaptiveTheme();
+```
+
+And `adaptiveTheme()` ultimately returns an object shaped like this:
+
+```svelte
+return {
+	get current(): Mode {
+		subscribe();
+		return currentMode;
+	},
+	set current(mode: Mode) {
+		if (mode === currentMode) return;
+		currentMode = mode;
+		broadcastState();
+		notify();
+	}
+};
+```
+
+The important detail is the `subscribe()` call inside the getter, which we earlier defined through `createSubscriber()`:
+
+```js
+const subscribe = createSubscriber((update) => {
+	// [...]
+});
+```
+
+So when `theme.current` is read inside the `$effect`:
+
+```js
+$effect(() => {
+	if (typeof document === 'undefined') return;
+	const isDark = theme.current === 'dark';
+	document.documentElement.classList.toggle('dark', isDark);
+	document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+});
+```
+
+The getter invokes `subscribe()`. Because that read happens inside a reactive context, Svelte registers the theme controller as a dependency of the effect.
+
+From that point onward, whenever `update()` (or the stored `notify()` reference) is called, Svelte knows that this `$effect` depends on the updated value and must therefore be re-run.
+
+And now we know how external events propagate through Svelte’s reactivity system to update the shared `theme` state, and how the app uses that state to toggle the root `.dark` class and the document’s `color-scheme` style.
+
+---
+
+#### Tab Synchronization
+
+With the reactive system now fully understood, the only remaining piece is the third requirement — [[#3. Share the current theme across all open tabs|synchronizing the theme across multiple open tabs]].
+
+**This section will come in the near future.**
