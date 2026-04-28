@@ -4,7 +4,7 @@
 	import { navigationHighlightWordProps } from './highlightWordProps';
 
 	const { article } = $props();
-	let title = $derived(article.title.toUpperCase());
+	let title = $derived(article.title);
 
 	let active = $state(false);
 
@@ -23,7 +23,7 @@
 	onfocus={activate}
 	onmouseleave={deactivate}
 	onblur={deactivate}
-	class="mb-7 block font-mono font-light opacity-60 duration-500 hover:translate-x-2 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:translate-x-2 focus-visible:text-(--acc) focus-visible:opacity-60"
+	class="nav-header mb-7 block opacity-60 duration-500 hover:translate-x-2 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:translate-x-2 focus-visible:text-(--acc) focus-visible:opacity-60"
 >
 	{title}
 	<!-- <HighlightWord

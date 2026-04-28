@@ -174,7 +174,7 @@
 	<li class={`tree-item acc-${heading.accentIndex}`}>
 		<button
 			type="button"
-			class="tree-link my-1 w-fit text-left font-inter text-sm font-light text-nowrap opacity-40 transition hover:translate-x-1 hover:text-(--acc) hover:opacity-100"
+			class="tree-link my-1 w-fit text-left font-inter text-sm font-light text-nowrap opacity-40 duration-500 hover:-translate-x-1 hover:text-(--acc) hover:opacity-100"
 			onclick={(event) => handleHeadingClick(heading, event)}
 		>
 			<span>
@@ -193,12 +193,12 @@
 
 <!-- todo: derive whether or not this should be displayed, and hook it to the animation -->
 <aside
-	class="ui-surface-transition contents-sidebar h-vh flex flex-col items-center overflow-scroll bg-gray-50 py-5 dark:bg-noctis"
+	class="ui-surface-transition contents-sidebar h-vh jut flex flex-col items-center justify-center overflow-scroll py-5 dark:bg-noctis"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto;"
 >
-	<button
+	<!-- <button
 		type="button"
-		class={`text mb-4 px-2 font-mono uppercase opacity-40 dark:bg-gray-300 dark:text-noctis ${currentArticle ? `acc-${currentArticle.accentIndex}` : ''}`}
+		class={`text nav-header mb-4 px-2 text-right opacity-40 dark:bg-gray-300 dark:text-noctis ${currentArticle ? `acc-${currentArticle.accentIndex}` : ''}`}
 		style:transition-property={'background-color, border-color, color, opacity'}
 		style:transition-duration={'var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration)'}
 		style:transition-timing-function={'var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function)'}
@@ -206,12 +206,12 @@
 		onpointerleave={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.2')}
 		onclick={handleTopClick}
 	>
-		<!-- {headings?.title} -->
-		Table of Contents
-	</button>
+		{headings?.title}
+		in this article
+	</button> -->
 
 	{#if headings}
-		<ul class="contents-tree flex flex-col gap-3">
+		<ul class="contents-tree flex flex-col gap-3 text-right">
 			{#each headings.children as heading}
 				{@render renderHeading(heading)}
 			{/each}
@@ -221,8 +221,8 @@
 
 <style>
 	.contents-sidebar {
-		--tree-line: var(--color-gray-200);
-		--tree-label: color-mix(in srgb, currentColor 60%, transparent);
+		/* --tree-line: var(--color-gray-200);
+		--tree-label: color-mix(in srgb, currentColor 60%, transparent); */
 	}
 
 	.toc-chip:hover {
@@ -245,11 +245,11 @@
 	}
 
 	.tree-branch {
-		padding-left: 1.4rem;
+		/* padding-right: 1.4rem; */
 	}
 
 	.contents-tree > .tree-item > .tree-branch {
-		margin-left: 0.2rem;
+		margin-right: 0.2rem;
 	}
 
 	.tree-item {
@@ -262,7 +262,7 @@
 	.tree-item::before {
 		content: '';
 		position: absolute;
-		left: -0.6rem;
+		right: -0.6rem;
 		top: 0;
 		bottom: 0;
 		width: 1px;
@@ -278,11 +278,11 @@
 	.tree-item::after {
 		content: '';
 		position: absolute;
-		left: -0.6rem;
+		right: -0.6rem;
 		top: 0.23rem;
 		width: calc(0.75rem + var(--tree-hover-shift));
 		height: 0.75rem;
-		border-left: 1px solid var(--tree-line);
+		border-right: 1px solid var(--tree-line);
 		border-bottom: 1px solid var(--tree-line);
 		/* border-bottom-left-radius: 6px; */
 		transition:
@@ -300,11 +300,11 @@
 	}
 
 	.tree-link {
-		padding-left: 0.4rem;
-		transition:
+		padding-right: 0.4rem;
+		/* transition:
 			translate var(--ui-transition-duration) var(--ui-transition-timing-function),
 			opacity var(--ui-transition-duration) var(--ui-transition-timing-function),
-			color var(--ui-transition-duration) var(--ui-transition-timing-function);
+			color var(--ui-transition-duration) var(--ui-transition-timing-function); */
 	}
 
 	.tree-link span {

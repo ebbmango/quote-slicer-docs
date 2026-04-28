@@ -1,4 +1,38 @@
-/* --- Zero-flash baseline: render correctly before JS/hydration --- */
+html.dark {
+	color-scheme: dark;
+}
+
+html.dark,
+html.dark body {
+	background-color: var(--color-noctis);
+	color: white;
+}
+
+article :where(:not(pre) > code) {
+	font-family: var(--font-mono);
+	font-size: 0.85em;
+	font-weight: 400;
+	background-color: color-mix(in srgb, currentColor 8%, transparent);
+	border-radius: 0.25rem;
+	padding: 0.08em 0.3em;
+}
+
+article :where(code)::before,
+article :where(code)::after {
+	content: none;
+}
+
+.nav-header {
+	font-family: var(--font-mono);
+	text-transform: uppercase;
+	font-weight: 200;
+}
+
+/* html.dark article :where(:not(pre) > code) {
+	background-color: color-mix(in srgb, currentColor 12%, transparent);
+} */
+
+/* --- Zero-flash baseline: render correctly before JS/hydration ---
 :root {
 	color-scheme: light;
 	--ui-transition-duration: 500ms;
@@ -7,17 +41,11 @@
 	--default-transition-timing-function: var(--ui-transition-timing-function);
 }
 
-html.dark {
-	color-scheme: dark;
-}
-
-/* Avoid transition “fades” on first paint if you use transition-colors etc. */
 html.preload *,
 html.preload {
 	transition: none !important;
 }
 
-/* Page backdrop follows the explicit .dark class on <html> */
 html,
 body {
 	min-height: 100%;
@@ -31,23 +59,11 @@ html.dark body {
 	color: white;
 }
 
-article :where(code)::before,
-article :where(code)::after {
-	content: none;
-}
 
-article :where(:not(pre) > code) {
-	font-family: var(--font-mono);
-	font-size: 0.85em;
-	font-weight: 400;
-	background-color: color-mix(in srgb, currentColor 8%, transparent);
-	border-radius: 0.25rem;
-	padding: 0.08em 0.28em;
-}
 
-html.dark article :where(:not(pre) > code) {
-	background-color: color-mix(in srgb, currentColor 12%, transparent);
-}
+
+
+
 
 .ui-colors-transition {
 	transition-property: color, fill, stroke;
@@ -172,4 +188,4 @@ html.dark .prose-transition :where(pre) {
 .prose-transition *::before,
 .prose-transition *::after {
 	transition: none !important;
-}
+} */

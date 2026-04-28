@@ -10,7 +10,7 @@
 	let element: HTMLUListElement | null = $state(null);
 
 	const { section } = $props();
-	let title = $derived(section.title.toUpperCase());
+	let title = $derived(section.title);
 	let active = $state(false);
 
 	const activate = () => {
@@ -29,12 +29,10 @@
 	onfocus={activate}
 	onmouseleave={deactivate}
 	onblur={deactivate}
-	class="group flex w-full items-center justify-between opacity-60 duration-500 hover:opacity-90 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
+	class="group flex w-full items-center justify-between opacity-60 duration-500 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
 	onclick={() => (open = !open)}
 >
-	<span
-		class="ui-link-transition font-mono font-light group-hover:translate-x-2 group-focus-visible:translate-x-2"
-	>
+	<span class="nav-header duration-500 group-hover:translate-x-2 group-focus-visible:translate-x-2">
 		{title}
 		<!-- <HighlightWord
 			{active}
@@ -47,17 +45,13 @@
 			{title}
 		</HighlightWord> -->
 	</span>
-	<div
-		class="ui-transform-opacity-transition opacity-0 group-hover:opacity-20"
-		class:rotate-45={open}
-		class:opacity-20={open}
-	>
+	<div class="opacity-0 transition-all duration-400 group-hover:opacity-20" class:rotate-45={open}>
 		<Fa icon={faArrowDownRight} />
 	</div>
 </button>
 <ul
 	bind:this={element}
-	class="ui-layout-transition fade-bottom ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom,margin-top]"
+	class="ui-layout-transition fade-bottom ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom,margin-top] duration-400"
 	style:height={open && element ? `${element.scrollHeight + 28}px` : '0px'}
 	style:padding-bottom={open ? '28px' : '0'}
 	style:margin-bottom={open ? '0' : '28px'}
