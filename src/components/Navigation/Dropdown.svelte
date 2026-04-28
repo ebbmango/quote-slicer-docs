@@ -3,7 +3,7 @@
 	import HighlightWord from '../HighlightWord.svelte';
 	import Droplink from './Droplink.svelte';
 	import { navigationHighlightWordProps } from './highlightWordProps';
-	import { faArrowDownRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/regular';
+	import { faArrowDownRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/light';
 	import { faArrowRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/regular';
 
 	let open = $state(false);
@@ -45,7 +45,7 @@
 			{title}
 		</HighlightWord> -->
 	</span>
-	<div class="opacity-0 transition-all duration-400 group-hover:opacity-20" class:rotate-45={open}>
+	<div class="opacity-0 transition-all duration-400 group-hover:opacity-30" class:rotate-45={open}>
 		<Fa icon={faArrowDownRight} />
 	</div>
 </button>

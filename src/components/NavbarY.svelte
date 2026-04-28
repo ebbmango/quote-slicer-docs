@@ -121,7 +121,7 @@
 			></div>
 		{/if}
 	</section>
-	<!-- <footer class="absolute bottom-0 flex w-full justify-center">
+	<footer class="absolute bottom-0 flex w-full justify-center">
 		<DarkModeToggle />
-	</footer> -->
+	</footer>
 </nav>
