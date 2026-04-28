@@ -9,6 +9,10 @@
 
 	const { section } = $props();
 	let title = $derived(section.title);
+
+	const blurOnPointerLeave = (event: PointerEvent) => {
+		(event.currentTarget as HTMLButtonElement).blur();
+	};
 </script>
 
 <button
@@ -16,12 +20,13 @@
 	aria-expanded={expanded}
 	class="group flex w-full items-center justify-between opacity-60 duration-500 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
 	onclick={() => (expanded = !expanded)}
+	onpointerleave={blurOnPointerLeave}
 >
 	<span class="nav-header duration-500 group-hover:translate-x-2 group-focus-visible:translate-x-2">
 		{title}
 	</span>
 	<div
-		class="opacity-0 transition-all duration-400 group-hover:opacity-30 group-focus:opacity-30"
+		class="opacity-0 transition-all duration-400 group-hover:opacity-30 group-focus-visible:opacity-30"
 		class:rotate-45={expanded}
 	>
 		<Fa icon={faArrowDownRight} />
