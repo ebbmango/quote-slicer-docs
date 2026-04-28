@@ -174,7 +174,7 @@
 	<li class={`tree-item acc-${heading.accentIndex}`}>
 		<button
 			type="button"
-			class="tree-link my-1 w-fit text-left text-sm text-nowrap opacity-60 transition hover:translate-x-1 hover:text-(--acc) hover:opacity-100"
+			class="tree-link my-1 w-fit text-left font-inter text-sm font-light text-nowrap opacity-40 transition hover:translate-x-1 hover:text-(--acc) hover:opacity-100"
 			onclick={(event) => handleHeadingClick(heading, event)}
 		>
 			<span>
@@ -193,12 +193,12 @@
 
 <!-- todo: derive whether or not this should be displayed, and hook it to the animation -->
 <aside
-	class="ui-surface-transition contents-sidebar h-vh flex flex-col items-center overflow-scroll bg-gray-50 py-5 font-mono dark:bg-noctis"
+	class="ui-surface-transition contents-sidebar h-vh flex flex-col items-center overflow-scroll bg-gray-50 py-5 dark:bg-noctis"
 	style="width: {width}px; min-width: {width}px; flex: 0 0 auto;"
 >
 	<button
 		type="button"
-		class={`toc-chip mb-4 bg-noctis px-2 text-gray-50 opacity-20 dark:bg-gray-300 dark:text-noctis ${currentArticle ? `acc-${currentArticle.accentIndex}` : ''}`}
+		class={`text mb-4 px-2 font-mono uppercase opacity-40 dark:bg-gray-300 dark:text-noctis ${currentArticle ? `acc-${currentArticle.accentIndex}` : ''}`}
 		style:transition-property={'background-color, border-color, color, opacity'}
 		style:transition-duration={'var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration)'}
 		style:transition-timing-function={'var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function)'}
@@ -206,7 +206,8 @@
 		onpointerleave={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.2')}
 		onclick={handleTopClick}
 	>
-		{headings?.title}
+		<!-- {headings?.title} -->
+		Table of Contents
 	</button>
 
 	{#if headings}
@@ -220,7 +221,7 @@
 
 <style>
 	.contents-sidebar {
-		--tree-line: var(--color-tin);
+		--tree-line: var(--color-gray-200);
 		--tree-label: color-mix(in srgb, currentColor 60%, transparent);
 	}
 
@@ -264,7 +265,7 @@
 		left: -0.6rem;
 		top: 0;
 		bottom: 0;
-		width: 2px;
+		width: 1px;
 		background-color: var(--tree-line);
 		transition: background-color var(--ui-transition-duration) var(--ui-transition-timing-function);
 	}
@@ -281,9 +282,9 @@
 		top: 0.23rem;
 		width: calc(0.75rem + var(--tree-hover-shift));
 		height: 0.75rem;
-		border-left: 2px solid var(--tree-line);
-		border-bottom: 2px solid var(--tree-line);
-		border-bottom-left-radius: 6px;
+		border-left: 1px solid var(--tree-line);
+		border-bottom: 1px solid var(--tree-line);
+		/* border-bottom-left-radius: 6px; */
 		transition:
 			width var(--ui-transition-duration) var(--ui-transition-timing-function),
 			border-color var(--ui-transition-duration) var(--ui-transition-timing-function);

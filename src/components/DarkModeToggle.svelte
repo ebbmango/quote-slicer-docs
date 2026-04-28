@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
-	import { faMoon, faSunBright } from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
+	import { faMoon, faSunBright } from '@awesome.me/kit-d1ffd5714e/icons/sharp/solid';
 	import { theme } from '$lib/theme';
 
 	const toggle = () => {
@@ -9,7 +9,7 @@
 </script>
 
 <div
-	class="group bg-gray-10 absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full transition-transform duration-500 dark:rotate-180"
+	class="group bg-gray-10 absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full opacity-50 duration-500 hover:opacity-90 dark:rotate-180"
 >
 	<button
 		onclick={toggle}

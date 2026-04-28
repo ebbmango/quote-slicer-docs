@@ -1,9 +1,10 @@
 <script lang="ts">
 	import Fa from 'svelte-fa';
-	import { faChevronDown } from '@awesome.me/kit-d1ffd5714e/icons/classic/regular';
 	import HighlightWord from '../HighlightWord.svelte';
 	import Droplink from './Droplink.svelte';
 	import { navigationHighlightWordProps } from './highlightWordProps';
+	import { faArrowDownRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/regular';
+	import { faArrowRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/regular';
 
 	let open = $state(false);
 	let element: HTMLUListElement | null = $state(null);
@@ -28,7 +29,7 @@
 	onfocus={activate}
 	onmouseleave={deactivate}
 	onblur={deactivate}
-	class="group flex w-full items-center justify-between opacity-40 duration-500 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
+	class="group flex w-full items-center justify-between opacity-60 duration-500 hover:opacity-90 focus:border-0 focus:ring-0 focus:outline-none focus-visible:opacity-60"
 	onclick={() => (open = !open)}
 >
 	<span
@@ -47,11 +48,11 @@
 		</HighlightWord> -->
 	</span>
 	<div
-		class="ui-transform-opacity-transition opacity-20"
-		class:rotate-180={open}
-		class:opacity-60={open}
+		class="ui-transform-opacity-transition opacity-0 group-hover:opacity-20"
+		class:rotate-45={open}
+		class:opacity-20={open}
 	>
-		<Fa icon={faChevronDown} />
+		<Fa icon={faArrowDownRight} />
 	</div>
 </button>
 <ul

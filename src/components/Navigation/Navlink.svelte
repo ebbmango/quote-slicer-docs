@@ -23,7 +23,7 @@
 	onfocus={activate}
 	onmouseleave={deactivate}
 	onblur={deactivate}
-	class="mb-7 block font-mono font-light opacity-40 duration-500 hover:translate-x-2 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:translate-x-2 focus-visible:text-(--acc) focus-visible:opacity-60"
+	class="mb-7 block font-mono font-light opacity-60 duration-500 hover:translate-x-2 hover:opacity-60 focus:border-0 focus:ring-0 focus:outline-none focus-visible:translate-x-2 focus-visible:text-(--acc) focus-visible:opacity-60"
 >
 	{title}
 	<!-- <HighlightWord

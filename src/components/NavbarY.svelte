@@ -109,14 +109,14 @@
 		{#if showTopFade}
 			<div
 				aria-hidden="true"
-				class="ui-gradient-transition pointer-events-none absolute inset-x-0 top-0 z-10 bg-linear-to-b from-gray-50 to-transparent dark:from-noctis"
+				class="ui-gradient-transition pointer-events-none absolute inset-x-0 top-0 z-10 bg-linear-to-b from-white to-transparent dark:from-noctis"
 				style="height: {SCROLL_EDGE_FADE}px;"
 			></div>
 		{/if}
 		{#if showBottomFade}
 			<div
 				aria-hidden="true"
-				class="ui-gradient-transition pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-gray-50 to-transparent dark:from-noctis"
+				class="ui-gradient-transition pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-white to-transparent dark:from-noctis"
 				style="height: {SCROLL_EDGE_FADE}px;"
 			></div>
 		{/if}

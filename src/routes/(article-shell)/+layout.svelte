@@ -17,7 +17,7 @@
 	<!-- add this once you fix the weird placement -->
 	<!-- class:hidebar={showChapters} -->
 	<article
-		class="prose-transition hidebar prose h-dvh w-full overflow-scroll px-8 py-7 font-garamond text-xl dark:prose-invert"
+		class="prose-transition hidebar prose prose-xl h-dvh w-full overflow-scroll px-8 py-7 font-inter font-light dark:prose-invert prose-headings:font-dm-serif prose-headings:font-light prose-headings:tracking-normal prose-h1:normal-case prose-code:font-mono prose-pre:font-mono"
 	>
 		{@render children()}
 	</article>
