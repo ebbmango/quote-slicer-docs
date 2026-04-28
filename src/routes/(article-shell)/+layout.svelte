@@ -32,22 +32,16 @@
 	article {
 		--toc-flash-duration: 500ms;
 		--toc-flash-shift: 0.16rem;
-		--toc-accent-duration: 520ms;
 		--toc-flash-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
 	article :global(:is(h1, h2, h3, h4, h5, h6)) {
 		scroll-margin-top: 1rem;
-		transition: color var(--toc-accent-duration) var(--ui-transition-timing-function) !important;
 	}
 
 	article :global(.toc-target-flash) {
 		animation: toc-target-flash var(--toc-flash-duration) var(--toc-flash-timing-function);
 		transform-origin: left center;
-	}
-
-	article :global(.toc-target-accent) {
-		color: var(--toc-flash-accent, inherit) !important;
 	}
 
 	@keyframes toc-target-flash {

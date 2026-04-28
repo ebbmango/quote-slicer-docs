@@ -60,7 +60,6 @@
 	const { width }: Props = $props();
 
 	let headings = $state<Heading | null>(null);
-	const accentTimers = new WeakMap<HTMLHeadingElement, number>();
 	let currentArticle = $derived(findArticleByPath(normalizePathname(page.url.pathname)));
 
 	function normalizePathname(pathname: string) {
@@ -74,25 +73,19 @@
 		const targetRect = target.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
 		const scrollMarginTop = Number.parseFloat(getComputedStyle(target).scrollMarginTop || '0');
-		const expectedTop = containerRect.top + scrollMarginTop;
+		const targetTop = targetRect.top - containerRect.top + container.scrollTop;
+		const maxScrollTop = Math.max(0, container.scrollHeight - container.clientHeight);
+		const expectedScrollTop = Math.min(Math.max(targetTop - scrollMarginTop, 0), maxScrollTop);
 
-		return Math.abs(targetRect.top - expectedTop) <= 2;
+		return Math.abs(container.scrollTop - expectedScrollTop) <= 2;
 	}
 
-	function clearHeadingEffects(target: HTMLHeadingElement) {
+	function resetHeadingBump(target: HTMLHeadingElement) {
 		target.classList.remove('toc-target-flash');
-		target.classList.remove('toc-target-accent');
-		target.style.removeProperty('--toc-flash-accent');
-
-		const activeTimer = accentTimers.get(target);
-		if (activeTimer) {
-			window.clearTimeout(activeTimer);
-			accentTimers.delete(target);
-		}
 	}
 
 	function bumpHeading(target: HTMLHeadingElement) {
-		clearHeadingEffects(target);
+		resetHeadingBump(target);
 
 		void target.offsetWidth;
 		target.classList.add('toc-target-flash');
@@ -106,30 +99,8 @@
 		);
 	}
 
-	function accentHeading(target: HTMLHeadingElement, source: HTMLElement | null) {
-		const accent = source ? getComputedStyle(source).getPropertyValue('--acc').trim() : '';
-
-		clearHeadingEffects(target);
-		if (accent) {
-			target.style.setProperty('--toc-flash-accent', accent);
-		}
-
-		requestAnimationFrame(() => {
-			target.classList.add('toc-target-accent');
-		});
-
-		const timer = window.setTimeout(() => {
-			target.classList.remove('toc-target-accent');
-			target.style.removeProperty('--toc-flash-accent');
-			accentTimers.delete(target);
-		}, 800);
-
-		accentTimers.set(target, timer);
-	}
-
-	function handleHeadingClick(heading: Heading, event: MouseEvent) {
+	function handleHeadingClick(heading: Heading) {
 		const article = document.querySelector('article');
-		const source = (event.currentTarget as HTMLElement).closest('.tree-item') as HTMLElement | null;
 		const isAtTarget = article
 			? isHeadingAtScrollTarget(heading.element, article as HTMLElement)
 			: false;
@@ -140,7 +111,6 @@
 		}
 
 		heading.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		accentHeading(heading.element, source);
 	}
 
 	function handleTopClick(event: MouseEvent) {
@@ -207,7 +177,7 @@
 		<button
 			type="button"
 			class="tree-link my-1 w-fit text-left font-inter text-sm font-light text-nowrap opacity-40 duration-500 hover:-translate-x-1 hover:text-(--acc) hover:opacity-100"
-			onclick={(event) => handleHeadingClick(heading, event)}
+			onclick={() => handleHeadingClick(heading)}
 		>
 			<span>
 				{heading.title}
