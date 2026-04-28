@@ -149,24 +149,56 @@
 		headings.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
 
+	function rebuildHeadings(article: HTMLElement) {
+		const nodeList = article.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6');
+
+		try {
+			headings = buildHeadingTree(nodeList);
+		} catch {
+			headings = null;
+		}
+	}
+
 	$effect(() => {
 		page.url.pathname; // dependency
+		let cancelled = false;
+		let observer: MutationObserver | null = null;
+		let frame: number | null = null;
+
+		function scheduleRebuild(article: HTMLElement) {
+			if (frame !== null) return;
+
+			frame = requestAnimationFrame(() => {
+				frame = null;
+				if (!cancelled) {
+					rebuildHeadings(article);
+				}
+			});
+		}
+
 		tick().then(() => {
-			const article = document.querySelector('article');
+			if (cancelled) return;
+
+			const article = document.querySelector<HTMLElement>('article');
 
 			if (!article) {
 				headings = null;
 				return;
 			}
 
-			const nodeList = article.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6');
-
-			try {
-				headings = buildHeadingTree(nodeList);
-			} catch {
-				headings = null;
-			}
+			observer = new MutationObserver(() => scheduleRebuild(article));
+			observer.observe(article, { childList: true, subtree: true });
+			rebuildHeadings(article);
 		});
+
+		return () => {
+			cancelled = true;
+			observer?.disconnect();
+
+			if (frame !== null) {
+				cancelAnimationFrame(frame);
+			}
+		};
 	});
 </script>
 
@@ -220,11 +252,6 @@
 </aside>
 
 <style>
-	.contents-sidebar {
-		/* --tree-line: var(--color-gray-200);
-		--tree-label: color-mix(in srgb, currentColor 60%, transparent); */
-	}
-
 	.toc-chip:hover {
 		background-color: var(--acc, var(--color-noctis));
 	}
@@ -242,10 +269,6 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-	}
-
-	.tree-branch {
-		/* padding-right: 1.4rem; */
 	}
 
 	.contents-tree > .tree-item > .tree-branch {
