@@ -34,7 +34,7 @@
 </button>
 <ul
 	bind:this={element}
-	class="ui-layout-transition fade-bottom ms-2 flex flex-col gap-2 overflow-hidden text-silver transition-[height,padding-bottom,margin-bottom,margin-top] duration-400"
+	class="fade-bottom ms-2 flex flex-col gap-2 overflow-hidden transition-[height,padding-bottom,margin-bottom,margin-top] duration-400"
 	style:height={expanded && element ? `${element.scrollHeight + 28}px` : '0px'}
 	style:padding-bottom={expanded ? '28px' : '0'}
 	style:margin-bottom={expanded ? '0' : '28px'}
