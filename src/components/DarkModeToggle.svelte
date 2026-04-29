@@ -74,8 +74,9 @@
 	const stopHoverTracking = () => {
 		pointer = null;
 		hoveredControl = null;
-
-		cancelAnimationFrame(hoverFrame);
+		if (hoverFrame && typeof cancelAnimationFrame === 'function') {
+			cancelAnimationFrame(hoverFrame);
+		}
 		hoverFrame = 0;
 	};
 
