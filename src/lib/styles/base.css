@@ -1,5 +1,17 @@
+html,
+body {
+	transition:
+		background-color 500ms ease,
+		color 500ms ease;
+}
+
 html.dark {
 	color-scheme: dark;
+}
+
+html,
+html body {
+	background-color: white;
 }
 
 html.dark,
@@ -7,17 +19,46 @@ html.dark body {
 	background-color: var(--color-noctis);
 }
 
-/* codeblocks */
+/* ARTICLE */
+article *,
+article *::marker {
+	transition:
+		color 500ms ease,
+		background-color 500ms ease,
+		border-color 500ms ease;
+}
+
+/* divisory lines and quotes */
+.dark article *,
+.dark article blockquote {
+	border-color: #3d3d3d;
+}
+
+/* bulletpoints */
+.dark article *::marker {
+	color: #4d4d4d;
+}
+
+/* CODEBLOCKS */
 article :where(:not(pre) > code) {
 	font-family: var(--font-mono);
 	font-size: 0.85em;
 	font-weight: 400;
-	background-color: color-mix(in srgb, currentColor 8%, transparent);
 	border-radius: 0.25rem;
 	padding: 0.08em 0.3em;
 }
+
+/* INLINE MONOSPACE */
 .prose :where(pre.shiki) {
 	background-color: #3d3d3d;
+}
+
+article :where(:not(pre) > code) {
+	background-color: #ededed;
+}
+
+.dark article :where(:not(pre) > code) {
+	background-color: #2d2d2d;
 }
 
 html.dark .prose :where(pre.shiki) {
@@ -40,7 +81,7 @@ html.dark .prose :where(pre.shiki span) {
 	color: var(--shiki-dark);
 }
 
-/* inline monospace */
+/* removes backticks */
 article :where(code)::before,
 article :where(code)::after {
 	content: none;
