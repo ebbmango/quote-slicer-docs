@@ -34,6 +34,18 @@ article *::marker {
 	border-color: #3d3d3d;
 }
 
+/* blockquotes */
+article blockquote {
+	font-family: serif;
+	font-style: normal;
+	font-size: larger;
+}
+
+article blockquote :where(:not(pre) > code) {
+	font-weight: 400;
+	font-size: large;
+}
+
 /* bulletpoints */
 .dark article *::marker {
 	color: #4d4d4d;
@@ -62,7 +74,7 @@ article :where(:not(pre) > code) {
 }
 
 html.dark .prose :where(pre.shiki) {
-	background-color: #2d2d2d;
+	background-color: #100909;
 }
 
 .prose :where(pre.shiki code) {

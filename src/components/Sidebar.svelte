@@ -62,7 +62,7 @@
 </script>
 
 <aside
-	class="h-vh jut flex flex-col justify-center overflow-scroll py-5 pr-5"
+	class="h-vh jut flex flex-col justify-center overflow-scroll py-5 pr-3"
 	style="width: 280px; min-width: 280px; flex: 0 0 auto;"
 >
 	{#if headings && headings.children.length > 0}
@@ -79,10 +79,11 @@
 	<li class="text-md my-0.5 font-inter font-light acc-{heading.position % 9}">
 		<button
 			type="button"
-			class="opacity-30 duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc) hocus:opacity-100"
+			class="group opacity-30 duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc) hocus:opacity-70"
 			onclick={() => handleHeadingClick(heading)}
 		>
 			{heading.title}
+			<span class="opacity-0 duration-500 group-hocus:opacity-50">#</span>
 		</button>
 		<!-- <button
 			type="button"
