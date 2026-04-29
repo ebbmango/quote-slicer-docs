@@ -24,23 +24,59 @@
 }
 
 /* Optional explicit picker */
-.acc-0 { --acc: var(--acc-0); } 
-.acc-1 { --acc: var(--acc-1); }
-.acc-2 { --acc: var(--acc-2); }
-.acc-3 { --acc: var(--acc-3); }
-.acc-4 { --acc: var(--acc-4); }
-.acc-5 { --acc: var(--acc-5); }
-.acc-6 { --acc: var(--acc-6); }
-.acc-7 { --acc: var(--acc-7); }
-.acc-8 { --acc: var(--acc-8); }
+.acc-0 {
+	--acc: var(--acc-0);
+}
+.acc-1 {
+	--acc: var(--acc-1);
+}
+.acc-2 {
+	--acc: var(--acc-2);
+}
+.acc-3 {
+	--acc: var(--acc-3);
+}
+.acc-4 {
+	--acc: var(--acc-4);
+}
+.acc-5 {
+	--acc: var(--acc-5);
+}
+.acc-6 {
+	--acc: var(--acc-6);
+}
+.acc-7 {
+	--acc: var(--acc-7);
+}
+.acc-8 {
+	--acc: var(--acc-8);
+}
 
 /* Automatic cycling for list-like containers */
-.acc-cycle > :nth-child(9n + 1) { --acc: var(--acc-0); }
-.acc-cycle > :nth-child(9n + 2) { --acc: var(--acc-1); }
-.acc-cycle > :nth-child(9n + 3) { --acc: var(--acc-2); }
-.acc-cycle > :nth-child(9n + 4) { --acc: var(--acc-3); }
-.acc-cycle > :nth-child(9n + 5) { --acc: var(--acc-4); }
-.acc-cycle > :nth-child(9n + 6) { --acc: var(--acc-5); }
-.acc-cycle > :nth-child(9n + 7) { --acc: var(--acc-6); }
-.acc-cycle > :nth-child(9n + 8) { --acc: var(--acc-7); }
-.acc-cycle > :nth-child(9n + 9) { --acc: var(--acc-8); }
+.acc-cycle li:nth-child(9n + 1) {
+	--acc: var(--acc-0);
+}
+.acc-cycle li:nth-child(9n + 2) {
+	--acc: var(--acc-1);
+}
+.acc-cycle li:nth-child(9n + 3) {
+	--acc: var(--acc-2);
+}
+.acc-cycle li:nth-child(9n + 4) {
+	--acc: var(--acc-3);
+}
+.acc-cycle li:nth-child(9n + 5) {
+	--acc: var(--acc-4);
+}
+.acc-cycle li:nth-child(9n + 6) {
+	--acc: var(--acc-5);
+}
+.acc-cycle li:nth-child(9n + 7) {
+	--acc: var(--acc-6);
+}
+.acc-cycle li:nth-child(9n + 8) {
+	--acc: var(--acc-7);
+}
+.acc-cycle li:nth-child(9n + 9) {
+	--acc: var(--acc-8);
+}
