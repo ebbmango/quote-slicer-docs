@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../lib/styles/index.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import Navbar from '../components/NavbarY.svelte';
+	import Navbar from '../components/Navbar.svelte';
 	import { theme } from '$lib/theme';
 
 	const MIN_LAYOUT_WIDTH = 320;
