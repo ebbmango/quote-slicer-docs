@@ -56,9 +56,6 @@
 		return stack[0];
 	}
 
-	type Props = { width: number };
-	const { width }: Props = $props();
-
 	let headings = $state<Heading | null>(null);
 	let currentArticle = $derived(findArticleByPath(normalizePathname(page.url.pathname)));
 
@@ -196,22 +193,8 @@
 <!-- todo: derive whether or not this should be displayed, and hook it to the animation -->
 <aside
 	class="ui-surface-transition contents-sidebar h-vh jut flex flex-col items-center justify-center overflow-scroll py-5"
-	style="width: {width}px; min-width: {width}px; flex: 0 0 auto;"
+	style="width: 280px; min-width: 280px; flex: 0 0 auto;"
 >
-	<!-- <button
-		type="button"
-		class={`text nav-header mb-4 px-2 text-right opacity-40 dark:bg-gray-300 dark:text-noctis ${currentArticle ? `acc-${currentArticle.accentIndex}` : ''}`}
-		style:transition-property={'background-color, border-color, color, opacity'}
-		style:transition-duration={'var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration), var(--ui-transition-duration)'}
-		style:transition-timing-function={'var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function), var(--ui-transition-timing-function)'}
-		onpointerenter={(event) => ((event.currentTarget as HTMLElement).style.opacity = '1')}
-		onpointerleave={(event) => ((event.currentTarget as HTMLElement).style.opacity = '0.2')}
-		onclick={handleTopClick}
-	>
-		{headings?.title}
-		in this article
-	</button> -->
-
 	{#if headings}
 		<ul class="contents-tree flex flex-col gap-3 text-right">
 			{#each headings.children as heading}

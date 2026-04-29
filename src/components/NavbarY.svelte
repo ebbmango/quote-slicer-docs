@@ -7,9 +7,6 @@
 	import Navlink from './Navigation/Navlink.svelte';
 	import { diaryNavItem, isSection, worldTree } from '$lib/worldTree';
 
-	type Props = { width: number };
-
-	let { width }: Props = $props();
 	let viewportHeight = $state(0);
 
 	let menuScroller: HTMLDivElement | null = $state(null);
@@ -69,7 +66,7 @@
 <nav
 	aria-label="Docs navigation"
 	class="ui-surface-transition h-vh relative flex w-70 flex-col justify-center overflow-hidden dark:text-gray-300"
-	style="width: {width}px; min-width: {width}px; flex: 0 0 auto; overflow: hidden;"
+	style="width: 280px; min-width: 280px; flex: 0 0 auto; overflow: hidden;"
 >
 	<a
 		href={resolve('/')}

@@ -5,11 +5,6 @@
 	import Sidebar from '../../components/Sidebar.svelte';
 
 	let { children } = $props();
-	const viewport = getContext<Viewport>('viewport');
-	const layout = getContext<Layout>('layout');
-	const { artWidth } = getContext<{ artWidth: Spring<number> }>('layoutMotion');
-
-	let showChapters = $derived(viewport.width >= 1220 || artWidth.current > 0);
 </script>
 
 <!-- todo: keep scrollbar if content sidebar doesn't exist -->
@@ -24,9 +19,8 @@
 </main>
 
 <!-- Sidebar: Contents -->
-{#if showChapters}
-	<Sidebar width={artWidth.current} />
-{/if}
+
+<Sidebar />
 
 <style>
 	article {
