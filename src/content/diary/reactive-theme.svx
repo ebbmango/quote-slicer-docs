@@ -11,17 +11,15 @@ published: true
 
 # {title}
 
-## Introduction
-
 This documentation website supports two color themes: **light** and **dark**.
 
-### Overview
+## Overview
 
 By default, the application follows the operating system's preferred color scheme. It also reacts to later OS theme changes in real time.
 
 To afford the best user experience, it is also possible to switch between themes irrespective of the current OS preferences.
 
-### Desired Behavior
+## Desired Behavior
 
 Many websites implement theme selection as a three-way choice between light, dark, and auto. That approach is straightforward to implement, but it also pushes more state management onto the user.
 
