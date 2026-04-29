@@ -1,18 +1,4 @@
-export type Article = {
-	title: string;
-	path: string;
-	accentIndex: number;
-};
-
-export type Section = {
-	title: string;
-	accentIndex: number;
-	children: Article[];
-};
-
-export function isSection(item: Article | Section): item is Section {
-	return 'children' in item;
-}
+import type { Article, Section } from './articleTypes';
 
 function toDisplayName(kebab: string) {
 	return kebab
@@ -20,6 +6,8 @@ function toDisplayName(kebab: string) {
 		.map((word) => word[0]?.toUpperCase() + word.slice(1))
 		.join(' ');
 }
+
+// i really gotta start commenting my code man
 
 const routeGroupPattern = /\([^/]+\)\//g;
 const pageModules = import.meta.glob('/src/routes/**/+page.svx', { eager: true });
@@ -31,51 +19,25 @@ const websitePaths = Object.keys(pageModules)
 	.sort()
 	.map((path) => normalizeRoutePath(path));
 
-export const worldTree = buildWorldTree(websitePaths);
-export const diaryNavItem: Article = {
-	title: 'Development Diary',
-	path: '/development-diary',
-	accentIndex: worldTree.length % 9
-};
-const articleDirectory = new Map<string, Article>();
-
-for (const item of worldTree) {
-	if (isSection(item)) {
-		for (const article of item.children) {
-			articleDirectory.set(article.path, article);
-		}
-		continue;
-	}
-
-	articleDirectory.set(item.path, item);
-}
-
-export function findArticleByPath(path: string) {
-	return (
-		articleDirectory.get(path) ??
-		(path === diaryNavItem.path || path.startsWith(`${diaryNavItem.path}/`) ? diaryNavItem : undefined)
-	);
-}
+export const articleTree = buildArticleTree(websitePaths);
 
 function normalizeRoutePath(filePath: string) {
-	return filePath
-		.slice(articlePrefix.length, -articleSuffix.length)
-		.replace(routeGroupPattern, '');
+	return filePath.slice(articlePrefix.length, -articleSuffix.length).replace(routeGroupPattern, '');
 }
 
-function buildWorldTree(appRoutes: string[]): (Article | Section)[] {
-	const worldTree: (Article | Section)[] = [];
+function buildArticleTree(appRoutes: string[]): (Article | Section)[] {
+	const articleTree: (Article | Section)[] = [];
 
 	for (let i = 0; i < appRoutes.length; i++) {
 		//
 		const segments = appRoutes[i].split('/');
 		let articleName: string, sectionName: string;
-		const accentIndex = worldTree.length % 9;
+		const accentIndex = articleTree.length % 9;
 
 		// If it is an article
 		if (segments.length === 1) {
 			articleName = segments[0];
-			worldTree.push({
+			articleTree.push({
 				title: toDisplayName(articleName),
 				path: '/' + articleName,
 				accentIndex
@@ -105,8 +67,8 @@ function buildWorldTree(appRoutes: string[]): (Article | Section)[] {
 			i = j;
 		}
 
-		worldTree.push(node);
+		articleTree.push(node);
 	}
 
-	return worldTree;
+	return articleTree;
 }

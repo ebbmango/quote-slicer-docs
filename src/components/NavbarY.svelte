@@ -5,7 +5,9 @@
 	import Dropdown from './Navigation/Dropdown.svelte';
 	import Logo from './Logo.svelte';
 	import Navlink from './Navigation/Navlink.svelte';
-	import { diaryNavItem, isSection, worldTree } from '$lib/worldTree';
+	import { isSection } from '$lib/navigation/articleTypes';
+	import { diaryNavItem } from '$lib/navigation/articleLookup';
+	import { articleTree } from '$lib/navigation/articleTree';
 
 	let viewportHeight = $state(0);
 
@@ -88,7 +90,7 @@
 			onscroll={updateScrollFades}
 		>
 			<ul class="flex w-full flex-col text-nowrap">
-				{#each worldTree as node}
+				{#each articleTree as node}
 					<li class={`acc-${node.accentIndex}`}>
 						{#if isSection(node)}
 							<Dropdown section={node} />
