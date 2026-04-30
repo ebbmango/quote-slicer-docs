@@ -1,16 +1,21 @@
 <script lang="ts">
-	const diaryModules = import.meta.glob('/src/content/diary/*.svx');
+	import type { Component } from 'svelte';
 
 	let { data } = $props();
 
-	let diaryModule = $derived.by(() => {
-		const loader = diaryModules[data.contentPath];
+	const diaryModules = import.meta.glob<Component>('/src/content/diary/*.svx', {
+		eager: true, // important for no-js users
+		import: 'default'
+	});
 
-		if (!loader) {
+	let Article = $derived.by(() => {
+		const article = diaryModules[data.contentPath];
+
+		if (!article) {
 			throw new Error(`Missing diary module for ${data.contentPath}`);
 		}
 
-		return loader();
+		return article;
 	});
 </script>
 
@@ -18,7 +23,4 @@
 	<title>{data.entry.title} | Development Diary</title>
 </svelte:head>
 
-{#await diaryModule then module}
-	{@const Article = module.default}
-	<Article />
-{/await}
+<Article />
