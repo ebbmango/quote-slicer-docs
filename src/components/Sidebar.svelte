@@ -1,8 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { buildHeadingTree, type Heading, type HeadingTree } from '$lib/navigation/headingTree';
+	import Fa from 'svelte-fa';
+
+	import {
+		faList as faListSolid,
+		faListTree as listTreeSolid
+	} from '@awesome.me/kit-d1ffd5714e/icons/classic/solid';
+	import {
+		faList as faListLight,
+		faListTree as listTreeLight
+	} from '@awesome.me/kit-d1ffd5714e/icons/classic/light';
 
 	let headings = $state<HeadingTree | null>(null);
+
+	let showTree = $state(false);
 
 	function isHeadingAtScrollTarget(target: HTMLElement, container: HTMLElement) {
 		const targetRect = target.getBoundingClientRect();
@@ -61,18 +73,39 @@
 	});
 </script>
 
-<aside
-	class="h-vh jut flex flex-col justify-center overflow-scroll py-5 pr-3"
-	style="width: 280px; min-width: 280px; flex: 0 0 auto;"
->
-	{#if headings && headings.children.length > 0}
-		<ul class="flex flex-col gap-3 text-right">
-			{#each headings.children as heading}
-				<!-- {heading.title} -->
-				{@render renderHeading(heading)}
-			{/each}
-		</ul>
-	{/if}
+<aside class="flex min-w-70 flex-col justify-between">
+	<div class="flex h-full items-center justify-end pe-1">
+		{#if headings && headings.children.length > 0}
+			<ul class="flex flex-col gap-3 text-right">
+				{#each headings.children as heading}
+					<!-- {heading.title} -->
+					{@render renderHeading(heading)}
+				{/each}
+			</ul>
+		{/if}
+	</div>
+	<div class="flex h-19 items-center justify-center text-xl">
+		<button
+			class="group flex"
+			class:hidden={showTree}
+			onclick={() => {
+				showTree = !showTree;
+			}}
+		>
+			<Fa icon={listTreeLight} class="opacity-30 duration-500 group-hover:opacity-0" />
+			<Fa icon={listTreeSolid} class="absolute opacity-0 duration-500 group-hover:opacity-60" />
+		</button>
+		<button
+			class="group flex"
+			class:hidden={!showTree}
+			onclick={() => {
+				showTree = !showTree;
+			}}
+		>
+			<Fa icon={faListLight} class="opacity-30 duration-500 group-hover:opacity-0" />
+			<Fa icon={faListSolid} class="absolute opacity-0 duration-500 group-hover:opacity-60" />
+		</button>
+	</div>
 </aside>
 
 {#snippet renderHeading(heading: Heading)}
