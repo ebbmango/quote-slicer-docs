@@ -7,7 +7,7 @@
 
 <a
 	href={resolve(article.path)}
-	class="nav-header mb-7 block opacity-60 duration-500 focus-visible:outline-none hocus:translate-x-2 hocus:text-(--acc) hocus:opacity-100"
+	class="nav-header block duration-500 focus-visible:outline-none js-only:hocus:translate-x-2"
 >
 	{title}
 </a>
