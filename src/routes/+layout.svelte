@@ -26,10 +26,7 @@
 <!-- The layout, at first, should be simple: just the navbar and the page's contents. -->
 <!-- As the sidebar belongs only to article pages, it should comprise another layout. -->
 
-<div
-	class="flex h-dvh w-full"
-	style="min-width: {MIN_LAYOUT_WIDTH}px; min-height: {MIN_LAYOUT_HEIGHT}px;"
->
+<div class="flex h-dvh w-full">
 	<Navbar />
 
 	{@render children()}

@@ -10,7 +10,7 @@
 
 <nav
 	aria-label="Docs navigation"
-	class="relative flex min-w-70 flex-col justify-between overflow-hidden"
+	class="relative flex min-w-70 flex-col justify-between overflow-hidden no-js:mb-18"
 >
 	<div class="flex w-full items-center justify-center pt-7 pb-4">
 		<Logo />
@@ -38,7 +38,7 @@
 		</ul>
 	</div>
 
-	<footer class="flex min-h-18 w-full justify-center">
+	<footer class="flex min-h-18 w-full justify-center no-js:hidden">
 		<DarkModeToggle />
 	</footer>
 </nav>

@@ -11,8 +11,22 @@
 @import './colors/verse.css';
 
 @plugin '@tailwindcss/typography';
-@custom-variant dark (&:where(.dark, .dark *));
+
+@custom-variant no-js (&:where(html.no-js, html.no-js *));
 @custom-variant hocus (&:is(:hover, :focus-visible));
+@custom-variant dark {
+	&:where(.dark, .dark *) {
+		@slot;
+	}
+
+	/* No-JS fallback: follow the user's system theme. */
+	/* No overlap: ".dark" is applied by JavaScript.   */
+	@media (prefers-color-scheme: dark) {
+		&:where(html.no-js, html.no-js *) {
+			@slot;
+		}
+	}
+}
 
 .hidebar {
 	overflow-y: scroll;

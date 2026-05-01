@@ -1,37 +1,65 @@
+html {
+	color-scheme: light;
+	--page-bg: light-dark(white, var(--color-noctis));
+	--inline-mono-bg: light-dark(#ededed, #3d3d3d);
+	--codeblock-bg: #3d3d3d;
+
+	--inline-mono-weight: 400;
+	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
+	--ul-marker-color: light-dark(var(--color-tin), #4d4d4d);
+	--ol-marker-color: light-dark(#a2a2a2, #4d4d4d);
+}
+
 html,
 body {
+	background-color: var(--page-bg);
 	transition:
 		background-color 500ms ease,
 		color 500ms ease;
 }
 
+html.no-js {
+	color-scheme: light dark;
+}
+
 html.dark {
 	color-scheme: dark;
+	--inline-mono-weight: 300;
 }
 
-html,
-html body {
-	background-color: white;
-}
-
-html.dark,
-html.dark body {
-	background-color: var(--color-noctis);
+@media (prefers-color-scheme: dark) {
+	html.no-js {
+		--inline-mono-weight: 300;
+	}
 }
 
 /* ARTICLE */
+article,
 article *,
-article *::marker {
+main {
 	transition:
 		color 500ms ease,
 		background-color 500ms ease,
 		border-color 500ms ease;
 }
 
+article h5,
+article h6 {
+	color: var(--tw-prose-headings);
+}
+
+article *::marker {
+	transition: color 500ms ease;
+}
+
+article ol *::marker {
+	color: var(--ol-marker-color);
+}
+
 /* divisory lines and quotes */
-.dark article *,
-.dark article blockquote {
-	border-color: #3d3d3d;
+article *,
+article blockquote {
+	border-color: var(--article-border-color);
 }
 
 /* blockquotes */
@@ -47,42 +75,37 @@ article blockquote :where(:not(pre) > code) {
 }
 
 /* bulletpoints */
-.dark article *::marker {
-	color: #4d4d4d;
-}
-
-/* CODEBLOCKS */
-article :where(:not(pre) > code) {
-	font-family: var(--font-mono);
-	font-size: 0.85em;
-	font-weight: 400;
-	border-radius: 0.25rem;
-	padding: 0.08em 0.3em;
+article *::marker {
+	color: var(--ul-marker-color);
 }
 
 /* INLINE MONOSPACE */
-.prose :where(pre.shiki) {
-	background-color: #3d3d3d;
-}
-
 article :where(:not(pre) > code) {
-	background-color: #ededed;
+	font-family: var(--font-mono);
+	font-size: 0.85em;
+	border-radius: 0.3rem;
+	padding: 0.08em 0.4em;
+	background-color: var(--inline-mono-bg);
+	font-weight: var(--inline-mono-weight);
 }
 
-.dark article :where(:not(pre) > code) {
-	background-color: #2d2d2d;
+/* removes backticks */
+article :where(code)::before,
+article :where(code)::after {
+	content: none;
 }
 
-html.dark .prose :where(pre.shiki) {
-	background-color: #100909;
-}
-
+/* CODE BLOCKS */
 .prose :where(pre.shiki code) {
 	display: grid;
-	background-color: transparent;
 	width: max-content;
 	min-width: 100%;
 	padding-right: 0.2rem;
+}
+
+/* Codeblock Background Color */
+.prose :where(pre.shiki) {
+	background-color: var(--codeblock-bg);
 }
 
 .prose :where(pre.shiki span) {
@@ -93,11 +116,13 @@ html.dark .prose :where(pre.shiki span) {
 	color: var(--shiki-dark);
 }
 
-/* removes backticks */
-article :where(code)::before,
-article :where(code)::after {
-	content: none;
+@media (prefers-color-scheme: dark) {
+	html.no-js .prose :where(pre.shiki span) {
+		color: var(--shiki-dark);
+	}
 }
+
+/* CUSTOM CLASSES */
 
 .nav-header {
 	font-family: var(--font-mono);
