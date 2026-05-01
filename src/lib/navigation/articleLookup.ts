@@ -38,7 +38,7 @@ for (const item of articleTree) {
 	articleDirectory.set(item.path, item);
 }
 
-export function findArticleByPath(path: string) {
+export function findArticleByPath(path: string): Article | undefined {
 	return (
 		articleDirectory.get(path) ??
 		(path === diaryNavItem.path || path.startsWith(`${diaryNavItem.path}/`)
@@ -47,11 +47,11 @@ export function findArticleByPath(path: string) {
 	);
 }
 
-function routeIdToArticlePath(routeId: RouteId) {
+function routeIdToArticlePath(routeId: RouteId): string {
 	return routeId.replace(routeGroupPattern, '') || '/';
 }
 
-export function findArticleByRouteId(routeId: RouteId | null) {
+export function findArticleByRouteId(routeId: RouteId | null): Article | undefined {
 	if (!routeId) return undefined;
 
 	return findArticleByPath(routeIdToArticlePath(routeId));

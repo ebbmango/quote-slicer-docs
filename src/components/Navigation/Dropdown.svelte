@@ -8,18 +8,10 @@
 	import { resolve } from '$app/paths';
 	import { faArrowDownRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/light';
 	import { onDestroy } from 'svelte';
-	import type { Pathname } from '$app/types';
-
-	type DropdownNavlink = {
-		title: string;
-		path: string;
-	};
+	import type { Section } from '$lib/navigation/articleTypes';
 
 	type Props = {
-		section: {
-			title: string;
-			children: DropdownNavlink[];
-		};
+		section: Section;
 	};
 
 	let list = $state<HTMLUListElement | null>(null);
@@ -86,7 +78,7 @@
 	>
 		{#each section.children as navlink (navlink.path)}
 			<li class="dropdown-item">
-				<a class="dropdown-link" href={resolve(navlink.path as Pathname)}>{navlink.title}</a>
+				<a class="dropdown-link" href={resolve(navlink.path)}>{navlink.title}</a>
 			</li>
 		{/each}
 	</ul>

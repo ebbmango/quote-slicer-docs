@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import type { Pathname } from '$app/types';
+	import type { Article } from '$lib/navigation/articleTypes';
 
-	type Props = {
-		path: string;
-		title: string;
+	type Props = Pick<Article, 'path' | 'title'> & {
 		visible?: boolean;
 	};
 
@@ -12,7 +10,7 @@
 </script>
 
 <a
-	href={resolve(path as Pathname)}
+	href={resolve(path)}
 	tabindex={visible ? 0 : -1}
 	class="text-md block w-full font-light opacity-30 duration-500 focus-visible:outline-none hocus:translate-x-1 hocus:text-(--acc) hocus:opacity-80"
 >

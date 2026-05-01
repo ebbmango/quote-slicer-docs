@@ -1,6 +1,10 @@
+import type { Pathname } from '$app/types';
+
+export type NavigationPath = Pathname;
+
 export type Article = {
 	title: string;
-	path: string;
+	path: NavigationPath;
 	accentIndex: number;
 };
 
@@ -10,6 +14,10 @@ export type Section = {
 	children: Article[];
 };
 
-export function isSection(item: Article | Section): item is Section {
+export type NavigationNode = Article | Section;
+
+export type NavigationTree = NavigationNode[];
+
+export function isSection(item: NavigationNode): item is Section {
 	return 'children' in item;
 }

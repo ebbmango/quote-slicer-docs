@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import type { Article } from '$lib/navigation/articleTypes';
 
-	const { article } = $props();
+	type Props = {
+		article: Article;
+	};
+
+	const { article }: Props = $props();
 	let title = $derived(article.title);
 </script>
 

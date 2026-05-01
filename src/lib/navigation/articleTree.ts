@@ -1,6 +1,6 @@
-import type { Article, Section } from './articleTypes';
+import type { NavigationPath, NavigationTree, Section } from './articleTypes';
 
-function toDisplayName(kebab: string) {
+function toDisplayName(kebab: string): string {
 	return kebab
 		.split('-')
 		.map((word) => word[0]?.toUpperCase() + word.slice(1))
@@ -14,54 +14,57 @@ const pageModules = import.meta.glob('/src/routes/**/+page.svx', { eager: true }
 const articlePrefix = '/src/routes/';
 const articleSuffix = '/+page.svx';
 
-const websitePaths = Object.keys(pageModules)
+const websitePaths: string[] = Object.keys(pageModules)
 	.filter((path) => path.includes('/(article-shell)/(docs)/'))
 	.sort()
 	.map((path) => normalizeRoutePath(path));
 
 export const articleTree = buildArticleTree(websitePaths);
 
-function normalizeRoutePath(filePath: string) {
+function normalizeRoutePath(filePath: string): string {
 	return filePath.slice(articlePrefix.length, -articleSuffix.length).replace(routeGroupPattern, '');
 }
 
-function buildArticleTree(appRoutes: string[]): (Article | Section)[] {
-	const articleTree: (Article | Section)[] = [];
+function toNavigationPath(path: `/${string}`): NavigationPath {
+	return path as NavigationPath;
+}
+
+function buildArticleTree(appRoutes: string[]): NavigationTree {
+	const articleTree: NavigationTree = [];
 
 	for (let i = 0; i < appRoutes.length; i++) {
 		//
 		const segments = appRoutes[i].split('/');
-		let articleName: string, sectionName: string;
 		const accentIndex = articleTree.length % 9;
 
 		// If it is an article
 		if (segments.length === 1) {
-			articleName = segments[0];
+			const articleName = segments[0];
 			articleTree.push({
 				title: toDisplayName(articleName),
-				path: '/' + articleName,
+				path: toNavigationPath(`/${articleName}`),
 				accentIndex
 			});
 			continue;
 		}
 
 		// If it is a section
-		sectionName = segments[0];
+		const sectionName = segments[0];
 		const node: Section = {
 			title: toDisplayName(sectionName),
 			accentIndex,
 			children: []
 		};
 
-		let slughead = sectionName.length + 1;
+		const slughead = sectionName.length + 1;
 
 		for (let j = i; j < appRoutes.length; j++) {
 			const route = appRoutes[j];
 			if (!route.startsWith(sectionName + '/')) break;
-			articleName = appRoutes[j].slice(slughead);
+			const articleName = appRoutes[j].slice(slughead);
 			node.children.push({
 				title: toDisplayName(articleName),
-				path: '/' + sectionName + '/' + articleName,
+				path: toNavigationPath(`/${sectionName}/${articleName}`),
 				accentIndex: node.children.length % 9
 			});
 			i = j;
