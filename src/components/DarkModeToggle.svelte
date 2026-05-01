@@ -118,7 +118,7 @@
 		onclick={toggle}
 		tabindex={theme.current === 'light' ? 0 : -1}
 	>
-		<span class="circadian grid text-xl dark:text-gray-400" style:rotate={`${-rotation}deg`}>
+		<span class="circadian grid text-xl" style:rotate={`${-rotation}deg`}>
 			{@render iconPair('sun', SunLight, SunSolid)}
 		</span>
 	</button>
@@ -130,7 +130,7 @@
 		onclick={toggle}
 		tabindex={theme.current === 'dark' ? 0 : -1}
 	>
-		<span class="circadian grid text-xl text-gray-400" style:rotate={`${-rotation}deg`}>
+		<span class="circadian grid text-xl" style:rotate={`${-rotation}deg`}>
 			{@render iconPair('moon', MoonLight, MoonSolid)}
 		</span>
 	</button>
