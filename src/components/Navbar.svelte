@@ -21,7 +21,7 @@
 
 	<div class="nav-scroll-fade relative min-h-0 w-full flex-1 overflow-hidden">
 		<ul
-			class="nav-scroll-list hidebar flex h-full w-full flex-col gap-6 overflow-scroll ps-6 pt-6 text-nowrap"
+			class="nav-scroll-list hidebar flex h-full w-full flex-col overflow-scroll ps-6 pt-6 text-nowrap"
 		>
 			{#each articleTree as node (node.title)}
 				<li class={`acc-${node.accentIndex}`}>

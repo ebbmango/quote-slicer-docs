@@ -3,6 +3,8 @@
 <!-- If JavaScript is enabled, instead of replacing the component entirely, enhance it. -->
 <!-- There is no simple way of doing this. -->
 
+<!-- TODO: file became messy with gradient fix, refactor it alongside navlink & navbar -->
+
 <script lang="ts">
 	import Fa from 'svelte-fa';
 	import { resolve } from '$app/paths';
@@ -24,7 +26,7 @@
 	let transitionTimer: ReturnType<typeof setTimeout> | undefined;
 
 	let listHeight = $derived(
-		list !== null ? (dropdownState === 'open' ? `${list.scrollHeight}px` : '0px') : undefined
+		list !== null ? (dropdownState === 'open' ? `${list.scrollHeight + 28}px` : '0px') : undefined
 	);
 
 	let listMarginTop = $derived(
@@ -58,30 +60,28 @@
 </script>
 
 <details
-	class="dropdown"
+	class="dropdown duration-500"
 	open={dropdownState !== 'closed'}
 	style:--dropdown-duration={animationDuration}
+	class:mb-7={dropdownState === 'closed' || dropdownState === 'closing'}
 >
 	<summary class="dropdown-summary" onclick={toggleDetails}>
 		<span class="dropdown-title nav-header">
 			{title}
 		</span>
-		<span class="dropdown-arrow" class:rotate-45={dropdownState == 'open'}>
+		<span class="dropdown-arrow" class:rotate-45={dropdownState === 'open'}>
 			<Fa icon={faArrowDownRight} />
 		</span>
 	</summary>
-	<ul
-		bind:this={list}
-		class="fade-bottom dropdown-list acc-cycle overflow-hidden"
-		style:margin-top={listMarginTop}
-		style:height={listHeight}
-	>
-		{#each section.children as navlink (navlink.path)}
-			<li class="dropdown-item">
-				<a class="dropdown-link" href={resolve(navlink.path)}>{navlink.title}</a>
-			</li>
-		{/each}
-	</ul>
+	<div class="dropdown-list-frame" style:margin-top={listMarginTop} style:height={listHeight}>
+		<ul bind:this={list} class="dropdown-list acc-cycle">
+			{#each section.children as navlink (navlink.path)}
+				<li class="dropdown-item">
+					<a class="dropdown-link" href={resolve(navlink.path)}>{navlink.title}</a>
+				</li>
+			{/each}
+		</ul>
+	</div>
 </details>
 
 <style>
@@ -133,16 +133,44 @@
 		transition-duration: 300ms, 0ms;
 	}
 
-	/* .dropdown[open] .dropdown-arrow {
-		transform: rotate(45deg);
-	} */
-
 	.dropdown-summary:is(:hover, :focus-visible) .dropdown-arrow {
 		opacity: 0.3;
 	}
 
 	:global(html.no-js) .dropdown-summary:is(:hover, :focus-visible) .dropdown-arrow {
 		opacity: 0.6;
+	}
+
+	.dropdown-list-frame {
+		--dropdown-fade-color: var(--color-white);
+		--dropdown-fade-height: 35px;
+
+		position: relative;
+		width: 100%;
+		overflow: hidden;
+		transition-property: height, margin-top;
+		transition-duration: var(--dropdown-duration);
+		transition-timing-function: ease;
+	}
+
+	:global(html.dark) .dropdown-list-frame {
+		--dropdown-fade-color: var(--color-noctis);
+	}
+
+	.dropdown-list-frame::after {
+		content: '';
+		pointer-events: none;
+		position: absolute;
+		inset-inline: 0;
+		bottom: 0;
+		height: calc(100% + var(--dropdown-fade-height));
+		background: linear-gradient(
+			to bottom,
+			transparent 0,
+			transparent calc(100% - var(--dropdown-fade-height)),
+			var(--dropdown-fade-color) 100%
+		);
+		transition: height var(--dropdown-duration) ease;
 	}
 
 	.dropdown-list {
@@ -152,7 +180,6 @@
 		gap: 0.375rem;
 		font-family: var(--font-inter);
 		font-weight: 300;
-		transition-duration: var(--dropdown-duration);
 	}
 
 	.dropdown-item {
@@ -170,15 +197,5 @@
 	.dropdown-link:is(:hover, :focus-visible) {
 		color: var(--acc);
 		transform: translateX(0.25rem);
-	}
-
-	.fade-bottom {
-		-webkit-mask-image: linear-gradient(
-			to bottom,
-			black 0,
-			black calc(100% - 35px),
-			transparent 100%
-		);
-		mask-image: linear-gradient(to bottom, black 0, black calc(100% - 35px), transparent 100%);
 	}
 </style>

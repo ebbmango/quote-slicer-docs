@@ -12,7 +12,7 @@
 
 <a
 	href={resolve(article.path)}
-	class="nav-header block duration-500 focus-visible:outline-none js-only:hocus:translate-x-2"
+	class="nav-header mb-7 block duration-500 focus-visible:outline-none js-only:hocus:translate-x-2"
 >
 	{title}
 </a>
