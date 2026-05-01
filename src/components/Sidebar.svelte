@@ -112,7 +112,7 @@
 	<li class="text-md my-0.5 font-inter font-light acc-{heading.position % 9}">
 		<button
 			type="button"
-			class="group opacity-30 duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc) hocus:opacity-70"
+			class="group opacity-30 duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc) hocus:opacity-70 dark:hocus:opacity-90"
 			onclick={() => handleHeadingClick(heading)}
 		>
 			{heading.title}
