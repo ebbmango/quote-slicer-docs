@@ -106,6 +106,8 @@ article :where(code)::after {
 /* Codeblock Background Color */
 .prose :where(pre.shiki) {
 	background-color: var(--codeblock-bg);
+	max-width: 100%;
+	overflow-x: auto;
 }
 
 .prose :where(pre.shiki span) {
