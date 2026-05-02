@@ -1,4 +1,8 @@
 <script lang="ts">
+	// TODO: fix: the sun is always the first icon to show
+	// when updating the page, if dark mode is enabled, first the sun
+	// shows up, and then the toggle rotates
+
 	import { onDestroy } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { theme } from '$lib/theme';
