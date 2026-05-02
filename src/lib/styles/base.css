@@ -130,4 +130,5 @@ html.dark .prose :where(pre.shiki span) {
 	font-family: var(--font-mono);
 	text-transform: uppercase;
 	font-weight: 200;
+	opacity: 60%;
 }

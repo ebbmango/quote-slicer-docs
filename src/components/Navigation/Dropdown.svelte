@@ -1,9 +1,4 @@
-<!-- This component might seem overengineered. However, it serves a complex purpose:    -->
-<!-- If JavaScript is disabled, provide a simple and semantic <details/> as a fallback. -->
-<!-- If JavaScript is enabled, instead of replacing the component entirely, enhance it. -->
-<!-- There is no simple way of doing this. -->
-
-<!-- TODO: file became messy with gradient fix, refactor it alongside navlink & navbar -->
+<!-- Enhanced details: native no-JS fallback, animated panel when JS is available. -->
 
 <script lang="ts">
 	import Fa from 'svelte-fa';
@@ -24,26 +19,18 @@
 
 	let dropdownState = $state<DropdownState>('closed');
 	let transitionTimer: ReturnType<typeof setTimeout> | undefined;
-
-	let listHeight = $derived(
-		list !== null ? (dropdownState === 'open' ? `${list.scrollHeight + 28}px` : '0px') : undefined
-	);
-
-	let listMarginTop = $derived(
-		list !== null ? (dropdownState === 'open' ? '1.25rem' : '0px') : undefined
-	);
+	let isOpen = $derived(dropdownState === 'open');
+	let panelHeight = $derived(list ? (isOpen ? `${list.scrollHeight}px` : '0px') : undefined);
 
 	const ANIMATION_MS = 500;
 	const animationDuration = `${ANIMATION_MS}ms`;
 
 	function toggleDetails(event: MouseEvent) {
 		event.preventDefault();
-
 		clearTimeout(transitionTimer);
 
-		if (dropdownState === 'closed' || dropdownState === 'closing') {
+		if (!isOpen) {
 			dropdownState = 'open';
-
 			return;
 		}
 
@@ -62,18 +49,18 @@
 <details
 	class="dropdown duration-500"
 	open={dropdownState !== 'closed'}
+	class:dropdown-open={isOpen}
 	style:--dropdown-duration={animationDuration}
-	class:mb-7={dropdownState === 'closed' || dropdownState === 'closing'}
 >
 	<summary class="dropdown-summary" onclick={toggleDetails}>
 		<span class="dropdown-title nav-header">
 			{title}
 		</span>
-		<span class="dropdown-arrow" class:rotate-45={dropdownState === 'open'}>
+		<span class="dropdown-arrow" class:rotate-45={isOpen}>
 			<Fa icon={faArrowDownRight} />
 		</span>
 	</summary>
-	<div class="dropdown-list-frame" style:margin-top={listMarginTop} style:height={listHeight}>
+	<div class="dropdown-list-frame" style:height={panelHeight}>
 		<ul bind:this={list} class="dropdown-list acc-cycle">
 			{#each section.children as navlink (navlink.path)}
 				<li class="dropdown-item">
@@ -85,20 +72,28 @@
 </details>
 
 <style>
+	.dropdown {
+		--dropdown-list-gap: 0.625rem;
+		--dropdown-sibling-gap: 1.75rem;
+		--dropdown-fade-height: 28px;
+
+		margin-block-end: var(--dropdown-sibling-gap);
+	}
+
+	:global(html.js) .dropdown {
+		transition: margin-block-end var(--dropdown-duration) ease;
+	}
+
+	:global(html.js) .dropdown.dropdown-open {
+		margin-block-end: 0;
+	}
+
 	.dropdown-summary {
 		display: flex;
 		width: 100%;
 		cursor: pointer;
 		align-items: center;
 		justify-content: space-between;
-	}
-
-	:global(html.js) .dropdown-summary {
-		transition: margin-bottom 500ms ease;
-	}
-
-	:global(html.no-js) .dropdown[open] > .dropdown-summary {
-		margin-bottom: 1.25rem;
 	}
 
 	summary {
@@ -142,35 +137,24 @@
 	}
 
 	.dropdown-list-frame {
-		--dropdown-fade-color: var(--color-white);
-		--dropdown-fade-height: 35px;
-
-		position: relative;
 		width: 100%;
 		overflow: hidden;
-		transition-property: height, margin-top;
-		transition-duration: var(--dropdown-duration);
-		transition-timing-function: ease;
 	}
 
-	:global(html.dark) .dropdown-list-frame {
-		--dropdown-fade-color: var(--color-noctis);
-	}
-
-	.dropdown-list-frame::after {
-		content: '';
-		pointer-events: none;
-		position: absolute;
-		inset-inline: 0;
-		bottom: 0;
-		height: calc(100% + var(--dropdown-fade-height));
-		background: linear-gradient(
-			to bottom,
-			transparent 0,
-			transparent calc(100% - var(--dropdown-fade-height)),
-			var(--dropdown-fade-color) 100%
-		);
+	:global(html.js) .dropdown-list-frame {
 		transition: height var(--dropdown-duration) ease;
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			black,
+			black calc(100% - var(--dropdown-fade-height)),
+			transparent
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			black,
+			black calc(100% - var(--dropdown-fade-height)),
+			transparent
+		);
 	}
 
 	.dropdown-list {
@@ -178,8 +162,13 @@
 		width: 100%;
 		flex-direction: column;
 		gap: 0.375rem;
+		padding-block-start: var(--dropdown-list-gap);
 		font-family: var(--font-inter);
 		font-weight: 300;
+	}
+
+	:global(html.js) .dropdown-list {
+		padding-block-end: var(--dropdown-fade-height);
 	}
 
 	.dropdown-item {
@@ -187,15 +176,18 @@
 	}
 
 	.dropdown-link {
+		opacity: 30%;
 		display: inline-block;
 		width: 100%;
 		transition:
 			color 500ms ease,
-			transform 500ms ease;
+			transform 500ms ease,
+			opacity 500ms ease;
 	}
 
 	.dropdown-link:is(:hover, :focus-visible) {
 		color: var(--acc);
 		transform: translateX(0.25rem);
+		opacity: 90%;
 	}
 </style>
