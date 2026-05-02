@@ -1,4 +1,5 @@
 <!-- Enhanced details: native no-JS fallback, animated panel when JS is available. -->
+<!-- NOTE(bug) dropdown gradient persists after expansion on small (short) screens -->
 
 <script lang="ts">
 	import Fa from 'svelte-fa';
