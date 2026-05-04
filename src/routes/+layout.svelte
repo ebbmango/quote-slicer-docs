@@ -1,8 +1,10 @@
 <script lang="ts">
 	import '../lib/styles/index.css';
-	import favicon from '$lib/assets/favicon.svg';
-	import Navbar from '../components/Navbar.svelte';
 	import { theme } from '$lib/theme';
+	import favicon from '$lib/assets/favicon.svg';
+
+	import NavbarY from '../components/NavbarY.svelte';
+	import NavbarX from '../components/NavbarX.svelte';
 
 	const MIN_LAYOUT_WIDTH = 320;
 	const MIN_LAYOUT_HEIGHT = 455;
@@ -26,8 +28,10 @@
 <!-- The layout, at first, should be simple: just the navbar and the page's contents. -->
 <!-- As the sidebar belongs only to article pages, it should comprise another layout. -->
 
-<div class="flex h-dvh w-full">
-	<Navbar />
-
-	{@render children()}
+<div class="app-shell">
+	<NavbarY />
+	<NavbarX />
+	<div class="app-page">
+		{@render children()}
+	</div>
 </div>

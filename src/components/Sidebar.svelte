@@ -52,14 +52,6 @@
 	</div>
 </aside>
 
-<style>
-	@media (max-width: 1200px) {
-		.contents-sidebar {
-			display: none;
-		}
-	}
-</style>
-
 {#snippet renderHeading(heading: TocHeading)}
 	<li class="text-md my-0.5 font-inter font-light acc-{heading.position % 9}">
 		<a
