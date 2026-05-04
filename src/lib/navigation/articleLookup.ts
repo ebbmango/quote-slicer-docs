@@ -20,6 +20,7 @@ const routeGroupPattern = /\/\([^/]+\)(?=\/|$)/g;
 */
 
 export const diaryNavItem: Article = {
+	kind: 'article',
 	title: 'Development Diary',
 	path: '/development-diary',
 	accentIndex: articleTree.length % 9
