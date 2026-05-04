@@ -40,7 +40,7 @@
 	}
 </script>
 
-<aside class="flex min-w-70 flex-col justify-between">
+<aside class="contents-sidebar flex min-w-70 flex-col justify-between">
 	<div class="flex h-full items-center justify-end pe-1">
 		{#if headings.length > 0}
 			<ul class="flex flex-col gap-3 text-right">
@@ -51,6 +51,14 @@
 		{/if}
 	</div>
 </aside>
+
+<style>
+	@media (max-width: 1200px) {
+		.contents-sidebar {
+			display: none;
+		}
+	}
+</style>
 
 {#snippet renderHeading(heading: TocHeading)}
 	<li class="text-md my-0.5 font-inter font-light acc-{heading.position % 9}">
