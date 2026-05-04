@@ -77,8 +77,13 @@
 		--dropdown-list-gap: 0.625rem;
 		--dropdown-sibling-gap: 1.75rem;
 		--dropdown-fade-height: 28px;
+		--dropdown-link-hover-opacity: 0.9;
 
 		margin-block-end: var(--dropdown-sibling-gap);
+	}
+
+	:global(html.dark) .dropdown {
+		--dropdown-link-hover-opacity: 1;
 	}
 
 	:global(html.js) .dropdown {
@@ -189,6 +194,6 @@
 	.dropdown-link:is(:hover, :focus-visible) {
 		color: var(--acc);
 		transform: translateX(0.25rem);
-		opacity: 90%;
+		opacity: var(--dropdown-link-hover-opacity);
 	}
 </style>
