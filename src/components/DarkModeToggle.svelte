@@ -1,9 +1,5 @@
 <script lang="ts">
-	// TODO: fix: the sun is always the first icon to show
-	// when updating the page, if dark mode is enabled, first the sun
-	// shows up, and then the toggle rotates
-
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { theme } from '$lib/theme';
 	import {
@@ -22,6 +18,9 @@
 	const initialMode = theme.current;
 	let displayedMode = initialMode;
 	let rotation = $state(initialMode === 'dark' ? 180 : 0);
+
+	// important for initial render
+	let hasHydrated = $state(false);
 	let hoveredControl = $state<ThemeControl | null>(null);
 	let focusedControl = $state<ThemeControl | null>(null);
 	let activeControl = $derived(hoveredControl ?? focusedControl);
@@ -29,6 +28,16 @@
 	let moonButton: HTMLButtonElement | null = null;
 	let pointer: PointerPosition | null = null;
 	let hoverFrame = 0;
+
+	onMount(() => {
+		// Note: on SSR, theme.current can only return 'light'.
+		// So the server will always initially render the toggle with rotation = 0,
+		// meaning sun-first.
+
+		// Since the script in app.html already adds html.dark before Svelte hydrates,
+		// by instead relying on that, the initial icon already aligns with the theme.
+		hasHydrated = true;
+	});
 
 	const toggle = () => {
 		const nextMode = theme.current === 'dark' ? 'light' : 'dark';
@@ -105,8 +114,9 @@
 {/snippet}
 
 <div
-	class="circadian absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full"
-	style:rotate={`${rotation}deg`}
+	class="theme-toggle absolute -bottom-9 flex min-h-20 w-10 flex-col items-center justify-between rounded-full"
+	style={`--theme-toggle-rotation: ${rotation}deg; --theme-toggle-counter-rotation: ${-rotation}deg;`}
+	data-hydrated={hasHydrated ? 'true' : undefined}
 	role="group"
 	aria-label="Theme toggle"
 	onpointerenter={startHoverTracking}
@@ -122,7 +132,7 @@
 		onclick={toggle}
 		tabindex={theme.current === 'light' ? 0 : -1}
 	>
-		<span class="circadian grid text-xl" style:rotate={`${-rotation}deg`}>
+		<span class="theme-toggle-counter grid text-xl">
 			{@render iconPair('sun', SunLight, SunSolid)}
 		</span>
 	</button>
@@ -134,16 +144,41 @@
 		onclick={toggle}
 		tabindex={theme.current === 'dark' ? 0 : -1}
 	>
-		<span class="circadian grid text-xl" style:rotate={`${-rotation}deg`}>
+		<span class="theme-toggle-counter grid text-xl">
 			{@render iconPair('moon', MoonLight, MoonSolid)}
 		</span>
 	</button>
 </div>
 
 <style>
-	.circadian {
+	.theme-toggle {
 		--icon-opacity-duration: 400ms;
+		--theme-toggle-initial-rotation: 0deg;
+		--theme-toggle-initial-counter-rotation: 0deg;
 
+		rotate: var(--theme-toggle-initial-rotation);
+		transition: color 400ms;
+	}
+
+	:global(html.dark) .theme-toggle {
+		--theme-toggle-initial-rotation: 180deg;
+		--theme-toggle-initial-counter-rotation: -180deg;
+	}
+
+	.theme-toggle-counter {
+		rotate: var(--theme-toggle-initial-counter-rotation);
+		transition: color 400ms;
+	}
+
+	.theme-toggle[data-hydrated='true'] {
+		rotate: var(--theme-toggle-rotation);
+		transition:
+			rotate 800ms,
+			color 400ms;
+	}
+
+	.theme-toggle[data-hydrated='true'] .theme-toggle-counter {
+		rotate: var(--theme-toggle-counter-rotation);
 		transition:
 			rotate 800ms,
 			color 400ms;
