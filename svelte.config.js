@@ -2,6 +2,7 @@ import { escapeSvelte, mdsvex } from 'mdsvex';
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { codeToHtml } from 'shiki';
+import { rehypeHeadingIds } from './src/lib/build/articleToc.js';
 
 const dev = process.argv.includes('dev');
 
@@ -75,6 +76,7 @@ const config = {
 	preprocess: [
 		vitePreprocess(),
 		mdsvex({
+			rehypePlugins: [rehypeHeadingIds],
 			highlight: {
 				highlighter: highlightCode
 			}

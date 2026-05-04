@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import devtoolsJson from 'vite-plugin-devtools-json';
@@ -7,13 +6,14 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { articleTocPlugin } from './src/lib/build/articleToc.js';
 
 const dirname =
 	typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	plugins: [articleTocPlugin(), tailwindcss(), sveltekit(), devtoolsJson()],
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
