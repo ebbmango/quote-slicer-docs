@@ -140,5 +140,9 @@ html.dark .prose :where(pre.shiki span) {
 	font-family: var(--font-mono);
 	text-transform: uppercase;
 	font-weight: 200;
-	opacity: 60%;
+}
+
+.nav-nested {
+	font-family: var(--font-inter);
+	font-weight: 250;
 }

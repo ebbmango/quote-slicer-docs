@@ -54,7 +54,7 @@
 	style:--dropdown-duration={animationDuration}
 >
 	<summary class="dropdown-summary" onclick={toggleDetails}>
-		<span class="dropdown-title nav-header">
+		<span class="dropdown-title nav-header opacity-60">
 			{title}
 		</span>
 		<span class="dropdown-arrow" class:rotate-45={isOpen}>
@@ -78,12 +78,14 @@
 		--dropdown-sibling-gap: 1.75rem;
 		--dropdown-fade-height: 28px;
 		--dropdown-link-hover-opacity: 0.9;
+		--dropdown-touch-link-opacity: 0.8;
 
 		margin-block-end: var(--dropdown-sibling-gap);
 	}
 
 	:global(html.dark) .dropdown {
 		--dropdown-link-hover-opacity: 1;
+		--dropdown-touch-link-opacity: 1;
 	}
 
 	:global(html.js) .dropdown {
@@ -129,6 +131,12 @@
 		opacity: 0;
 	}
 
+	@media (hover: none) and (pointer: coarse) {
+		:global(html.js) .dropdown-arrow {
+			opacity: 0.2;
+		}
+	}
+
 	:global(html.no-js) .dropdown-arrow {
 		opacity: 0.2;
 		transition-duration: 300ms, 0ms;
@@ -170,7 +178,7 @@
 		gap: 0.375rem;
 		padding-block-start: var(--dropdown-list-gap);
 		font-family: var(--font-inter);
-		font-weight: 300;
+		font-weight: 250;
 	}
 
 	:global(html.js) .dropdown-list {
@@ -182,13 +190,20 @@
 	}
 
 	.dropdown-link {
-		opacity: 30%;
+		opacity: 35%;
 		display: inline-block;
 		width: 100%;
 		transition:
 			color 500ms ease,
 			transform 500ms ease,
 			opacity 500ms ease;
+	}
+
+	@media (hover: none) and (pointer: coarse) {
+		.dropdown-link {
+			color: var(--acc);
+			opacity: var(--dropdown-touch-link-opacity);
+		}
 	}
 
 	.dropdown-link:is(:hover, :focus-visible) {

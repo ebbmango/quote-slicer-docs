@@ -53,7 +53,7 @@
 </aside>
 
 {#snippet renderHeading(heading: TocHeading)}
-	<li class="text-md my-0.5 font-inter font-light acc-{heading.position % 9}">
+	<li class="text-md my-0.5 font-inter font-[250] acc-{heading.position % 9}">
 		<a
 			href={`#${heading.id}`}
 			class="group inline-block opacity-30 duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc) hocus:opacity-70 dark:hocus:opacity-90"

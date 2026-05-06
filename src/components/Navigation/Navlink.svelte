@@ -16,7 +16,7 @@
 	href={resolve(article.path)}
 	class="group mb-7 flex items-center justify-between focus-visible:outline-none"
 >
-	<span class="nav-header duration-500 js-only:group-hocus:translate-x-2">
+	<span class="nav-header opacity-60 duration-500 js-only:group-hocus:translate-x-2">
 		{title}
 	</span>
 	<Fa
