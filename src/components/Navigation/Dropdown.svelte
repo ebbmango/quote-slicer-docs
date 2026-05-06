@@ -62,9 +62,9 @@
 		</span>
 	</summary>
 	<div class="dropdown-list-frame" style:height={panelHeight}>
-		<ul bind:this={list} class="dropdown-list acc-cycle">
+		<ul bind:this={list} class="dropdown-list">
 			{#each section.children as navlink (navlink.path)}
-				<li class="dropdown-item">
+				<li class="dropdown-item acc-{navlink.nestedIndex % 9}">
 					<a class="dropdown-link" href={resolve(navlink.path)}>{navlink.title}</a>
 				</li>
 			{/each}

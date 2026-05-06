@@ -1,5 +1,5 @@
 import type { RouteId } from '$app/types';
-import type { Article } from './articleTypes';
+import type { Article, RootArticle } from './articleTypes';
 import { isSection } from './articleTypes';
 import { articleTree } from './articleTree';
 
@@ -23,7 +23,7 @@ export const diaryNavItem: Article = {
 	kind: 'article',
 	title: 'Development Diary',
 	path: '/development-diary',
-	accentIndex: articleTree.length % 9
+	...getDiaryIndexes()
 };
 
 const articleDirectory = new Map<string, Article>();
@@ -56,4 +56,22 @@ export function findArticleByRouteId(routeId: RouteId | null): Article | undefin
 	if (!routeId) return undefined;
 
 	return findArticleByPath(routeIdToArticlePath(routeId));
+}
+
+function getDiaryIndexes(): Pick<RootArticle, 'nodeIndex' | 'groupIndex' | 'nestedIndex'> {
+	let nodeIndex = 0;
+	let groupIndex = 0;
+
+	for (const item of articleTree) {
+		nodeIndex += 1;
+
+		if (isSection(item)) {
+			nodeIndex += item.children.length;
+			continue;
+		}
+
+		groupIndex += 1;
+	}
+
+	return { nodeIndex, groupIndex, nestedIndex: null };
 }

@@ -24,7 +24,7 @@
 			class="nav-scroll-list hidebar flex h-full w-full flex-col overflow-scroll ps-6 pt-6 text-nowrap"
 		>
 			{#each articleTree as node (node.title)}
-				<li class={`acc-${node.accentIndex}`}>
+				<li>
 					{#if isSection(node)}
 						<Dropdown section={node} />
 					{:else}
@@ -32,7 +32,7 @@
 					{/if}
 				</li>
 			{/each}
-			<li class={`acc-${diaryNavItem.accentIndex}`}>
+			<li>
 				<Navlink article={diaryNavItem} />
 			</li>
 		</ul>
