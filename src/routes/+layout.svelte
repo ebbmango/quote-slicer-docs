@@ -6,9 +6,6 @@
 	import NavbarY from '../components/NavbarY.svelte';
 	import NavbarX from '../components/NavbarX.svelte';
 
-	const MIN_LAYOUT_WIDTH = 320;
-	const MIN_LAYOUT_HEIGHT = 455;
-
 	let { children } = $props();
 
 	$effect(() => {
@@ -29,9 +26,70 @@
 <!-- As the sidebar belongs only to article pages, it should comprise another layout. -->
 
 <div class="app-shell">
-	<NavbarY />
-	<NavbarX />
+	<div id="x-nav"><NavbarX /></div>
+	<div id="y-nav"><NavbarY /></div>
 	<div class="app-page">
 		{@render children()}
 	</div>
 </div>
+
+<style>
+	.app-shell {
+		display: grid;
+		height: 100dvh;
+		width: 100%;
+		grid-template:
+			'top-nav' auto
+			'page' minmax(0, 1fr) / minmax(0, 1fr);
+	}
+
+	.app-page {
+		grid-area: page;
+		display: flex;
+		min-width: 0;
+		min-height: 0;
+	}
+
+	#x-nav {
+		position: relative;
+		z-index: 20;
+		grid-area: top-nav;
+		min-width: 0;
+	}
+
+	#y-nav {
+		grid-area: side-nav;
+		display: none;
+		min-height: 0;
+	}
+
+	#y-nav > :global(.side-nav) {
+		height: 100%;
+	}
+
+	.app-page :global(.contents-sidebar) {
+		display: none;
+	}
+
+	@media (min-width: 800px) {
+		.app-shell {
+			grid-template:
+				'side-nav page' minmax(0, 1fr)
+				/ auto minmax(0, 1fr);
+		}
+
+		#x-nav {
+			display: none;
+		}
+
+		#y-nav {
+			display: block;
+		}
+	}
+
+	@media (min-width: 1200px) {
+		.app-page :global(.contents-sidebar) {
+			display: flex;
+		}
+	}
+</style>
