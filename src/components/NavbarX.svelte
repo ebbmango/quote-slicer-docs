@@ -14,7 +14,7 @@
 </script>
 
 <div class="top-nav-shell">
-	<nav class="top-nav sticky top-0 flex h-23 w-full items-center justify-between gap-18 px-5">
+	<nav class="top-nav sticky top-0 flex h-23 w-full items-center justify-between gap-10 px-5">
 		<!-- open navigation sidebar -->
 		<Logo />
 		<!-- open chapters sidebar -->
@@ -28,9 +28,25 @@
 		</div>
 	</nav>
 
-	<!-- <div class="top-nav-modal z-1 flex flex-col bg-amber-100">
-		{#each articleTree as node (node.title)}
-		
-		{/each}
+	<!-- <div id="top-nav-modal" class="z-1 flex flex-col bg-white">
+		{#each articleTree as node (node.title)}{/each}
 	</div> -->
 </div>
+
+<style>
+	#top-nav-modal {
+		--modal-width: 100%;
+
+		position: absolute;
+		width: var(--modal-width);
+		top: 5.75rem;
+		inset-inline: 0;
+		height: calc(100dvh - 5.75rem);
+	}
+
+	@media (min-width: 600px) {
+		#top-nav-modal {
+			--modal-width: 17.5rem;
+		}
+	}
+</style>
