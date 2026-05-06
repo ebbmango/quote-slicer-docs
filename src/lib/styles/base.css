@@ -33,6 +33,13 @@ html.dark {
 	}
 }
 
+/* Titles */
+h1.title {
+	hyphens: auto;
+	overflow-wrap: break-word;
+	word-break: normal;
+}
+
 /* ARTICLE */
 article,
 article *,
@@ -87,6 +94,9 @@ article :where(:not(pre) > code) {
 	padding: 0.08em 0.4em;
 	background-color: var(--inline-mono-bg);
 	font-weight: var(--inline-mono-weight);
+	overflow-wrap: anywhere;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
 }
 
 /* removes backticks */
