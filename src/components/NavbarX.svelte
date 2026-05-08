@@ -77,9 +77,9 @@
 		aria-label="Toggle navigation menu"
 	/>
 
-	<nav class="top-nav sticky top-0 flex h-23 w-full items-center justify-between gap-10 px-5">
+	<nav class="top-nav sticky top-0 flex w-full items-center justify-between">
 		<Logo />
-		<div class="flex items-center justify-between gap-4 pe-2 text-xl">
+		<div class="flex items-center justify-between gap-4 text-xl">
 			<!-- Navbar Toggle -->
 			<div class="relative flex items-center justify-center">
 				<label
@@ -113,6 +113,19 @@
 </div>
 
 <style>
+	.top-nav-shell {
+		--logo-font-size: clamp(0.75rem, 2.2svh, 1rem);
+		--top-nav-logo-mark-size: clamp(2.4375rem, 7.15svh, 3.25rem);
+		--top-nav-height: clamp(4rem, 11svh, 5.75rem);
+		--top-nav-edge-space: calc((var(--top-nav-height) - var(--top-nav-logo-mark-size)) / 2);
+	}
+
+	.top-nav {
+		gap: clamp(1rem, 6svh, 2.5rem);
+		height: var(--top-nav-height);
+		padding-inline: var(--top-nav-edge-space);
+	}
+
 	.nav-toggle {
 		position: absolute;
 		width: 1px;
@@ -134,9 +147,9 @@
 		flex-direction: column;
 		position: absolute;
 		width: var(--modal-width);
-		top: 5.75rem;
+		top: var(--top-nav-height);
 		inset-inline: 0;
-		height: calc(100dvh - 5.75rem);
+		height: calc(100dvh - var(--top-nav-height));
 		opacity: 0;
 		pointer-events: none;
 		transform: translateX(-0.75rem);
