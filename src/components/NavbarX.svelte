@@ -7,18 +7,14 @@
 	import { articleTree } from '$lib/navigation/articleTree';
 	import type { Article, NavigationNode, Section } from '$lib/navigation/articleTypes';
 	import { diaryNavItem } from '$lib/navigation/articleLookup';
-	import {
-		faArrowRight,
-		faBookArrowRight,
-		faBookBlank,
-		faBooks,
-		faDash,
-		faMemo,
-		faNewspaper,
-		faSection
-	} from '@awesome.me/kit-d1ffd5714e/icons/sharp/light';
+	import { faArrowRight } from '@awesome.me/kit-d1ffd5714e/icons/sharp/light';
 
 	let icon = $derived(theme.current === 'dark' ? faMoon : faSunBright);
+	let checked = $state(false);
+
+	function close(event: MouseEvent) {
+		checked = false;
+	}
 
 	function hasChildren(node: NavigationNode): node is Section {
 		return 'children' in node;
@@ -33,6 +29,7 @@
 {#snippet renderArticle(article: Article)}
 	<li class="list-none">
 		<a
+			onclick={close}
 			class="group relative flex items-center justify-between opacity-60 max-[600px]:justify-center min-[600px]:w-full"
 			href={resolve(article.path)}
 		>
@@ -58,6 +55,7 @@
 			{#each section.children as article}
 				<li class="flex w-full max-[600px]:justify-center">
 					<a
+						onclick={close}
 						class="nav-nested acc-{article.nestedIndex %
 							9} duration-500 hocus:opacity-100 touch:w-auto touch:text-(--acc) touch:opacity-70 dark:touch:opacity-100 mouse:flex mouse:w-full mouse:opacity-30 max-[600px]:mouse:justify-center mouse:hocus:text-(--acc) min-[600px]:mouse:hocus:ps-1"
 						href={resolve(article.path)}>{article.title}</a
@@ -71,9 +69,9 @@
 <div class="top-nav-shell">
 	<input
 		id="show-nav"
-		checked
 		class="nav-toggle"
 		type="checkbox"
+		bind:checked
 		aria-label="Toggle navigation menu"
 	/>
 
