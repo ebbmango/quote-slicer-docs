@@ -136,6 +136,15 @@ html.dark .prose :where(pre.shiki span) {
 
 /* CUSTOM CLASSES */
 
+.focus-ring-none {
+	-webkit-tap-highlight-color: transparent;
+}
+
+.focus-ring-none:where(:focus, :focus-visible) {
+	outline: none;
+	box-shadow: none;
+}
+
 .nav-header {
 	font-family: var(--font-mono);
 	text-transform: uppercase;

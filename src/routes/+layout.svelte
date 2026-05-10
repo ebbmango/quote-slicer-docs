@@ -3,8 +3,7 @@
 	import { theme } from '$lib/theme';
 	import favicon from '$lib/assets/favicon.svg';
 
-	import NavbarY from '../components/NavbarY.svelte';
-	import NavbarX from '../components/NavbarX.svelte';
+	import Navbar from '../components/Navbar.svelte';
 
 	let { children } = $props();
 
@@ -26,8 +25,7 @@
 <!-- As the sidebar belongs only to article pages, it should comprise another layout. -->
 
 <div class="app-shell">
-	<div id="x-nav"><NavbarX /></div>
-	<div id="y-nav"><NavbarY /></div>
+	<Navbar />
 	<div class="app-page">
 		{@render children()}
 	</div>
@@ -50,21 +48,8 @@
 		min-height: 0;
 	}
 
-	#x-nav {
-		position: relative;
-		z-index: 20;
+	.app-shell :global(.navbar-shell) {
 		grid-area: top-nav;
-		min-width: 0;
-	}
-
-	#y-nav {
-		grid-area: side-nav;
-		display: none;
-		min-height: 0;
-	}
-
-	#y-nav > :global(.side-nav) {
-		height: 100%;
 	}
 
 	.app-page :global(.contents-sidebar) {
@@ -78,12 +63,8 @@
 				/ auto minmax(0, 1fr);
 		}
 
-		#x-nav {
-			display: none;
-		}
-
-		#y-nav {
-			display: block;
+		.app-shell :global(.navbar-shell) {
+			grid-area: side-nav;
 		}
 	}
 
