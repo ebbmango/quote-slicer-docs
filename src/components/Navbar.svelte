@@ -97,7 +97,7 @@
 			<NavMenu />
 		</div>
 
-		<footer class="flex min-h-18 w-full justify-center no-js:hidden">
+		<footer class="relative flex min-h-18 w-full justify-center overflow-hidden no-js:hidden">
 			<DarkModeToggle />
 		</footer>
 	</nav>
@@ -242,7 +242,7 @@
 			flex-direction: column;
 			width: 17.5rem;
 			min-width: 17.5rem;
-			height: 100%;
+			height: 100dvh;
 			justify-content: space-between;
 			overflow: hidden;
 			padding-inline: 0;
