@@ -126,7 +126,7 @@
 	<!-- Negative tabindex prevents focus on the inactive button from breaking the layout during scroll -->
 	<button
 		bind:this={sunButton}
-		class="outline-none focus:outline-none focus-visible:outline-none"
+		class="focus-ring-none"
 		onfocus={() => (focusedControl = 'sun')}
 		onblur={() => (focusedControl = null)}
 		onclick={toggle}
@@ -138,7 +138,7 @@
 	</button>
 	<button
 		bind:this={moonButton}
-		class="outline-none focus:outline-none focus-visible:outline-none"
+		class="focus-ring-none"
 		onfocus={() => (focusedControl = 'moon')}
 		onblur={() => (focusedControl = null)}
 		onclick={toggle}
