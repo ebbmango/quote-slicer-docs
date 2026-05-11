@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { theme } from '$lib/theme';
+	import type { Mode } from '$lib/types';
 	import {
 		faMoon as MoonSolid,
 		faSunBright as SunSolid
@@ -39,28 +40,36 @@
 		hasHydrated = true;
 	});
 
-	// TODO: set types for theme
-
-	const alternate = (currentTheme: 'dark' | 'light') => {
-		const nextButton = currentTheme === 'dark' ? sunButton : moonButton;
-		setTimeout(() => {
-			nextButton?.focus();
-		}, 400); // for this to work, this has to be min half of rotation duration
+	const buttonForMode = (mode: Mode) => {
+		return mode === 'dark' ? moonButton : sunButton;
 	};
 
-	const toggle = () => {
+	let focusRequest = 0;
+
+	const focusCurrentControl = async (mode: Mode) => {
+		const request = ++focusRequest;
+		await tick();
+		if (request !== focusRequest) return;
+
+		buttonForMode(mode)?.focus({ preventScroll: true });
+	};
+
+	const toggle = (event: MouseEvent & { currentTarget: HTMLButtonElement }) => {
 		const nextMode = theme.current === 'dark' ? 'light' : 'dark';
+		const shouldPreserveToggleFocus = document.activeElement === event.currentTarget;
 		rotation += 180;
-		alternate(theme.current); //
 		displayedMode = nextMode;
 		theme.current = nextMode;
+
+		if (shouldPreserveToggleFocus) {
+			void focusCurrentControl(nextMode);
+		}
 	};
 
 	$effect(() => {
 		const currentMode = theme.current;
 		if (currentMode === displayedMode) return;
 		rotation += 180;
-		alternate(theme.current); //
 		displayedMode = currentMode;
 	});
 
@@ -133,13 +142,15 @@
 	onpointermove={trackPointer}
 	onpointerleave={stopHoverTracking}
 >
-	<!-- Negative tabindex prevents focus on the inactive button from breaking the layout during scroll -->
+	<!-- Only the visible/current control participates in sequential keyboard navigation. -->
 	<button
 		bind:this={sunButton}
 		class="focus-ring-none"
 		onfocus={() => (focusedControl = 'sun')}
 		onblur={() => (focusedControl = null)}
 		onclick={toggle}
+		type="button"
+		aria-label="Switch to dark theme"
 		tabindex={theme.current === 'light' ? 0 : -1}
 	>
 		<span class="theme-toggle-counter grid text-xl">
@@ -152,6 +163,8 @@
 		onfocus={() => (focusedControl = 'moon')}
 		onblur={() => (focusedControl = null)}
 		onclick={toggle}
+		type="button"
+		aria-label="Switch to light theme"
 		tabindex={theme.current === 'dark' ? 0 : -1}
 	>
 		<span class="theme-toggle-counter grid text-xl">
