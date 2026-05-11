@@ -20,13 +20,68 @@
 <a
 	href={resolve(article.path)}
 	onclick={handleNavigate}
-	class="focus-ring-none group relative flex items-center justify-between opacity-60 max-[600px]:justify-center min-[600px]:w-full"
+	class="nav-link focus-ring-none group relative flex items-center justify-between opacity-60"
 >
-	<span class="nav-header duration-500 min-[600px]:group-hocus:translate-x-2">
+	<span class="nav-link-label nav-header">
 		{title}
 	</span>
-	<Fa
-		class="-right-6 opacity-0 duration-500 group-hocus:opacity-70 max-[600px]:absolute max-[600px]:group-hocus:translate-x-1 touch:opacity-20"
-		icon={faArrowRight}
-	/>
+	<span class="nav-link-icon" aria-hidden="true">
+		<Fa icon={faArrowRight} />
+	</span>
 </a>
+
+<style>
+	.nav-link-label {
+		transition: transform 500ms ease;
+	}
+
+	.nav-link-icon {
+		display: flex;
+		opacity: 0;
+		transition:
+			opacity 500ms ease,
+			transform 500ms ease;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.nav-link:is(:hover, :focus-visible) .nav-link-icon {
+			opacity: 0.7;
+		}
+	}
+
+	@media (hover: none) and (pointer: coarse) {
+		.nav-link-icon {
+			opacity: 0.2;
+			transition: none;
+		}
+	}
+
+	@media (max-width: 599.98px) {
+		.nav-link {
+			justify-content: center;
+		}
+
+		.nav-link-icon {
+			position: absolute;
+			right: -1.5rem;
+		}
+	}
+
+	@media (max-width: 599.98px) and (hover: hover) and (pointer: fine) {
+		.nav-link:is(:hover, :focus-visible) .nav-link-icon {
+			transform: translateX(0.25rem);
+		}
+	}
+
+	@media (min-width: 600px) {
+		.nav-link {
+			width: 100%;
+		}
+	}
+
+	@media (min-width: 600px) and (hover: hover) and (pointer: fine) {
+		.nav-link:is(:hover, :focus-visible) .nav-link-label {
+			transform: translateX(0.5rem);
+		}
+	}
+</style>
