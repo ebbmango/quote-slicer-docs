@@ -39,9 +39,19 @@
 		hasHydrated = true;
 	});
 
+	// TODO: set types for theme
+
+	const alternate = (currentTheme: 'dark' | 'light') => {
+		const nextButton = currentTheme === 'dark' ? sunButton : moonButton;
+		setTimeout(() => {
+			nextButton?.focus();
+		}, 400); // for this to work, this has to be min half of rotation duration
+	};
+
 	const toggle = () => {
 		const nextMode = theme.current === 'dark' ? 'light' : 'dark';
 		rotation += 180;
+		alternate(theme.current); //
 		displayedMode = nextMode;
 		theme.current = nextMode;
 	};
@@ -49,8 +59,8 @@
 	$effect(() => {
 		const currentMode = theme.current;
 		if (currentMode === displayedMode) return;
-
 		rotation += 180;
+		alternate(theme.current); //
 		displayedMode = currentMode;
 	});
 
