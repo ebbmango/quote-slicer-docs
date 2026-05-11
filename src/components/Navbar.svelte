@@ -214,21 +214,6 @@
 		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening {
 			visibility: hidden;
 		}
-
-		.nav-toggle-label:active .nav-toggle-icon-closed,
-		#show-nav:active ~ .top-nav-controls .nav-toggle-icon-closed,
-		.nav-toggle-label:active .nav-toggle-icon-open,
-		#show-nav:active ~ .top-nav-controls .nav-toggle-icon-open {
-			opacity: 0;
-			transition-duration: 0s;
-		}
-
-		.nav-toggle-label:active .nav-toggle-icon-opening,
-		#show-nav:active ~ .top-nav-controls .nav-toggle-icon-opening {
-			visibility: visible;
-			opacity: 0.6;
-			transition-duration: 0s;
-		}
 	}
 
 	@media (hover: none) and (pointer: coarse) {
