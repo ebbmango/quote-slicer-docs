@@ -53,7 +53,7 @@
 						icon={bookLight}
 					/>
 					<Fa
-						class="absolute opacity-0 transition-opacity duration-180 group-hocus:opacity-60 toggle-checked:invisible toggle-checked:duration-0 touch:hidden"
+						class="absolute opacity-0 toggle-checked:invisible toggle-checked:duration-0 touch:hidden mouse:transition-opacity mouse:duration-180 mouse:group-hocus:opacity-60"
 						icon={bookArrow}
 					/>
 					<Fa
