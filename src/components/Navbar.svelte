@@ -41,7 +41,9 @@
 	/>
 
 	<header class="top-nav sticky top-0 flex w-full items-center justify-between">
-		<Logo />
+		<div class="top-nav-logo-frame">
+			<Logo />
+		</div>
 		<div class="flex items-center justify-between gap-4 text-xl">
 			<div class="relative flex items-center justify-center">
 				<label
@@ -105,10 +107,11 @@
 
 <style>
 	.navbar-shell {
-		--logo-font-size: clamp(0.75rem, 2.2svh, 1rem);
-		--top-nav-logo-mark-size: clamp(2.4375rem, 7.15svh, 3.25rem);
-		--top-nav-height: clamp(4rem, 11svh, 5.75rem);
+		--drawer-nav-width: 100%;
+		--top-nav-logo-mark-size: clamp(2.4375rem, calc(1.895833rem + 2.708333vw), 3.25rem);
+		--top-nav-height: clamp(4rem, calc(2.833333rem + 5.833333vw), 5.75rem);
 		--top-nav-edge-space: calc((var(--top-nav-height) - var(--top-nav-logo-mark-size)) / 2);
+		--top-nav-gap: clamp(1rem, 5vw, 2.5rem);
 		--nav-transform-duration: 380ms;
 		--nav-color-duration: 500ms;
 		--nav-visibility-close-delay: var(--nav-transform-duration);
@@ -120,9 +123,30 @@
 	}
 
 	.top-nav {
-		gap: clamp(1rem, 6svh, 2.5rem);
+		--logo-font-size: clamp(0.75rem, calc(0.583333rem + 0.833333vw), 1rem);
+
+		gap: var(--top-nav-gap);
 		height: var(--top-nav-height);
 		padding-inline: var(--top-nav-edge-space);
+	}
+
+	.top-nav-logo-frame {
+		display: flex;
+		flex: none;
+		transition: transform var(--nav-transform-duration) var(--nav-ease);
+	}
+
+	@supports (width: 1cqw) {
+		.navbar-shell {
+			container-type: inline-size;
+			--top-nav-logo-mark-size: clamp(2.4375rem, calc(1.895833rem + 2.708333cqw), 3.25rem);
+			--top-nav-height: clamp(4rem, calc(2.833333rem + 5.833333cqw), 5.75rem);
+			--top-nav-gap: clamp(1rem, 5cqw, 2.5rem);
+		}
+
+		.top-nav {
+			--logo-font-size: clamp(0.75rem, calc(0.583333rem + 0.833333cqw), 1rem);
+		}
 	}
 
 	.nav-toggle {
@@ -180,11 +204,9 @@
 	}
 
 	.drawer-nav {
-		--nav-width: 100%;
-
 		flex-direction: column;
 		position: absolute;
-		width: var(--nav-width);
+		width: var(--drawer-nav-width);
 		top: var(--top-nav-height);
 		inset-inline: 0;
 		height: calc(100dvh - var(--top-nav-height));
@@ -222,13 +244,18 @@
 	}
 
 	@media (min-width: 600px) {
-		.drawer-nav {
-			--nav-width: 17.5rem;
+		.navbar-shell {
+			--drawer-nav-width: 17.5rem;
+		}
+
+		#show-nav:checked ~ .top-nav .top-nav-logo-frame {
+			transform: translateX(calc(var(--drawer-nav-width) / 2 - var(--top-nav-edge-space) - 50%));
 		}
 	}
 
 	@media (min-width: 800px) {
 		.navbar-shell {
+			container-type: normal;
 			height: 100%;
 		}
 
@@ -243,6 +270,7 @@
 			width: 17.5rem;
 			min-width: 17.5rem;
 			height: 100dvh;
+			min-height: 300px;
 			justify-content: space-between;
 			overflow: hidden;
 			padding-inline: 0;
@@ -272,6 +300,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+		.top-nav-logo-frame,
 		.nav-toggle-label,
 		.drawer-nav {
 			transition: none;
