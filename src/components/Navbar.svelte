@@ -307,14 +307,6 @@
 		display: none;
 	}
 
-	.nav-scroll-fade {
-		--nav-scroll-fade-color: var(--color-white);
-	}
-
-	:global(html.dark) .nav-scroll-fade {
-		--nav-scroll-fade-color: var(--color-noctis);
-	}
-
 	@media (min-width: 600px) {
 		.navbar-shell {
 			--drawer-nav-width: 17.5rem;
@@ -356,18 +348,22 @@
 			position: absolute;
 			inset-inline: 0;
 			z-index: 10;
+			background-color: var(--page-bg);
+			transition: background-color var(--nav-color-duration) var(--nav-ease);
 		}
 
 		.nav-scroll-fade::before {
 			top: 0;
 			height: 34px;
-			background: linear-gradient(to bottom, var(--nav-scroll-fade-color), transparent);
+			-webkit-mask-image: linear-gradient(to bottom, black, transparent);
+			mask-image: linear-gradient(to bottom, black, transparent);
 		}
 
 		.nav-scroll-fade::after {
 			bottom: 0;
 			height: 40px;
-			background: linear-gradient(to top, var(--nav-scroll-fade-color), transparent);
+			-webkit-mask-image: linear-gradient(to top, black, transparent);
+			mask-image: linear-gradient(to top, black, transparent);
 		}
 	}
 
@@ -380,6 +376,11 @@
 
 		.drawer-nav {
 			transform: none;
+		}
+
+		.nav-scroll-fade::before,
+		.nav-scroll-fade::after {
+			transition: none;
 		}
 	}
 </style>
