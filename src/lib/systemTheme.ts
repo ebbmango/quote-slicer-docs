@@ -1,27 +1,61 @@
-import { createSubscriber } from 'svelte/reactivity';
 import { browser } from '$app/environment';
+import { createSubscriber } from 'svelte/reactivity';
+import type { Mode } from './types';
+import {
+	HEARTBEAT_MS,
+	THEME_STATE_KEY,
+	THEME_TABS_KEY,
+	createSystemState,
+	createUserState,
+	isStateNewer,
+	pruneTabRegistry,
+	readTabRegistry,
+	readThemeState,
+	removeThemeState,
+	resolveStoredTheme,
+	toMode,
+	writeTabRegistry,
+	writeThemeState,
+	type StorageLike,
+	type StoredTabRegistry,
+	type StoredThemeState
+} from './themeState';
 
-type Mode = 'dark' | 'light';
 type ThemeMessage =
 	| { type: 'request'; source: string }
-	| { type: 'state'; source: string; value: Mode };
+	| { type: 'state'; source: string; state: StoredThemeState };
 
 const THEME_CHANNEL = 'theme-sync';
 
-function toMode(systemIsDark: boolean): Mode {
-	return systemIsDark ? 'dark' : 'light';
-}
-
 function getTabId(): string {
-	// browser-support dependant
 	if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
 		return crypto.randomUUID();
 	}
 	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function isReloadNavigation(): boolean {
+	const [navigation] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+	if (navigation) return navigation.type === 'reload';
+
+	const legacyPerformance = performance as Performance & { navigation?: { type?: number } };
+	return legacyPerformance.navigation?.type === 1;
+}
+
+function withStorage<T>(callback: (storage: StorageLike) => T, fallback: T): T {
+	try {
+		return callback(window.localStorage);
+	} catch {
+		return fallback;
+	}
+}
+
+function applyDocumentTheme(mode: Mode) {
+	document.documentElement.classList.toggle('dark', mode === 'dark');
+	document.documentElement.style.colorScheme = mode;
+}
+
 export function adaptiveTheme() {
-	// ssr guard
 	if (!browser) {
 		return {
 			get current(): Mode {
@@ -32,29 +66,164 @@ export function adaptiveTheme() {
 	}
 
 	const media = window.matchMedia('(prefers-color-scheme: dark)');
-	let currentMode = toMode(media.matches);
 	const tabId = getTabId();
 	const channel =
 		typeof BroadcastChannel === 'function' ? new BroadcastChannel(THEME_CHANNEL) : null;
 
+	const getSystemMode = () => toMode(media.matches);
+
+	const resolveInitialState = () => {
+		const now = Date.now();
+		const fallbackState = createSystemState(getSystemMode(), now, tabId);
+
+		return withStorage((storage) => {
+			const resolution = resolveStoredTheme({
+				currentSystemMode: getSystemMode(),
+				now,
+				isReload: isReloadNavigation(),
+				storedState: readThemeState(storage),
+				storedRegistry: readTabRegistry(storage),
+				writerTabId: tabId
+			});
+
+			if (resolution.shouldWriteRegistry) writeTabRegistry(storage, resolution.registry);
+			if (resolution.shouldRemoveState) removeThemeState(storage);
+			if (resolution.shouldWriteState) writeThemeState(storage, resolution.state);
+
+			return resolution.state;
+		}, fallbackState);
+	};
+
+	let currentState = resolveInitialState();
+	let currentMode = currentState.mode;
 	let notify = () => {};
 
-	const broadcastState = () => {
+	const broadcastState = (state = currentState) => {
 		if (!channel) return;
-		const message: ThemeMessage = { type: 'state', source: tabId, value: currentMode };
-		channel.postMessage(message);
+		channel.postMessage({ type: 'state', source: tabId, state } satisfies ThemeMessage);
 	};
+
+	const setCurrentState = (
+		state: StoredThemeState,
+		options: { write?: boolean; broadcast?: boolean; notify?: boolean } = {}
+	) => {
+		const modeChanged = state.mode !== currentMode;
+
+		currentState = state;
+		currentMode = state.mode;
+		applyDocumentTheme(currentMode);
+
+		if (options.write !== false) {
+			withStorage((storage) => writeThemeState(storage, state), undefined);
+		}
+
+		if (options.broadcast !== false) broadcastState(state);
+		if (modeChanged && options.notify !== false) notify();
+	};
+
+	const updateTabRegistry = (
+		update: (registry: StoredTabRegistry, now: number) => StoredTabRegistry
+	) => {
+		withStorage((storage) => {
+			const now = Date.now();
+			const { registry } = pruneTabRegistry(readTabRegistry(storage), now);
+			writeTabRegistry(storage, update(registry, now));
+		}, undefined);
+	};
+
+	const registerTab = () => {
+		updateTabRegistry((registry, now) => {
+			registry.tabs[tabId] = { seenAt: now };
+			delete registry.lastEmptyAt;
+			return registry;
+		});
+	};
+
+	const unregisterTab = () => {
+		updateTabRegistry((registry, now) => {
+			delete registry.tabs[tabId];
+			if (Object.keys(registry.tabs).length === 0) {
+				registry.lastEmptyAt = now;
+			}
+			return registry;
+		});
+	};
+
+	const heartbeatTab = () => {
+		updateTabRegistry((registry, now) => {
+			registry.tabs[tabId] = { seenAt: now };
+			delete registry.lastEmptyAt;
+			return registry;
+		});
+	};
+
+	const publishSystemState = () => {
+		setCurrentState(createSystemState(getSystemMode(), Date.now(), tabId));
+	};
+
+	const reconcileStoredTheme = () => {
+		withStorage((storage) => {
+			const now = Date.now();
+			const storedState = readThemeState(storage);
+			const resolution = resolveStoredTheme({
+				currentSystemMode: getSystemMode(),
+				now,
+				isReload: isReloadNavigation(),
+				storedState,
+				storedRegistry: readTabRegistry(storage),
+				writerTabId: tabId
+			});
+
+			if (resolution.shouldWriteRegistry) writeTabRegistry(storage, resolution.registry);
+			if (resolution.shouldRemoveState) removeThemeState(storage);
+
+			if (resolution.shouldWriteState) {
+				setCurrentState(resolution.state);
+				return;
+			}
+
+			if (!storedState) {
+				setCurrentState(resolution.state);
+				return;
+			}
+
+			if (resolution.state.systemMode !== getSystemMode()) {
+				publishSystemState();
+				return;
+			}
+
+			if (isStateNewer(resolution.state, currentState) || resolution.state.mode !== currentMode) {
+				setCurrentState(resolution.state, { write: false, broadcast: false });
+			}
+		}, undefined);
+	};
+
+	const handleExternalState = (state: StoredThemeState) => {
+		if (state.writerTabId === tabId) return;
+
+		if (state.systemMode !== getSystemMode()) {
+			publishSystemState();
+			return;
+		}
+
+		if (!isStateNewer(state, currentState) && state.mode === currentMode) return;
+		setCurrentState(state, { write: false, broadcast: false });
+	};
+
+	registerTab();
+	withStorage((storage) => {
+		if (!readThemeState(storage)) writeThemeState(storage, currentState);
+	}, undefined);
+	applyDocumentTheme(currentMode);
+
+	const heartbeat = window.setInterval(heartbeatTab, HEARTBEAT_MS);
 
 	const subscribe = createSubscriber((update) => {
 		notify = update;
 
-		const handler = (e: MediaQueryListEvent) => {
-			currentMode = toMode(e.matches);
-			broadcastState();
-			update();
-		};
+		const mediaHandler = () => publishSystemState();
 
-		const onMessage = (event: MessageEvent<ThemeMessage>) => {
+		const channelHandler = (event: MessageEvent<ThemeMessage>) => {
 			const message = event.data;
 			if (!message || message.source === tabId) return;
 
@@ -63,21 +232,45 @@ export function adaptiveTheme() {
 				return;
 			}
 
-			if (message.type !== 'state') return;
-			if (message.value === currentMode) return;
-
-			currentMode = message.value;
-			update();
+			if (message.type === 'state') {
+				handleExternalState(message.state);
+			}
 		};
 
-		media.addEventListener('change', handler);
-		channel?.addEventListener('message', onMessage);
+		const storageHandler = (event: StorageEvent) => {
+			if (event.key !== THEME_STATE_KEY && event.key !== THEME_TABS_KEY) return;
+			reconcileStoredTheme();
+		};
+
+		const visibilityHandler = () => {
+			if (document.visibilityState === 'visible') reconcileStoredTheme();
+		};
+
+		const pageShowHandler = () => reconcileStoredTheme();
+		const focusHandler = () => reconcileStoredTheme();
+		media.addEventListener('change', mediaHandler);
+		channel?.addEventListener('message', channelHandler);
+		window.addEventListener('storage', storageHandler);
+		document.addEventListener('visibilitychange', visibilityHandler);
+		window.addEventListener('pageshow', pageShowHandler);
+		window.addEventListener('focus', focusHandler);
 		channel?.postMessage({ type: 'request', source: tabId } satisfies ThemeMessage);
 
 		return () => {
-			media.removeEventListener('change', handler);
-			channel?.removeEventListener('message', onMessage);
+			media.removeEventListener('change', mediaHandler);
+			channel?.removeEventListener('message', channelHandler);
+			window.removeEventListener('storage', storageHandler);
+			document.removeEventListener('visibilitychange', visibilityHandler);
+			window.removeEventListener('pageshow', pageShowHandler);
+			window.removeEventListener('focus', focusHandler);
 		};
+	});
+
+	window.addEventListener('pagehide', (event) => {
+		if (event.persisted) return;
+		window.clearInterval(heartbeat);
+		unregisterTab();
+		channel?.close();
 	});
 
 	return {
@@ -87,10 +280,7 @@ export function adaptiveTheme() {
 		},
 
 		set current(mode: Mode) {
-			if (mode === currentMode) return;
-			currentMode = mode;
-			broadcastState();
-			notify();
+			setCurrentState(createUserState(mode, getSystemMode(), Date.now(), tabId));
 		}
 	};
 }
