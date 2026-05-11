@@ -25,6 +25,13 @@
 		checked = false;
 	}
 
+	function handleNavToggleKeydown(event: KeyboardEvent) {
+		if (event.key !== 'Enter') return;
+
+		event.preventDefault();
+		checked = !checked;
+	}
+
 	const toggle = () => {
 		const nextMode = theme.current === 'dark' ? 'light' : 'dark';
 		theme.current = nextMode;
@@ -32,36 +39,33 @@
 </script>
 
 <div class="navbar-shell">
-	<input
-		id="show-nav"
-		class="nav-toggle focus-ring-none"
-		type="checkbox"
-		bind:checked
-		aria-label="Toggle navigation menu"
-	/>
-
 	<header class="top-nav sticky top-0 flex w-full items-center justify-between">
 		<div class="top-nav-logo-frame">
 			<Logo />
 		</div>
-		<div class="flex items-center justify-between gap-4 text-xl">
+		<input
+			id="show-nav"
+			class="nav-toggle focus-ring-none"
+			type="checkbox"
+			bind:checked
+			onkeydown={handleNavToggleKeydown}
+			aria-label="Toggle navigation menu"
+		/>
+		<div class="top-nav-controls flex items-center justify-between gap-4 text-xl">
 			<div class="relative flex items-center justify-center">
 				<label
 					for="show-nav"
 					class="nav-toggle-label group focus-ring-none relative flex size-5 items-center justify-center"
 				>
-					<Fa
-						class="absolute opacity-30 transition-opacity duration-180 toggle-checked:opacity-0 mouse:group-hocus:opacity-0"
-						icon={bookLight}
-					/>
-					<Fa
-						class="absolute opacity-0 toggle-checked:invisible toggle-checked:duration-0 touch:hidden mouse:transition-opacity mouse:duration-180 mouse:group-hocus:opacity-60"
-						icon={bookArrow}
-					/>
-					<Fa
-						class="absolute opacity-0 transition-opacity toggle-checked:opacity-60 touch:duration-180 mouse:duration-0"
-						icon={bookSolid}
-					/>
+					<span class="nav-toggle-icon nav-toggle-icon-closed">
+						<Fa icon={bookLight} />
+					</span>
+					<span class="nav-toggle-icon nav-toggle-icon-opening">
+						<Fa icon={bookArrow} />
+					</span>
+					<span class="nav-toggle-icon nav-toggle-icon-open">
+						<Fa icon={bookSolid} />
+					</span>
 				</label>
 			</div>
 			<button
@@ -163,6 +167,76 @@
 		transition: opacity 180ms ease;
 	}
 
+	.nav-toggle-icon {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		opacity: 0;
+		transition: opacity 180ms ease;
+	}
+
+	.nav-toggle-icon-closed {
+		opacity: 0.3;
+	}
+
+	#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-closed,
+	#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening {
+		opacity: 0;
+	}
+
+	#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-open {
+		opacity: 0.6;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.nav-toggle-label:hover .nav-toggle-icon-closed,
+		#show-nav:focus-visible ~ .top-nav-controls .nav-toggle-icon-closed {
+			opacity: 0;
+		}
+
+		.nav-toggle-label:hover .nav-toggle-icon-opening,
+		#show-nav:focus-visible:not(:checked) ~ .top-nav-controls .nav-toggle-icon-opening {
+			opacity: 0.6;
+		}
+
+		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening,
+		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-open {
+			transition-duration: 0s;
+		}
+
+		#show-nav:focus ~ .top-nav-controls .nav-toggle-label:hover .nav-toggle-icon-opening,
+		#show-nav:focus ~ .top-nav-controls .nav-toggle-label:hover .nav-toggle-icon-open {
+			transition-duration: 0s;
+		}
+
+		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening {
+			visibility: hidden;
+		}
+
+		.nav-toggle-label:active .nav-toggle-icon-closed,
+		#show-nav:active ~ .top-nav-controls .nav-toggle-icon-closed,
+		.nav-toggle-label:active .nav-toggle-icon-open,
+		#show-nav:active ~ .top-nav-controls .nav-toggle-icon-open {
+			opacity: 0;
+			transition-duration: 0s;
+		}
+
+		.nav-toggle-label:active .nav-toggle-icon-opening,
+		#show-nav:active ~ .top-nav-controls .nav-toggle-icon-opening {
+			visibility: visible;
+			opacity: 0.6;
+			transition-duration: 0s;
+		}
+	}
+
+	@media (hover: none) and (pointer: coarse) {
+		.nav-toggle-icon-opening {
+			display: none;
+		}
+	}
+
 	.top-theme-icon {
 		position: absolute;
 		display: flex;
@@ -187,18 +261,16 @@
 		opacity: 0.3;
 	}
 
-	@media (hover: hover) and (pointer: fine) {
-		.top-theme-toggle:hover .top-theme-icon[data-weight='light'] {
-			opacity: 0;
-		}
+	.top-theme-toggle:is(:hover, :focus-visible) .top-theme-icon[data-weight='light'] {
+		opacity: 0;
+	}
 
-		.top-theme-toggle:hover .top-theme-icon[data-weight='solid'] {
-			opacity: 0.6;
-		}
+	.top-theme-toggle:is(:hover, :focus-visible) .top-theme-icon[data-weight='solid'] {
+		opacity: 0.6;
 	}
 
 	@media (hover: none) and (pointer: coarse) {
-		.top-theme-icon[data-weight='solid'] {
+		.top-theme-toggle:not(:focus-visible) .top-theme-icon[data-weight='solid'] {
 			display: none;
 		}
 	}
@@ -220,7 +292,7 @@
 			background-color var(--nav-color-duration) var(--nav-ease);
 	}
 
-	#show-nav:checked ~ .drawer-nav {
+	.navbar-shell:has(#show-nav:checked) .drawer-nav {
 		opacity: 1;
 		pointer-events: auto;
 		transform: translateX(0);
@@ -248,7 +320,7 @@
 			--drawer-nav-width: 17.5rem;
 		}
 
-		#show-nav:checked ~ .top-nav .top-nav-logo-frame {
+		.navbar-shell:has(#show-nav:checked) .top-nav-logo-frame {
 			transform: translateX(calc(var(--drawer-nav-width) / 2 - var(--top-nav-edge-space) - 50%));
 		}
 	}
