@@ -4,6 +4,10 @@ import path from 'node:path';
 const virtualModuleId = 'virtual:article-toc';
 const resolvedVirtualModuleId = `\0${virtualModuleId}`;
 const routePageSuffix = '/+page.svx';
+const tocMinHeadingLevel = 2;
+const tocMaxHeadingLevel = 4;
+const anchorMinHeadingLevel = 1;
+const anchorMaxHeadingLevel = 6;
 
 /**
  * @typedef {import('../navigation/tocTypes').TocHeading} TocHeading
@@ -54,7 +58,10 @@ export function createHeadingSlugger() {
  * @param {{ minLevel?: number; maxLevel?: number }} [options]
  * @returns {TocTree}
  */
-export function extractTocFromSvx(source, { minLevel = 2, maxLevel = 4 } = {}) {
+export function extractTocFromSvx(
+	source,
+	{ minLevel = tocMinHeadingLevel, maxLevel = tocMaxHeadingLevel } = {}
+) {
 	const headings = extractFlatHeadings(source, { minLevel, maxLevel });
 
 	return buildTocTree(headings);
@@ -203,11 +210,16 @@ function buildTocTree(headings) {
 }
 
 /**
- * Adds ids to markdown-rendered h2-h4 elements during the mdsvex/rehype pass.
+ * Adds ids to markdown-rendered headings during the mdsvex/rehype pass.
+ *
+ * The default range deliberately covers h1-h6 so every static heading can be
+ * linked directly, even when the ToC only displays a smaller h2-h4 subset.
  *
  * @param {{ minLevel?: number; maxLevel?: number }} [options]
  */
-export function rehypeHeadingIds({ minLevel = 2, maxLevel = 4 } = {}) {
+export function rehypeHeadingIds(
+	{ minLevel = anchorMinHeadingLevel, maxLevel = anchorMaxHeadingLevel } = {}
+) {
 	/**
 	 * @param {any} tree
 	 */

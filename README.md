@@ -10,7 +10,7 @@ The pipeline has four pieces:
 1. `src/lib/build/articleToc.js` scans article `.svx` files and extracts `h2`-`h4`
    markdown headings into a nested ToC tree.
 2. The same file exports `rehypeHeadingIds`, which `svelte.config.js` passes to
-   mdsvex. This adds matching `id` attributes to rendered `h2`-`h4` headings.
+   mdsvex. This adds matching `id` attributes to rendered `h1`-`h6` headings.
 3. `vite.config.ts` registers `articleTocPlugin()`, which exposes the extracted ToCs
    through the virtual module `virtual:article-toc`.
 4. `src/routes/(article-shell)/+layout.ts` reads that virtual module and passes the
@@ -29,4 +29,5 @@ Current scope:
 - ToC entries are generated from markdown headings only.
 - `h1` is skipped because it is the page title.
 - `h5` and `h6` are skipped to keep the sidebar compact.
+- Rendered `h1`-`h6` headings still receive ids so any heading can be linked directly.
 - Dynamic Svelte heading text is not supported for ToC generation.

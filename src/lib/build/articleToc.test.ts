@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	extractTocFromSvx,
+	rehypeHeadingIds,
 	routeIdFromRouteFile,
 	routePathFromRouteId,
 	slugHeading
@@ -113,6 +114,49 @@ title: Ignored
 		]);
 	});
 });
+
+describe('article heading ids', () => {
+	it('adds ids to every static h1-h6 heading by default', () => {
+		expect.assertions(1);
+
+		const tree = {
+			type: 'root',
+			children: [
+				heading('h1', 'Page Title'),
+				heading('h2', 'Overview'),
+				heading('h3', 'Overview'),
+				heading('h4', 'Details'),
+				heading('h5', 'Minor Detail'),
+				heading('h6', 'Implementation Step'),
+				{ type: 'element', tagName: 'p', children: [{ type: 'text', value: 'Body text' }] }
+			]
+		};
+
+		rehypeHeadingIds()(tree);
+
+		expect(tree.children.map((node) => nodeId(node))).toEqual([
+			'page-title',
+			'overview',
+			'overview-1',
+			'details',
+			'minor-detail',
+			'implementation-step',
+			undefined
+		]);
+	});
+});
+
+function heading(tagName: string, value: string) {
+	return {
+		type: 'element',
+		tagName,
+		children: [{ type: 'text', value }]
+	};
+}
+
+function nodeId(node: unknown) {
+	return (node as { properties?: { id?: string } }).properties?.id;
+}
 
 describe('article route normalization', () => {
 	it('maps grouped +page.svx files to SvelteKit route ids and URL paths', () => {
