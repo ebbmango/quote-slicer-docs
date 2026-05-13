@@ -1,11 +1,13 @@
 <script lang="ts">
 	import '../lib/styles/index.css';
 	import { theme } from '$lib/theme';
-	import favicon from '$lib/assets/favicon.svg';
+	import faviconBlack from '$lib/assets/favicon-black.svg';
+	import faviconWhite from '$lib/assets/favicon-white.svg';
 
 	import Navbar from '../components/Navbar.svelte';
 
 	let { children } = $props();
+	let favicon = $derived(theme.current === 'dark' ? faviconWhite : faviconBlack);
 
 	$effect(() => {
 		if (typeof document === 'undefined') return;
