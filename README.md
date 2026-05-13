@@ -31,3 +31,22 @@ Current scope:
 - `h5` and `h6` are skipped to keep the sidebar compact.
 - Rendered `h1`-`h6` headings still receive ids so any heading can be linked directly.
 - Dynamic Svelte heading text is not supported for ToC generation.
+
+## Article Links
+
+Internal article links use wiki-style syntax and are resolved while mdsvex compiles
+the article:
+
+- `[[#heading]]` links to a heading in the current article.
+- `[[overview]]` links to another article.
+- `[[overview#heading]]` links to a heading in another article.
+- `[[overview#heading|custom label]]` uses explicit link text.
+
+Heading targets may use either the generated id or the visible heading text. Article
+targets may use the article path, final path segment, or title when that alias is
+unique.
+
+`src/lib/build/articleLinks.js` builds an article catalog from docs routes and diary
+entries, then rewrites wiki links into normal markdown links with the configured
+SvelteKit base path. Missing article links are currently rendered as plain text when
+they have a label, and reported as mdsvex warnings.

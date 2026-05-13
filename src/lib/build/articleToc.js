@@ -62,17 +62,20 @@ export function extractTocFromSvx(
 	source,
 	{ minLevel = tocMinHeadingLevel, maxLevel = tocMaxHeadingLevel } = {}
 ) {
-	const headings = extractFlatHeadings(source, { minLevel, maxLevel });
+	const headings = extractHeadingEntriesFromSvx(source, { minLevel, maxLevel });
 
 	return buildTocTree(headings);
 }
 
 /**
  * @param {string} source
- * @param {{ minLevel: number; maxLevel: number }} options
+ * @param {{ minLevel?: number; maxLevel?: number }} [options]
  * @returns {TocTree}
  */
-function extractFlatHeadings(source, { minLevel, maxLevel }) {
+export function extractHeadingEntriesFromSvx(
+	source,
+	{ minLevel = anchorMinHeadingLevel, maxLevel = anchorMaxHeadingLevel } = {}
+) {
 	const slug = createHeadingSlugger();
 	const headings = [];
 	const lines = source.split(/\r?\n/);
@@ -217,9 +220,10 @@ function buildTocTree(headings) {
  *
  * @param {{ minLevel?: number; maxLevel?: number }} [options]
  */
-export function rehypeHeadingIds(
-	{ minLevel = anchorMinHeadingLevel, maxLevel = anchorMaxHeadingLevel } = {}
-) {
+export function rehypeHeadingIds({
+	minLevel = anchorMinHeadingLevel,
+	maxLevel = anchorMaxHeadingLevel
+} = {}) {
 	/**
 	 * @param {any} tree
 	 */

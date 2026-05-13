@@ -2,9 +2,11 @@ import { escapeSvelte, mdsvex } from 'mdsvex';
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { codeToHtml } from 'shiki';
+import { remarkArticleLinks } from './src/lib/build/articleLinks.js';
 import { rehypeHeadingIds } from './src/lib/build/articleToc.js';
 
 const dev = process.argv.includes('dev');
+const basePath = dev ? '' : '/quote-slicer-docs';
 
 // good ones: kanagawa-wave, catppuccin-frappe
 
@@ -76,6 +78,7 @@ const config = {
 	preprocess: [
 		vitePreprocess(),
 		mdsvex({
+			remarkPlugins: [[remarkArticleLinks, { basePath }]],
 			rehypePlugins: [rehypeHeadingIds],
 			highlight: {
 				highlighter: highlightCode
@@ -87,7 +90,7 @@ const config = {
 			fallback: '404.html'
 		}),
 		paths: {
-			base: dev ? '' : '/quote-slicer-docs'
+			base: basePath
 		}
 	},
 	extensions: ['.svelte', '.svx']
