@@ -135,7 +135,7 @@
 			}}
 		>
 			{heading.title}
-			<span class="opacity-0 duration-500 group-hocus:opacity-50">#</span>
+			<span class="opacity-0 duration-500 group-hocus:opacity-60">#</span>
 		</a>
 		{#if heading.children.length > 0}
 			<ul class="tree-branch">
@@ -163,7 +163,7 @@
 	}
 
 	.toc-link:is(:hover, :focus-visible) {
-		--toc-link-opacity: 0.7;
+		--toc-link-opacity: 0.9;
 	}
 
 	:global(html.dark) .toc-link:is(:hover, :focus-visible) {
