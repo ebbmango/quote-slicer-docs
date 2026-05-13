@@ -6,6 +6,7 @@ html {
 
 	--inline-mono-weight: 400;
 	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
+	--article-link-color: light-dark(var(--sugar-token-latin), var(--beeswax-gloss-hanzi));
 	--ul-marker-color: light-dark(var(--color-tin), #4d4d4d);
 	--ol-marker-color: light-dark(#a2a2a2, #4d4d4d);
 }

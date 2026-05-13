@@ -35,4 +35,11 @@
 	article :global(h6) {
 		font-size: 1em;
 	}
+
+	article :global(a) {
+		color: var(--article-link-color);
+		font-style: italic;
+		font-weight: inherit;
+		text-decoration: none;
+	}
 </style>
