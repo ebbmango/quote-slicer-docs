@@ -36,6 +36,7 @@
 <style>
 	.app-shell {
 		display: grid;
+		align-content: start;
 		min-height: 100dvh;
 		width: 100%;
 		grid-template:
