@@ -59,7 +59,7 @@
 	@media (min-width: 800px) {
 		.nav-menu {
 			padding-block-start: 1.5rem;
-			padding-inline-start: 1.5rem;
+			padding-inline-start: 1rem;
 			white-space: nowrap;
 		}
 	}

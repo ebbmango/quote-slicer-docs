@@ -133,6 +133,7 @@
 		gap: var(--top-nav-gap);
 		height: var(--top-nav-height);
 		padding-inline: var(--top-nav-edge-space);
+		padding-inline-end: calc(var(--top-nav-edge-space) + var(--page-edge-gutter));
 		background-color: var(--page-bg);
 		transition: background-color var(--nav-color-duration) var(--nav-ease);
 	}
@@ -326,7 +327,7 @@
 			min-height: 300px;
 			justify-content: space-between;
 			overflow: hidden;
-			padding-inline: 0;
+			padding-inline: var(--page-edge-gutter) 0;
 			transition: background-color var(--nav-color-duration) var(--nav-ease);
 		}
 
