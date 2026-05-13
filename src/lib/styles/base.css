@@ -1,6 +1,7 @@
 html {
 	color-scheme: light;
 	scrollbar-gutter: stable;
+	--page-edge-gutter: 1.25rem;
 	--page-bg: light-dark(white, var(--color-noctis));
 	--inline-mono-bg: light-dark(#ededed, #3d3d3d);
 	--codeblock-bg: #3d3d3d;

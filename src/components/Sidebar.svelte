@@ -20,11 +20,13 @@
 		const updateActiveHeading = () => {
 			if (elements.length === 0) return;
 
-			const activationY = window.innerHeight * 0.25;
+			const currentScrollTop = window.scrollY;
+			const maxScrollTop = getMaxScrollTop();
 			let current = elements[0].id;
 
 			for (const element of elements) {
-				if (element.getBoundingClientRect().top > activationY) break;
+				const targetScrollTop = getHeadingTargetScrollTop(element, maxScrollTop);
+				if (targetScrollTop > currentScrollTop + 2) break;
 				current = element.id;
 			}
 
@@ -82,13 +84,24 @@
 	}
 
 	function isHeadingAtScrollTarget(target: HTMLElement) {
-		const targetRect = target.getBoundingClientRect();
-		const scrollMarginTop = Number.parseFloat(getComputedStyle(target).scrollMarginTop || '0');
-		const targetTop = targetRect.top + window.scrollY;
-		const maxScrollTop = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-		const expectedScrollTop = Math.min(Math.max(targetTop - scrollMarginTop, 0), maxScrollTop);
+		const expectedScrollTop = getHeadingTargetScrollTop(target, getMaxScrollTop());
 
 		return Math.abs(window.scrollY - expectedScrollTop) <= 2;
+	}
+
+	function getHeadingTargetScrollTop(target: HTMLElement, maxScrollTop: number) {
+		const targetTop = target.getBoundingClientRect().top + window.scrollY;
+		const targetScrollTop = targetTop - getScrollMarginTop(target);
+
+		return Math.min(Math.max(targetScrollTop, 0), maxScrollTop);
+	}
+
+	function getMaxScrollTop() {
+		return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+	}
+
+	function getScrollMarginTop(element: HTMLElement) {
+		return Number.parseFloat(getComputedStyle(element).scrollMarginTop || '0');
 	}
 
 	function flattenHeadings(headings: TocHeading[]): TocHeading[] {
@@ -97,9 +110,11 @@
 </script>
 
 <aside class="contents-sidebar sticky top-0 flex h-dvh min-w-70 flex-col justify-between">
-	<div class="flex h-full min-h-0 items-center justify-end pe-5">
+	<div class="toc-edge-gutter flex h-full min-h-0 items-center justify-end">
 		{#if headings.length > 0}
-			<ul class="hidebar flex max-h-full flex-col gap-3 overflow-y-auto py-8 text-right">
+			<ul
+				class="hidebar -ms-16 flex max-h-full flex-col gap-3 overflow-y-auto py-8 ps-16 text-right"
+			>
 				{#each headings as heading (heading.id)}
 					{@render renderHeading(heading)}
 				{/each}
@@ -114,7 +129,7 @@
 			href={`#${heading.id}`}
 			aria-current={activeHeadingId === heading.id ? 'location' : undefined}
 			class:toc-current={activeHeadingId === heading.id}
-			class="group inline-block opacity-30 duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc) hocus:opacity-70 dark:hocus:opacity-90"
+			class="toc-link group inline-block duration-500 focus-visible:outline-none hocus:-translate-x-1 hocus:text-(--acc)"
 			onclick={() => {
 				handleHeadingClick(heading.id);
 			}}
@@ -133,7 +148,25 @@
 {/snippet}
 
 <style>
+	.toc-edge-gutter {
+		padding-inline-end: var(--page-edge-gutter);
+	}
+
+	.toc-link {
+		--toc-link-opacity: 0.3;
+
+		opacity: var(--toc-link-opacity);
+	}
+
 	.toc-current {
-		opacity: 0.45;
+		--toc-link-opacity: 0.5;
+	}
+
+	.toc-link:is(:hover, :focus-visible) {
+		--toc-link-opacity: 0.7;
+	}
+
+	:global(html.dark) .toc-link:is(:hover, :focus-visible) {
+		--toc-link-opacity: 0.9;
 	}
 </style>
