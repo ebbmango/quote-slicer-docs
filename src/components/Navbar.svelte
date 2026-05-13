@@ -114,7 +114,7 @@
 		--drawer-nav-width: 100%;
 		--top-nav-logo-mark-size: clamp(2.4375rem, calc(1.895833rem + 2.708333vw), 3.25rem);
 		--top-nav-height: clamp(4rem, calc(2.833333rem + 5.833333vw), 5.75rem);
-		--top-nav-edge-space: calc((var(--top-nav-height) - var(--top-nav-logo-mark-size)) / 2);
+		--top-nav-edge-space: 0.25rem;
 		--top-nav-gap: clamp(1rem, 5vw, 2.5rem);
 		--nav-transform-duration: 380ms;
 		--nav-color-duration: 500ms;
@@ -132,8 +132,7 @@
 
 		gap: var(--top-nav-gap);
 		height: var(--top-nav-height);
-		padding-inline: var(--top-nav-edge-space);
-		padding-inline-end: calc(var(--top-nav-edge-space) + var(--page-edge-gutter));
+		padding-inline: calc(var(--top-nav-edge-space) + var(--page-edge-gutter));
 		background-color: var(--page-bg);
 		transition: background-color var(--nav-color-duration) var(--nav-ease);
 	}
@@ -250,12 +249,22 @@
 		opacity: 0.3;
 	}
 
-	.top-theme-toggle:is(:hover, :focus-visible) .top-theme-icon[data-weight='light'] {
+	.top-theme-toggle:focus-visible .top-theme-icon[data-weight='light'] {
 		opacity: 0;
 	}
 
-	.top-theme-toggle:is(:hover, :focus-visible) .top-theme-icon[data-weight='solid'] {
+	.top-theme-toggle:focus-visible .top-theme-icon[data-weight='solid'] {
 		opacity: 0.6;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.top-theme-toggle:hover .top-theme-icon[data-weight='light'] {
+			opacity: 0;
+		}
+
+		.top-theme-toggle:hover .top-theme-icon[data-weight='solid'] {
+			opacity: 0.6;
+		}
 	}
 
 	@media (hover: none) and (pointer: coarse) {
@@ -302,7 +311,11 @@
 		}
 
 		.navbar-shell:has(#show-nav:checked) .top-nav-logo-frame {
-			transform: translateX(calc(var(--drawer-nav-width) / 2 - var(--top-nav-edge-space) - 50%));
+			transform: translateX(
+				calc(
+					var(--drawer-nav-width) / 2 - var(--top-nav-edge-space) - var(--page-edge-gutter) - 50%
+				)
+			);
 		}
 	}
 
