@@ -121,7 +121,8 @@
 		--nav-visibility-close-delay: var(--nav-transform-duration);
 		--nav-ease: ease;
 
-		position: relative;
+		position: sticky;
+		top: 0;
 		z-index: 20;
 		min-width: 0;
 	}
@@ -132,6 +133,8 @@
 		gap: var(--top-nav-gap);
 		height: var(--top-nav-height);
 		padding-inline: var(--top-nav-edge-space);
+		background-color: var(--page-bg);
+		transition: background-color var(--nav-color-duration) var(--nav-ease);
 	}
 
 	.top-nav-logo-frame {
@@ -305,7 +308,8 @@
 	@media (min-width: 800px) {
 		.navbar-shell {
 			container-type: normal;
-			height: 100%;
+			align-self: start;
+			height: 100dvh;
 		}
 
 		.top-nav,

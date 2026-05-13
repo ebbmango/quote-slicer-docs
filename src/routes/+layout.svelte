@@ -36,18 +36,17 @@
 <style>
 	.app-shell {
 		display: grid;
-		height: 100dvh;
+		min-height: 100dvh;
 		width: 100%;
 		grid-template:
 			'top-nav' auto
-			'page' minmax(0, 1fr) / minmax(0, 1fr);
+			'page' auto / minmax(0, 1fr);
 	}
 
 	.app-page {
 		grid-area: page;
 		display: flex;
 		min-width: 0;
-		min-height: 0;
 	}
 
 	.app-shell :global(.navbar-shell) {
@@ -61,7 +60,7 @@
 	@media (min-width: 800px) {
 		.app-shell {
 			grid-template:
-				'side-nav page' minmax(0, 1fr)
+				'side-nav page' minmax(100dvh, auto)
 				/ auto minmax(0, 1fr);
 		}
 

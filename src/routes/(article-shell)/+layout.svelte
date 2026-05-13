@@ -5,9 +5,9 @@
 </script>
 
 <!-- todo: keep scrollbar if content sidebar doesn't exist -->
-<main class="flex h-full min-h-0 min-w-0 flex-1 flex-col items-center">
+<main class="flex min-w-0 flex-1 flex-col items-center">
 	<article
-		class="prose-transition hidebar prose prose-xl h-full w-full min-w-0 overflow-scroll scroll-smooth px-8 pt-7 pb-[10dvh] font-inter font-light dark:prose-invert prose-headings:font-dm-serif prose-headings:font-light prose-headings:tracking-normal prose-h1:normal-case prose-code:font-mono prose-pre:font-mono"
+		class="prose-transition prose prose-xl w-full min-w-0 px-8 pt-7 pb-[10dvh] font-inter font-light dark:prose-invert prose-headings:font-dm-serif prose-headings:font-light prose-headings:tracking-normal prose-h1:normal-case prose-code:font-mono prose-pre:font-mono"
 	>
 		{@render children()}
 	</article>
@@ -19,7 +19,13 @@
 
 <style>
 	article :global(:is(h1, h2, h3, h4, h5, h6)) {
-		scroll-margin-top: 1rem;
+		scroll-margin-top: 6.75rem;
+	}
+
+	@media (min-width: 800px) {
+		article :global(:is(h1, h2, h3, h4, h5, h6)) {
+			scroll-margin-top: 1rem;
+		}
 	}
 
 	article :global(h4) {
