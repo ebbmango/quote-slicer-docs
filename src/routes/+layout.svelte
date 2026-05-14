@@ -8,13 +8,6 @@
 
 	let { children } = $props();
 	let favicon = $derived(theme.current === 'dark' ? faviconWhite : faviconBlack);
-
-	$effect(() => {
-		if (typeof document === 'undefined') return;
-		const isDark = theme.current === 'dark';
-		document.documentElement.classList.toggle('dark', isDark);
-		document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-	});
 </script>
 
 <svelte:head>
@@ -34,9 +27,10 @@
 		align-content: start;
 		min-height: 100dvh;
 		width: 100%;
-		grid-template:
-			'top-nav' auto
-			'page' auto / minmax(0, 1fr);
+		grid-template-areas:
+			'nav'
+			'page';
+		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.app-page {
@@ -46,7 +40,7 @@
 	}
 
 	.app-shell :global(.navbar-shell) {
-		grid-area: top-nav;
+		grid-area: nav;
 	}
 
 	.app-page :global(.contents-sidebar) {
@@ -55,13 +49,8 @@
 
 	@media (min-width: 800px) {
 		.app-shell {
-			grid-template:
-				'side-nav page' minmax(100dvh, auto)
-				/ auto minmax(0, 1fr);
-		}
-
-		.app-shell :global(.navbar-shell) {
-			grid-area: side-nav;
+			grid-template-areas: 'nav page';
+			grid-template-columns: auto minmax(0, 1fr);
 		}
 	}
 
