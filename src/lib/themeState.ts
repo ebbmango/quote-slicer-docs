@@ -27,6 +27,8 @@ export type ThemeResolution = {
 	shouldWriteRegistry: boolean;
 };
 
+export type ExternalThemeStateAction = 'adopt' | 'ignore' | 'publish-system';
+
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 export const THEME_STATE_KEY = 'quote-slicer-docs:theme-state:v1';
@@ -214,6 +216,25 @@ export function resolveStoredTheme(input: {
 export function isStateNewer(candidate: StoredThemeState, current: StoredThemeState): boolean {
 	if (candidate.updatedAt !== current.updatedAt) return candidate.updatedAt > current.updatedAt;
 	return candidate.writerTabId > current.writerTabId;
+}
+
+export function resolveExternalThemeState(input: {
+	incomingState: StoredThemeState;
+	currentState: StoredThemeState;
+	currentMode: Mode;
+	currentSystemMode: Mode;
+}): ExternalThemeStateAction {
+	const { incomingState, currentState, currentMode, currentSystemMode } = input;
+
+	if (incomingState.systemMode !== currentSystemMode) {
+		return incomingState.source === 'system' ? 'ignore' : 'publish-system';
+	}
+
+	if (isStateNewer(incomingState, currentState) || incomingState.mode !== currentMode) {
+		return 'adopt';
+	}
+
+	return 'ignore';
 }
 
 export function readThemeState(storage: StorageLike): StoredThemeState | null {

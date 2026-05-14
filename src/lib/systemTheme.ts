@@ -4,7 +4,6 @@ import type { Mode } from './types';
 import {
 	HEARTBEAT_MS,
 	THEME_STATE_KEY,
-	THEME_TABS_KEY,
 	createSystemState,
 	createUserState,
 	isStateNewer,
@@ -12,6 +11,7 @@ import {
 	readTabRegistry,
 	readThemeState,
 	removeThemeState,
+	resolveExternalThemeState,
 	resolveStoredTheme,
 	toMode,
 	writeTabRegistry,
@@ -201,13 +201,15 @@ export function adaptiveTheme() {
 	const handleExternalState = (state: StoredThemeState) => {
 		if (state.writerTabId === tabId) return;
 
-		if (state.systemMode !== getSystemMode()) {
-			publishSystemState();
-			return;
-		}
+		const action = resolveExternalThemeState({
+			incomingState: state,
+			currentState,
+			currentMode,
+			currentSystemMode: getSystemMode()
+		});
 
-		if (!isStateNewer(state, currentState) && state.mode === currentMode) return;
-		setCurrentState(state, { write: false, broadcast: false });
+		if (action === 'publish-system') publishSystemState();
+		if (action === 'adopt') setCurrentState(state, { write: false, broadcast: false });
 	};
 
 	registerTab();
@@ -238,8 +240,9 @@ export function adaptiveTheme() {
 		};
 
 		const storageHandler = (event: StorageEvent) => {
-			if (event.key !== THEME_STATE_KEY && event.key !== THEME_TABS_KEY) return;
-			reconcileStoredTheme();
+			if (event.key !== THEME_STATE_KEY || !event.newValue) return;
+			const state = readThemeState(window.localStorage);
+			if (state) handleExternalState(state);
 		};
 
 		const visibilityHandler = () => {

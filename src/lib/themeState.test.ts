@@ -6,6 +6,7 @@ import {
 	createUserState,
 	parseTabRegistry,
 	parseThemeState,
+	resolveExternalThemeState,
 	resolveStoredTheme,
 	type StoredTabRegistry
 } from './themeState';
@@ -191,5 +192,46 @@ describe('theme state resolution', () => {
 		expect(result.mode).toBe('dark');
 		expect(result.state).toBe(reconciledState);
 		expect(result.shouldWriteState).toBe(false);
+	});
+});
+
+describe('external theme state resolution', () => {
+	it('ignores a mismatched system state from another tab instead of rolling it back', () => {
+		expect.assertions(1);
+
+		expect(
+			resolveExternalThemeState({
+				incomingState: createSystemState('dark', NOW + 1_000, 'fast-tab'),
+				currentState: createSystemState('light', NOW, TAB_ID),
+				currentMode: 'light',
+				currentSystemMode: 'light'
+			})
+		).toBe('ignore');
+	});
+
+	it('publishes the current system state when a manual state belongs to an old system mode', () => {
+		expect.assertions(1);
+
+		expect(
+			resolveExternalThemeState({
+				incomingState: createUserState('light', 'light', NOW + 1_000, 'stale-tab'),
+				currentState: createSystemState('dark', NOW, TAB_ID),
+				currentMode: 'dark',
+				currentSystemMode: 'dark'
+			})
+		).toBe('publish-system');
+	});
+
+	it('adopts a newer state when it belongs to the current system mode', () => {
+		expect.assertions(1);
+
+		expect(
+			resolveExternalThemeState({
+				incomingState: createUserState('light', 'dark', NOW + 1_000, 'other-tab'),
+				currentState: createSystemState('dark', NOW, TAB_ID),
+				currentMode: 'dark',
+				currentSystemMode: 'dark'
+			})
+		).toBe('adopt');
 	});
 });
