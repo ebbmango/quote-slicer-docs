@@ -21,11 +21,6 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<svelte:window />
-
-<!-- The layout, at first, should be simple: just the navbar and the page's contents. -->
-<!-- As the sidebar belongs only to article pages, it should comprise another layout. -->
-
 <div class="app-shell">
 	<Navbar />
 	<div class="app-page">
