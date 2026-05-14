@@ -18,13 +18,10 @@
 	}
 </script>
 
-<label
-	for={id}
-	class="nav-toggle-label group focus-ring-none relative flex size-5 items-center justify-center"
->
+<label for={id} class="nav-toggle-label">
 	<input
 		{id}
-		class="nav-toggle focus-ring-none"
+		class="nav-toggle"
 		type="checkbox"
 		bind:checked
 		onkeydown={handleKeydown}
@@ -49,11 +46,29 @@
 		overflow: hidden;
 		clip-path: inset(50%);
 		white-space: nowrap;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.nav-toggle:where(:focus, :focus-visible) {
+		outline: none;
+		box-shadow: none;
 	}
 
 	.nav-toggle-label {
+		position: relative;
+		display: flex;
+		width: 1.25rem;
+		height: 1.25rem;
+		align-items: center;
+		justify-content: center;
 		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
 		transition: opacity 180ms ease;
+	}
+
+	.nav-toggle-label:where(:focus, :focus-visible) {
+		outline: none;
+		box-shadow: none;
 	}
 
 	.nav-toggle-icon {

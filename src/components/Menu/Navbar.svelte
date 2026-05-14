@@ -2,9 +2,9 @@
 	import { theme } from '$lib/theme';
 	import Logo from './Logo.svelte';
 	import NavMenu from './Navigation/NavMenu.svelte';
-	import ThemeToggle from './ThemeToggle.svelte';
-	import NavbarToggle from './NavbarToggle.svelte';
-	import AnimatedThemeToggle from './AnimatedThemeToggle.svelte';
+	import ThemeToggle from './Buttons/ThemeToggle.svelte';
+	import NavbarToggle from './Buttons/NavbarToggle.svelte';
+	import AnimatedThemeToggle from './Buttons/AnimatedThemeToggle.svelte';
 
 	let checked = $state(false);
 
@@ -19,34 +19,34 @@
 </script>
 
 <div class="navbar-shell">
-	<header class="top-nav sticky top-0 flex w-full items-center justify-between">
+	<header class="top-nav">
 		<div class="top-nav-logo-frame">
 			<Logo />
 		</div>
-		<div class="top-nav-controls flex items-center justify-between gap-4 text-xl">
-			<div class="relative flex items-center justify-center">
+		<div class="top-nav-controls">
+			<div class="top-nav-toggle-frame">
 				<NavbarToggle id="show-nav" bind:checked />
 			</div>
 			<ThemeToggle {toggle} />
 		</div>
 	</header>
 
-	<nav aria-label="Docs navigation" class="drawer-nav z-1 flex bg-(--page-bg) px-6">
-		<div class="nav-scroll-fade relative min-h-0 w-full flex-1 overflow-hidden">
+	<nav aria-label="Docs navigation" class="drawer-nav">
+		<div class="nav-scroll-fade">
 			<NavMenu onNavigate={closeMobileNav} />
 		</div>
 	</nav>
 
-	<nav aria-label="Docs navigation" class="side-nav bg-(--page-bg)">
-		<div class="flex w-full items-center justify-center pt-7 pb-4">
+	<nav aria-label="Docs navigation" class="side-nav">
+		<div class="side-nav-logo-frame">
 			<Logo />
 		</div>
 
-		<div class="nav-scroll-fade relative min-h-0 w-full flex-1 overflow-hidden">
+		<div class="nav-scroll-fade">
 			<NavMenu />
 		</div>
 
-		<footer class="relative flex min-h-18 w-full justify-center overflow-hidden no-js:hidden">
+		<footer class="side-nav-footer">
 			<AnimatedThemeToggle />
 		</footer>
 	</nav>
@@ -70,8 +70,14 @@
 	}
 
 	.top-nav {
-		--logo-font-size: clamp(0.75rem, calc(0.583333rem + 0.833333vw), 1rem);
+		--logo-font-size: clamp(0.75rem, calc(0.6rem + 0.8vw), 1rem);
 
+		position: sticky;
+		top: 0;
+		display: flex;
+		width: 100%;
+		align-items: center;
+		justify-content: space-between;
 		gap: var(--top-nav-gap);
 		height: var(--top-nav-height);
 		padding-inline: calc(var(--top-nav-edge-space) + var(--page-edge-gutter));
@@ -85,25 +91,53 @@
 		transition: transform var(--nav-transform-duration) var(--nav-ease);
 	}
 
+	.top-nav-controls {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		font-size: 1.25rem;
+		line-height: 1.75rem;
+	}
+
+	.top-nav-toggle-frame {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.nav-scroll-fade {
+		position: relative;
+		min-height: 0;
+		width: 100%;
+		flex: 1 1 0%;
+		overflow: hidden;
+	}
+
 	@supports (width: 1cqw) {
 		.navbar-shell {
 			container-type: inline-size;
-			--top-nav-height: clamp(4rem, calc(2.833333rem + 5.833333cqw), 5.75rem);
+			--top-nav-height: clamp(4rem, calc(2.8rem + 5.8cqw), 5.75rem);
 			--top-nav-gap: clamp(1rem, 5cqw, 2.5rem);
 		}
 
 		.top-nav {
-			--logo-font-size: clamp(0.75rem, calc(0.583333rem + 0.833333cqw), 1rem);
+			--logo-font-size: clamp(0.75rem, calc(0.6rem + 0.8cqw), 1rem);
 		}
 	}
 
 	.drawer-nav {
-		flex-direction: column;
 		position: absolute;
-		width: var(--drawer-nav-width);
 		top: var(--top-nav-height);
 		inset-inline: 0;
+		z-index: 1;
+		display: flex;
+		width: var(--drawer-nav-width);
+		flex-direction: column;
+		padding-inline: 1.5rem;
 		height: calc(100dvh - var(--top-nav-height));
+		background-color: var(--page-bg);
 		opacity: 1;
 		pointer-events: none;
 		transform: translateX(-100%);
@@ -126,6 +160,28 @@
 	}
 
 	.side-nav {
+		display: none;
+		background-color: var(--page-bg);
+	}
+
+	.side-nav-logo-frame {
+		display: flex;
+		width: 100%;
+		align-items: center;
+		justify-content: center;
+		padding-block: 1.75rem 1rem;
+	}
+
+	.side-nav-footer {
+		position: relative;
+		display: flex;
+		width: 100%;
+		min-height: 4.5rem;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	:global(html.no-js) .side-nav-footer {
 		display: none;
 	}
 

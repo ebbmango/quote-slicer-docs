@@ -4,7 +4,7 @@
 	import faviconBlack from '$lib/assets/favicon-black.svg';
 	import faviconWhite from '$lib/assets/favicon-white.svg';
 
-	import Navbar from '../components/Navbar.svelte';
+	import Navbar from '../components/Menu/Navbar.svelte';
 
 	let { children } = $props();
 	let favicon = $derived(theme.current === 'dark' ? faviconWhite : faviconBlack);
