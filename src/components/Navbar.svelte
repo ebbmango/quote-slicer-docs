@@ -1,36 +1,15 @@
 <script lang="ts">
-	import Fa from 'svelte-fa';
-
-	import {
-		faBook as bookSolid,
-		faMoon as moonSolid,
-		faSunBright as sunSolid,
-		faBookArrowRight as bookArrow
-	} from '@awesome.me/kit-d1ffd5714e/icons/sharp/solid';
-
-	import {
-		faBook as bookLight,
-		faMoon as moonLight,
-		faSunBright as sunLight
-	} from '@awesome.me/kit-d1ffd5714e/icons/sharp/light';
-
-	import Logo from './Logo.svelte';
-	import DarkModeToggle from './AnimatedThemeToggle.svelte';
-	import NavMenu from './Navigation/NavMenu.svelte';
 	import { theme } from '$lib/theme';
+	import Logo from './Logo.svelte';
+	import NavMenu from './Navigation/NavMenu.svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
+	import NavbarToggle from './NavbarToggle.svelte';
+	import AnimatedThemeToggle from './AnimatedThemeToggle.svelte';
 
 	let checked = $state(false);
 
 	function closeMobileNav() {
 		checked = false;
-	}
-
-	function handleNavToggleKeydown(event: KeyboardEvent) {
-		if (event.key !== 'Enter') return;
-
-		event.preventDefault();
-		checked = !checked;
 	}
 
 	const toggle = () => {
@@ -44,30 +23,9 @@
 		<div class="top-nav-logo-frame">
 			<Logo />
 		</div>
-		<input
-			id="show-nav"
-			class="nav-toggle focus-ring-none"
-			type="checkbox"
-			bind:checked
-			onkeydown={handleNavToggleKeydown}
-			aria-label="Toggle navigation menu"
-		/>
 		<div class="top-nav-controls flex items-center justify-between gap-4 text-xl">
 			<div class="relative flex items-center justify-center">
-				<label
-					for="show-nav"
-					class="nav-toggle-label group focus-ring-none relative flex size-5 items-center justify-center"
-				>
-					<span class="nav-toggle-icon nav-toggle-icon-closed">
-						<Fa icon={bookLight} />
-					</span>
-					<span class="nav-toggle-icon nav-toggle-icon-opening">
-						<Fa icon={bookArrow} />
-					</span>
-					<span class="nav-toggle-icon nav-toggle-icon-open">
-						<Fa icon={bookSolid} />
-					</span>
-				</label>
+				<NavbarToggle id="show-nav" bind:checked />
 			</div>
 			<ThemeToggle {toggle} />
 		</div>
@@ -89,7 +47,7 @@
 		</div>
 
 		<footer class="relative flex min-h-18 w-full justify-center overflow-hidden no-js:hidden">
-			<DarkModeToggle />
+			<AnimatedThemeToggle />
 		</footer>
 	</nav>
 </div>
@@ -139,123 +97,6 @@
 		}
 	}
 
-	.nav-toggle {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-	}
-
-	.nav-toggle-label {
-		cursor: pointer;
-		transition: opacity 180ms ease;
-	}
-
-	.nav-toggle-icon {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		opacity: 0;
-		transition: opacity 180ms ease;
-	}
-
-	.nav-toggle-icon-closed {
-		opacity: 0.3;
-	}
-
-	#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-closed,
-	#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening {
-		opacity: 0;
-	}
-
-	#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-open {
-		opacity: 0.6;
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.nav-toggle-label:hover .nav-toggle-icon-closed,
-		#show-nav:focus-visible ~ .top-nav-controls .nav-toggle-icon-closed {
-			opacity: 0;
-		}
-
-		.nav-toggle-label:hover .nav-toggle-icon-opening,
-		#show-nav:focus-visible:not(:checked) ~ .top-nav-controls .nav-toggle-icon-opening {
-			opacity: 0.6;
-		}
-
-		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening,
-		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-open {
-			transition-duration: 0s;
-		}
-
-		#show-nav:focus ~ .top-nav-controls .nav-toggle-label:hover .nav-toggle-icon-opening,
-		#show-nav:focus ~ .top-nav-controls .nav-toggle-label:hover .nav-toggle-icon-open {
-			transition-duration: 0s;
-		}
-
-		#show-nav:checked ~ .top-nav-controls .nav-toggle-icon-opening {
-			visibility: hidden;
-		}
-	}
-
-	@media (hover: none) and (pointer: coarse) {
-		.nav-toggle-icon-opening {
-			display: none;
-		}
-	}
-
-	.top-theme-icon {
-		position: absolute;
-		display: flex;
-		width: 100%;
-		height: 100%;
-		align-items: center;
-		justify-content: center;
-		opacity: 0;
-		transition: opacity 180ms ease;
-	}
-
-	.top-theme-dark-mode,
-	:global(html.dark) .top-theme-light-mode {
-		display: none;
-	}
-
-	:global(html.dark) .top-theme-dark-mode {
-		display: flex;
-	}
-
-	.top-theme-icon[data-weight='light'] {
-		opacity: 0.3;
-	}
-
-	.top-theme-toggle:focus-visible .top-theme-icon[data-weight='light'] {
-		opacity: 0;
-	}
-
-	.top-theme-toggle:focus-visible .top-theme-icon[data-weight='solid'] {
-		opacity: 0.6;
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.top-theme-toggle:hover .top-theme-icon[data-weight='light'] {
-			opacity: 0;
-		}
-
-		.top-theme-toggle:hover .top-theme-icon[data-weight='solid'] {
-			opacity: 0.6;
-		}
-	}
-
-	@media (hover: none) and (pointer: coarse) {
-		.top-theme-toggle:not(:focus-visible) .top-theme-icon[data-weight='solid'] {
-			display: none;
-		}
-	}
-
 	.drawer-nav {
 		flex-direction: column;
 		position: absolute;
@@ -273,7 +114,7 @@
 			background-color var(--nav-color-duration) var(--nav-ease);
 	}
 
-	.navbar-shell:has(#show-nav:checked) .drawer-nav {
+	.navbar-shell:has(:global(#show-nav:checked)) .drawer-nav {
 		opacity: 1;
 		pointer-events: auto;
 		transform: translateX(0);
@@ -293,7 +134,7 @@
 			--drawer-nav-width: 17.5rem;
 		}
 
-		.navbar-shell:has(#show-nav:checked) .top-nav-logo-frame {
+		.navbar-shell:has(:global(#show-nav:checked)) .top-nav-logo-frame {
 			transform: translateX(
 				calc(
 					var(--drawer-nav-width) / 2 - var(--top-nav-edge-space) - var(--page-edge-gutter) - 50%
@@ -355,7 +196,6 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		.top-nav-logo-frame,
-		.nav-toggle-label,
 		.drawer-nav {
 			transition: none;
 		}
