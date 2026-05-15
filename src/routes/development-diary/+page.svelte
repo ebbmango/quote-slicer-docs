@@ -15,39 +15,30 @@
 			<h1 class="title">Develop&shy;ment Diary</h1>
 		</article>
 
-		<p class="mt-3 max-w-3xl text-sm text-gray-600 dark:text-gray-300">
-			Chronological notes about implementation details, design decisions, and experiments.
+		<p class="mt-3 max-w-3xl font-inter text-xl font-light">
+			Varied notes on design decisions and implementation details.
 		</p>
 
-		<p class="mt-8 text-sm text-gray-500 dark:text-gray-400">
-			{diaryEntries.length}
-			{diaryEntries.length === 1 ? 'entry' : 'entries'}
-		</p>
-
-		<ul class="mt-8 flex flex-col gap-6">
+		<ul class="mt-8 flex flex-col gap-6 border-t border-gray-200 dark:border-gray-800">
 			{#each diaryEntries as entry}
-				<li class="border-b border-gray-200 pb-6 dark:border-gray-800">
+				<li class="border-b border-gray-200 py-6 dark:border-gray-800">
 					<a
 						href={resolve('/(article-shell)/(diary)/development-diary/[slug]', {
 							slug: entry.slug
 						})}
 						class="block"
 					>
-						<p
-							class="font-mono text-xs tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400"
-						>
+						<p class="font-mono text-xs tracking-[0.2em] uppercase opacity-40">
 							<time datetime={entry.lastUpdated}>{entry.lastUpdated}</time>
 						</p>
-						<h2 class="ui-link-transition mt-2 text-xl hover:text-(--acc)">
+						<h2 class="ui-link-transition mt-2 text-2xl opacity-90 hover:text-(--acc)">
 							{entry.title}
 						</h2>
-						<p class="mt-3 max-w-3xl text-sm text-gray-600 dark:text-gray-300">
+						<p class="mt-3 max-w-3xl text-lg font-light opacity-70">
 							{entry.summary}
 						</p>
 						{#if entry.tags.length > 0}
-							<p
-								class="mt-3 font-mono text-xs tracking-[0.18em] text-gray-400 uppercase dark:text-gray-500"
-							>
+							<p class="mt-5 font-mono text-xs tracking-[0.18em] uppercase opacity-40">
 								{entry.tags.join(' • ')}
 							</p>
 						{/if}
