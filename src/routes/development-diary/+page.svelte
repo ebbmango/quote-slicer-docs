@@ -36,7 +36,7 @@
 						<p
 							class="font-mono text-xs tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400"
 						>
-							<time datetime={entry.date}>{entry.date}</time>
+							<time datetime={entry.lastUpdated}>{entry.lastUpdated}</time>
 						</p>
 						<h2 class="ui-link-transition mt-2 text-xl hover:text-(--acc)">
 							{entry.title}

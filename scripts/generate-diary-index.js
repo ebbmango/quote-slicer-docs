@@ -1,4 +1,5 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 
 const contentDirectory = resolve('src/content/diary');
@@ -61,22 +62,63 @@ function parseFrontmatter(source, filename) {
 	return attributes;
 }
 
+function parseDate(value, fieldName, filename) {
+	const date = String(value ?? '').trim();
+	const timestamp = Number.parseInt(String(Date.parse(date)), 10);
+
+	if (!date || Number.isNaN(timestamp)) {
+		throw new Error(`Missing or invalid "${fieldName}" in ${filename}`);
+	}
+
+	return { date, timestamp };
+}
+
+function formatDate(date) {
+	return date.toISOString().slice(0, 10);
+}
+
+function gitLastUpdated(relativePath) {
+	try {
+		const output = execFileSync('git', ['log', '-1', '--format=%cs', '--', relativePath], {
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore']
+		}).trim();
+
+		return output || null;
+	} catch {
+		return null;
+	}
+}
+
+function resolveLastUpdated(metadata, filename, filepath, relativePath) {
+	if (metadata.lastUpdated !== undefined) {
+		return parseDate(metadata.lastUpdated, 'lastUpdated', filename);
+	}
+
+	const gitDate = gitLastUpdated(relativePath);
+	if (gitDate) {
+		return parseDate(gitDate, 'lastUpdated', filename);
+	}
+
+	return parseDate(formatDate(statSync(filepath).mtime), 'lastUpdated', filename);
+}
+
 function buildDiaryEntry(filename) {
 	const filepath = resolve(contentDirectory, filename);
+	const relativePath = `src/content/diary/${filename}`;
 	const source = readFileSync(filepath, 'utf8');
 	const metadata = parseFrontmatter(source, filename);
 	const slug = basename(filename, '.svx');
-	const timestamp = Number.parseInt(
-		String(Date.parse(String(metadata.date ?? ''))),
-		10
+	const { date, timestamp } = parseDate(metadata.date, 'date', filename);
+	const { date: lastUpdated, timestamp: lastUpdatedTimestamp } = resolveLastUpdated(
+		metadata,
+		filename,
+		filepath,
+		relativePath
 	);
 
 	if (!metadata.title) {
 		throw new Error(`Missing "title" in ${filename}`);
-	}
-
-	if (!metadata.date || Number.isNaN(timestamp)) {
-		throw new Error(`Missing or invalid "date" in ${filename}`);
 	}
 
 	if (!metadata.summary) {
@@ -95,8 +137,10 @@ function buildDiaryEntry(filename) {
 		path: `/development-diary/${slug}`,
 		contentPath: `/src/content/diary/${filename}`,
 		title: String(metadata.title),
-		date: String(metadata.date),
+		date,
 		timestamp,
+		lastUpdated,
+		lastUpdatedTimestamp,
 		summary: String(metadata.summary),
 		tags,
 		searchText: [metadata.title, metadata.summary, slug, ...tags].join(' ').toLowerCase(),
@@ -118,6 +162,8 @@ const generatedSource = `export type DiaryIndexEntry = {
 \ttitle: string;
 \tdate: string;
 \ttimestamp: number;
+\tlastUpdated: string;
+\tlastUpdatedTimestamp: number;
 \tsummary: string;
 \ttags: string[];
 \tsearchText: string;

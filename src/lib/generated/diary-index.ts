@@ -5,6 +5,8 @@ export type DiaryIndexEntry = {
 	title: string;
 	date: string;
 	timestamp: number;
+	lastUpdated: string;
+	lastUpdatedTimestamp: number;
 	summary: string;
 	tags: string[];
 	searchText: string;
@@ -18,6 +20,8 @@ export const diaryEntries: DiaryIndexEntry[] = [
 		"title": "Reactive Theme",
 		"date": "2026-04-26",
 		"timestamp": 1777161600000,
+		"lastUpdated": "2026-04-29",
+		"lastUpdatedTimestamp": 1777420800000,
 		"summary": "How the documentation site theme reacts to OS and user changes without losing synchronization across tabs.",
 		"tags": [
 			"theme",
