@@ -34,14 +34,17 @@
 	>
 		{#if articleMetadataItems.length > 0 || articleMetadata?.tags?.length}
 			<aside
-				class="not-prose mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 font-mono text-xs tracking-[0.18em] uppercase opacity-50"
+				class="not-prose mb-6 flex flex-nowrap items-center justify-between gap-x-4 gap-y-2 font-mono text-xs tracking-[0.18em] uppercase opacity-50"
 				aria-label="Article metadata"
 			>
 				<span id="published" class="inline-flex items-center gap-2">
 					<span>Published</span>
 					<time datetime={articleMetadata?.date}>{articleMetadata?.date}</time>
 				</span>
-
+				<!-- TODO: keep layout / conditionally show tags / come up with solution -->
+				<!-- {#if articleMetadata?.tags?.length}
+					<span>{articleMetadata.tags.join(' / ')}</span>
+				{/if} -->
 				<span id="updated" class="inline-flex items-center gap-2">
 					<span>Updated</span>
 					<time datetime={articleMetadata?.lastUpdated}>{articleMetadata?.lastUpdated}</time>
