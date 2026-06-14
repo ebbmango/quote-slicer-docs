@@ -1,0 +1,57 @@
+---
+title: The Mapping Card
+---
+
+# {title}
+
+`Mapping.svelte` renders one card in the [[components/mappings-list|mappings list]] —
+the visual representation of a single [[data-and-tokenization/mapping|mapping]].
+
+## What's on a card
+
+Each card has three columns:
+
+- the source hanzi for that mapping,
+- an editable pinyin field for each of those characters,
+- a sequential number badge and a delete button.
+
+A mapping with no source tokens yet (just created, nothing clicked) shows a
+placeholder (`未定`, `- - - -`) instead of empty columns, so an "empty" card still
+looks like a card and not like a rendering glitch.
+
+## Why the card only reads a `MappingView`
+
+The card never touches the raw [[data-and-tokenization/mapping|`Mapping`]] state or the
+token arrays directly. Instead it's handed a
+[[data-and-tokenization/mapping#mappingview--the-display-snapshot|`MappingView`]] — a
+read-only snapshot built specifically for display. This keeps the card simple (it's
+just rendering a flat shape) and keeps the *real* mapping logic — token IDs, index
+lookups, which mapping is active — entirely out of the component layer, in `Alignment`
+(see [[interaction-modes/link-mode]]).
+
+## Sizing and color
+
+A card's height is quantized to the CSS grid it sits in: it spans `floor(rowCount / 2)
++ 1` rows, where `rowCount` is the number of source entries (minimum 1). This keeps
+cards tiling cleanly regardless of how many characters a mapping covers.
+
+Every color the card uses — background, badge, bottom bar, and more — comes from one
+`theme` object derived from whether the card is the active mapping. The markup reads
+`theme.cardBg` rather than repeating an `isActive ? a : b` ternary in a dozen places,
+so the active/inactive look stays consistent as the card's styling evolves.
+
+## Editing pinyin
+
+The pinyin inputs are only editable when the card is active *and* the corresponding
+source token has pinyin (i.e. it's a Han character, not punctuation). Typing into one
+calls `alignment.setPinyin(mappingId, position, value)`, which resolves which source
+token that position corresponds to and writes the value through the
+[[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] —
+the same path the automatic pinyin fill-in uses. See
+[[interaction-modes/link-mode#pinyin-auto-fill]].
+
+## Deleting a mapping
+
+The delete button appears on hover or focus and calls `alignment.deleteById(id)`. The
+same deletion can also be triggered from the keyboard — see
+[[interaction-modes/keyboard-navigation#document-level-shortcuts]].

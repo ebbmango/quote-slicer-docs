@@ -1,0 +1,76 @@
+---
+title: Layout
+---
+
+# {title}
+
+The app is a single page, but how much of it is on screen at once depends on the
+device. This article covers the responsive arrangement: which panels are visible,
+where they go, and how the same content moves between a side panel and a slide-in
+modal.
+
+## Why the layout has to flex
+
+The app shows up to three things at once: the workbench (source + target +
+authorship), the list of mapping cards, and a live JSON preview. On a desktop monitor
+all three fit side by side comfortably. On a phone, showing all three at once would
+leave no room for the text the user is actually editing.
+
+So the layout doesn't try to cram everything in everywhere — instead, the **same two
+side views** (mapping cards, JSON export) get routed to different homes depending on
+how much horizontal space is available:
+
+| Viewport | What's visible | Side content lives in |
+|---|---|---|
+| Phone (default) | workbench only | a slide-in **modal**, opened from the toolbar |
+| Tall tablet portrait | workbench + one side panel | that panel, toggled from the toolbar |
+| Medium width (≥900px) | one side panel + workbench | that panel, toggled from the toolbar |
+| Desktop (≥1200px) | side panel + workbench + side panel | both panels at once, no toggle needed |
+
+The breakpoints are mirrored in JS (`BreakpointContext`), not just CSS, because some
+components need to *branch* on viewport size — for example, deciding whether a panel
+even exists to render into, or whether the modal should force-close.
+
+## The shared rendering surface
+
+Both side panels show the same two possible views — the mapping cards
+([[components/mappings-list]]) or the JSON export ([[export]]) — so rather than
+duplicating "which view, with what scroll-fade styling" logic in three places (left
+panel, right panel, modal), there's a single `DataPanel` component that all three
+render through. It picks the view by a `view` prop and wraps it in a fade-edge mask —
+a gradient that fades content near the panel's edges instead of clipping it abruptly,
+which also signals "this scrolls" without showing a scrollbar.
+
+Because there's exactly one place that decides "maps or json, faded how", the three
+homes for that content (left aside, right aside, modal) can never visually drift apart.
+
+- The **right panel**, when visible (desktop only), always shows the JSON export.
+- The **left panel** shows the mapping cards by default, but can be toggled to show the
+  JSON export — except on the smallest screens, where it renders nothing at all and the
+  **modal** takes over instead, so the same content never exists in two places at once.
+
+## The data modal
+
+On phones, the toggle in the toolbar opens a panel that slides in **over** the
+workbench rather than beside it. A few details make this feel native rather than
+jarring:
+
+- Opening the modal pushes a browser history entry, so the device's back button closes
+  it — the same gesture a user expects for any overlay.
+- Switching between "maps" and "json" while the modal is already open doesn't replay
+  the slide-in animation — only the content swaps. The two views slide in from opposite
+  edges (maps from the left, json from the right) so the direction itself hints at which
+  view you're looking at.
+- If the viewport grows past the phone breakpoint while the modal is open, it closes
+  instantly (no animation) — because the side panel it would otherwise live in has just
+  become available.
+
+## Side panels and Text mode
+
+In [[overview#the-four-modes|Text mode]], there's nothing to show in the side panels
+yet — no tokens, no mappings. So the side panels are collapsed to zero width and slid
+off-screen. The moment the user advances past Text mode (see
+[[interaction-modes/mode-transitions#the-arrow-launch-text--link|the arrow launch]]),
+the grid columns, gaps, and panel positions animate back to their resting state
+together, over half a second. Which columns exist at all — i.e. how many panels there
+are room for — is decided by the breakpoint table above.

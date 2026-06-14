@@ -15,3 +15,16 @@ Behind this simple interaction is a surprisingly complex data structure. **Quote
 3. Instantly preview how the linked display will work.
 
 It does so through means of its four Interaction Modes, described in-depth each in their own article.
+
+## How it's arranged
+
+The screen is built around a central **workbench** — the source text, the target text,
+and an attribution line — flanked by up to two side panels: the list of mapping cards,
+and a live JSON preview of the alignment.
+
+How those side panels appear depends on how much room there is. On a wide screen both
+sit beside the workbench at once; on a narrower screen only one shows at a time, toggled
+from the bottom toolbar; on a phone they live in a slide-in panel instead, so the
+workbench keeps the full width. The side panels are hidden entirely in Text mode and
+slide into view once the user advances — see [[components/layout]] for the full
+breakdown.

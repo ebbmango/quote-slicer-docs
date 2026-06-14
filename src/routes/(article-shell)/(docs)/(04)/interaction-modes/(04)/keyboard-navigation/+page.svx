@@ -1,0 +1,92 @@
+---
+title: Keyboard & Navigation
+---
+
+# {title}
+
+The app is fully operable from the keyboard. Three pieces cooperate to make this work:
+a custom **token grid navigator** (moving focus between tokens or line controls), an
+**interaction-mode sensor** (keeping mouse and keyboard affordances from both being
+active at once), and a couple of **document-level shortcuts**.
+
+## Why a custom navigator
+
+The token workspace is a flex-wrapped grid of spans — its visual rows don't line up
+with DOM order — and the same container has to serve two different modes:
+selectable tokens in [[interaction-modes/link-mode|Link mode]], split/merge controls in
+[[interaction-modes/line-mode|Line mode]]. Native Tab order can't express "move to the
+token visually below this one", and putting every token in the Tab order would make
+tabbing through a long text unbearable. So tokens are removed from Tab entirely, and a
+custom Alt+Arrow scheme drives focus instead.
+
+## The navigator
+
+[[components/quote-workbench|`QuoteWorkbench`]] creates **one** navigator instance and
+wires it to the token grid container. The same instance serves both Link and Line
+modes, because its configuration is a set of getters/callbacks re-evaluated on every
+keystroke:
+
+| Config | Link mode | Line mode |
+|--------------|-----------|-----------|
+| What's navigable | the token spans | the split/merge controls |
+| Cross-zone jump (Alt+Enter, edge-wrap) | enabled | disabled |
+| Default focus target | the alignment's "default token" for the zone | unused |
+| Activating an element | resolves the token and calls the click handler | clicks the element directly |
+| Escape | deselects the active mapping | does nothing extra |
+
+### Shared key bindings
+
+| Shortcut | Effect |
+|----------|--------|
+| Alt+↑ / Alt+↓ | Move focus to the element on the visual row above/below; at a zone's far edge, jumps to the other zone (Link mode only) |
+| Alt+← / Alt+→ | Move focus to the previous/next navigable element in DOM order |
+| Alt+Enter | (Link mode) toggle focus between the source and target panels, remembering the last-focused element in each |
+| Alt+Space | Activate the focused element |
+| Alt+Shift+Space | Activate "with force" — in Link mode, force-adds a source token to the active mapping even if it already has one |
+| Escape | Blur the focused element, then run the mode's Escape behavior |
+
+The navigator remembers the last-focused element per zone (source/target), so jumping
+away and back returns focus where the user left it.
+
+### Visual-neighbour math
+
+"Which element is on the row above/below, closest horizontally" is its own pure
+function, operating on plain rectangle data (no DOM) — so it's unit-tested directly,
+independent of the navigator that feeds it real `getBoundingClientRect()` values.
+
+## The interaction-mode sensor
+
+### Why it's needed
+
+Line mode's split/merge controls reveal themselves both on hover and on
+keyboard-focus. If both were unconditionally active, a mouse hovering one control and a
+Tab-focused different control could both be highlighted at the same time — confusing
+when the user mixes mouse and keyboard input.
+
+### How it works
+
+A global singleton tracks which input device was used most recently:
+`'mouse' | 'keyboard'`. Two listeners, attached once at startup, update it: any mouse
+movement sets it to `'mouse'`; pressing Tab sets it to `'keyboard'`. Only Tab flips it
+to keyboard — other key presses are ignored, so e.g. using arrow-key navigation while
+the mouse sits idle doesn't cause flicker.
+
+On every change, this singleton also writes the current mode onto a data attribute on
+the root `<html>` element — so plain CSS can gate hover vs. focus styles for the
+split/merge controls without any component needing to import the singleton at all.
+
+> The listener setup has to run from a **synchronous** mount hook, separate from the
+> async one used to lazy-load the animation library — an async mount hook returns a
+> promise, and Svelte doesn't run its cleanup function in that case.
+
+## Document-level shortcuts
+
+Two more listeners are attached once, from the root component on mount:
+
+- **Delete / Backspace** deletes a mapping. It targets whichever mapping card is
+  currently focused, falling back to the *active* mapping if none is — so pressing
+  Backspace works immediately after creating a mapping, before the user has tabbed to
+  its card. This is suppressed while focus is in a text input.
+- **Click anywhere** deselects the active mapping, unless the click landed inside a
+  mapping card or one of the token panels. This is the mouse half of
+  click-outside-to-deselect; Escape (via the navigator, above) is the keyboard half.

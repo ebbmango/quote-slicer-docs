@@ -1,0 +1,100 @@
+---
+title: Line Mode
+---
+
+# {title}
+
+Line mode (`mode.current === 'line'`) lets the user adjust where line breaks fall in
+the source and target texts **independently** of each other. A line edit never changes
+the underlying text strings — it only rewrites the affected tokens' `.line` fields,
+and those edits are preserved by the
+[[data-and-tokenization/token-store#the-text-keyed-cache|token store's cache]].
+
+## The core operations
+
+Three pure functions in `src/lib/line.ts` do all the work. They're generic over any
+token type that has a `.line` field, so the same functions work for both source and
+target tokens, and they're trivially unit-testable since they take and return plain
+arrays.
+
+- **`splitAfterToken(tokens, afterIndex)`** — inserts a line break right after
+  `tokens[afterIndex]`. Tokens on earlier lines are untouched; tokens at or before the
+  split point on the split line stay on that line; tokens after the split point move to
+  a new line; everything on later lines shifts down by one to make room.
+- **`mergeLines(tokens, lineN)`** — merges line `lineN + 1` back into line `lineN`.
+  Tokens from the merged-in line move up to `lineN`; everything below shifts up to
+  close the gap.
+- **`groupByLine(tokens)`** — buckets a flat token array by line, while preserving each
+  token's original flat-array index as `globalIndex`. This is a utility for anything
+  that needs to render or reason about "lines" as groups.
+
+Neither `splitAfterToken` nor `mergeLines` ever inserts or removes a token — they only
+ever move existing tokens between lines. That's the entire reason
+[[data-and-tokenization/mapping|mappings]] (which store token IDs) survive line edits
+untouched: see [[data-and-tokenization/tokens#stable-token-ids]].
+
+## The line-tool affordances
+
+The source and target panels expose split/merge differently, because their token
+streams aren't shaped the same way — the source has no whitespace tokens, the target
+does.
+
+### Source panel
+
+Between every pair of adjacent tokens, there's a zero-width control:
+
+- if both tokens are on the **same line**, it's a split control — clicking it inserts
+  a line break there;
+- if the next token is on a **different line** (i.e. this is already a line boundary),
+  it's a merge control — clicking it merges the two lines together.
+
+Each shows a hairline indicator on hover or focus, so the user can see where a split
+or merge would land before clicking.
+
+### Target panel
+
+The target panel reuses its **whitespace tokens** as the interaction surface, since
+they're already there:
+
+- an **interior** whitespace token becomes a split control. It's rendered as a
+  `<span role="button">` rather than a `<button>`, with `user-select: text` — so
+  selecting and copying the target text still includes the space; the click handler is
+  wired up alongside the ARIA role.
+- the synthetic **boundary whitespace** token (see
+  [[data-and-tokenization/translation-tokenization#line-stamping-and-the-boundary-whitespace-token]])
+  becomes a full-width merge control — clicking it merges the two lines it sits
+  between.
+
+These callbacks bubble up to [[components/quote-workbench|the workbench]], which
+forwards them into the [[data-and-tokenization/token-store|token store]] along with the
+current tokens (already carrying pinyin, from the store's own overlay — there's no
+separate "live" array to look up).
+
+## The split/merge animation
+
+The height tween and token reflow that happen when a line is split or merged are owned
+by the token store, not by these panels — they run as **one** animation over the whole
+[[data-and-tokenization/token-store#the-unified-flip-splitmerge-animation|edit scope]].
+The panels' job is to make that animation *possible*:
+
+1. An index-keyed loop over the tokens keeps every span alive across a mutation, so the
+   animation can match each element's old position to its new one.
+2. A marked scroll container tells the store which box's height to tween.
+3. While the store's animation is running, the panel leaves that box's height alone —
+   the rest of the time, it keeps the box at its natural height. See
+   [[components/interactive-text-panels#supporting-the-splitmerge-animation]].
+
+Because the workbench's three panels are stacked, a height change in one shifts the
+others — which is why the *other* panel and the authorship field are also animated, as
+whole units, in the same motion. See [[interaction-modes/mode-transitions]] for how
+this interacts with the mode-change animations.
+
+## Keyboard scheme
+
+Line mode shares its navigation mechanism with
+[[interaction-modes/link-mode|Link mode]], reconfigured for the split/merge controls
+instead of tokens — see [[interaction-modes/keyboard-navigation]] for the full
+mechanism and shortcut tables. One difference worth noting here: the cross-zone jump
+between source and target panels (Alt+Enter, and wrapping at a panel's edge) is a
+Link-mode-only feature — in Line mode, reaching the edge of a panel with Alt+↑/↓
+simply does nothing.

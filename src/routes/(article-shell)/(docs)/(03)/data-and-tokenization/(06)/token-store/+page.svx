@@ -1,0 +1,163 @@
+---
+title: The Token Store
+---
+
+# {title}
+
+`src/lib/animation/tokenStore.svelte.ts` — the single owner of the source and target
+token arrays. [[components/quote-workbench|The Workbench]] introduces the
+**unified Flip** animation at a glance; this article covers the store in full,
+including how that animation actually works.
+
+## Why it exists
+
+Two things have to both be true at once, and they pull in opposite directions:
+
+1. **Line edits must survive.** When the user splits or merges a line in
+   [[interaction-modes/line-mode|Line mode]], only the tokens' `.line` fields should
+   change. But [[data-and-tokenization/tokenization|tokenizing]] reads the *raw text
+   string* — so naively re-tokenizing on every render would throw the user's line
+   breaks away every time.
+2. **Pinyin must survive.** Pinyin gets attached to source tokens as they join
+   mappings (see [[interaction-modes/link-mode#pinyin-auto-fill]]), and it has to
+   persist across those same line edits.
+
+Earlier versions split these two responsibilities across two different places —
+`QuoteWorkbench` held a token cache, and `Alignment` held its *own* synced copy of the
+tokens with pinyin attached. Keeping those two copies in sync via effects was fragile:
+a split or merge had to be handed the *specific* pinyin-bearing array, and if it
+accidentally got a freshly-tokenized (pinyin-less) array instead, pinyin would
+silently disappear.
+
+The token store fixes this by collapsing both responsibilities into **one owner**. It
+tokenizes, holds the line-edit cache, holds the pinyin overlay, and runs the
+split/merge animation. Both `QuoteWorkbench` and `Alignment`
+[[components/quote-workbench#why-one-root-one-workbench|derive their views from it]] —
+neither keeps a copy of its own.
+
+> Always call this the **token store** — not "lineEdit" (an old name) or "token cache"
+> (the cache is only one part of what it does).
+
+## The text-keyed cache
+
+The cache answers one question: "have the tokens for *this exact text* been
+line-edited?"
+
+```ts
+let sourceCache: { text: string; tokens: SourceToken[] } | null = $state(null);
+
+function sourceTokens(text: string): SourceToken[] {
+  const base =
+    sourceCache !== null && sourceCache.text === text
+      ? sourceCache.tokens     // cache hit: text unchanged → reuse split/merged tokens
+      : tokenizeSource(text);  // cache miss: text changed → re-tokenize fresh
+  return applyPinyin(base);    // overlay pinyin either way
+}
+```
+
+- **Cache hit** (text unchanged) — the previously line-edited array is returned, so
+  manual line breaks survive re-renders.
+- **Cache miss** (text changed) — the text is tokenized fresh, and the old cache is
+  simply discarded. This means editing the raw source/target text implicitly resets
+  any line structure the user had set up — a deliberate trade-off, since the line
+  breaks were a property of the *old* text.
+
+`split`/`merge` write this cache, keyed by the text they ran against. The target side
+works identically via its own `targetCache`.
+
+## The pinyin overlay
+
+Pinyin is kept **separate** from the cache, in an id-keyed map:
+
+```ts
+let pinyin: Map<number, string | undefined> = $state(new Map());
+```
+
+It has to be separate because pinyin can be annotated *before* any line edit has ever
+happened — i.e. before the cache is populated at all. If pinyin lived only on the
+cached tokens, the very first read (a cache miss, before any split/merge) would lose
+it. Keeping it in its own overlay means it's re-applied on **every** read, whether the
+cache hits or misses:
+
+```ts
+function applyPinyin(tokens: SourceToken[]): SourceToken[] {
+  return tokens.map((t) => {
+    if (pinyin.has(t.id)) return { ...t, pinyin: pinyin.get(t.id) };
+    if (t.pinyin != null) return { ...t, pinyin: undefined };
+    return t;
+  });
+}
+```
+
+`setPinyin(tokenId, value)` assigns a **new** `Map` rather than mutating the existing
+one, so that anything `$derived` from it recomputes. Passing `undefined` removes the
+entry — this is how pinyin gets cleared when a token leaves a mapping.
+
+> This means `applyPinyin` allocates a new array on every read. That's the cost of
+> keeping pinyin reactive — don't memoize this without confirming pinyin updates still
+> propagate.
+
+## The public surface
+
+| Member | Used by | Purpose |
+|--------|---------|---------|
+| `sourceTokens(text)` / `targetTokens(text)` | `QuoteWorkbench`, `Alignment` | read tokens for a given text (cache + pinyin applied) |
+| `setPinyin(id, value)` | `Alignment` | annotate or clear a source token's pinyin |
+| `split(...)` / `merge(...)` | `QuoteWorkbench` | perform a line edit and animate it |
+| `animating` (getter) | `QuoteWorkbench` → panels | true while a split/merge animation is in flight |
+
+`Alignment` only ever needs to *read* tokens and *write* pinyin — it never needs to
+trigger or know about the animation. So its constructor is given a narrowed view of
+the store:
+
+```ts
+type TokenAccess = Pick<TokenStore, 'sourceTokens' | 'targetTokens' | 'setPinyin'>;
+```
+
+This keeps the animation-only members out of `Alignment`'s type surface entirely, so
+changes to the animation internals can never accidentally ripple into the alignment
+logic.
+
+## The unified Flip (split/merge animation)
+
+A line edit changes the height of one panel, which shifts everything below it —
+the other panel, and the authorship field. Animating that as **one** motion (rather
+than an animation for the edited panel plus a separate shift for everything else) is
+what keeps it feeling like a single coherent edit instead of two things happening at
+slightly different times that might visually fight each other.
+
+The bundle of DOM elements a single edit animates over — the **edit scope** — is built
+by `QuoteWorkbench.editScope()`:
+
+```ts
+type EditScope = {
+  sourceWrapperEl, targetWrapperEl, authorshipEl,   // whole-unit repositioning targets
+  sourceScrollEl,  targetScrollEl                    // the [data-scrollbox] of each panel
+};
+```
+
+`animate(zone, scope, mutate)` then runs:
+
+1. Capture the current position/size of every flip target — the **edited** panel's
+   individual tokens (each has a `data-flip-id`; they're about to reflow) plus the
+   *other* panel's wrapper and the authorship element (which only reposition, as whole
+   units).
+2. Lock the edited panel's scroll box to its current pixel height, and set
+   `animating = true` — this tells the panel's own height-management effect (see
+   [[components/interactive-text-panels#supporting-the-splitmerge-animation]]) to back
+   off, so it doesn't snap the height mid-flight.
+3. Run `mutate()` — the actual split/merge, which writes the cache — and wait a tick
+   for the DOM to settle.
+4. Measure the new settled height, then tween the scroll box from the locked height to
+   the new one. On completion, release the height back to `auto` so the box can follow
+   later in-flow changes.
+5. Animate every captured element from its old position to its new one over the same
+   duration and easing as the height tween — so the panel boundary and the tokens
+   sliding into place move as one motion.
+
+If the animation library hasn't finished loading yet (it's lazy-loaded on mount, since
+the app is statically prerendered), `mutate()` just runs synchronously with no
+animation — the edit still happens, it simply doesn't tween. See
+[[interaction-modes/mode-transitions]] for how this animation coexists with the mode
+crossfade, and [[interaction-modes/line-mode#the-splitmerge-animation]] for what each
+panel contributes to make this work.

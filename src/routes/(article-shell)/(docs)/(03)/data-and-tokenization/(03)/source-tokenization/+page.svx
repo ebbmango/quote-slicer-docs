@@ -1,0 +1,39 @@
+---
+title: Tokenizing the Source Text
+---
+
+# {title}
+
+`tokenizeSource(text: string): SourceToken[]` — in `src/lib/tokenize.ts` — turns the
+Chinese source text into [[data-and-tokenization/tokens|`SourceToken[]`]].
+
+## Why one character per token
+
+In [[interaction-modes/link-mode|Link mode]], the user maps Chinese text to its
+translation one character at a time — a single hanzi might correspond to a whole
+English word, or several hanzi might together correspond to one word. To support that,
+every individually-clickable unit on the source side has to be a single character.
+That's the entire job of this tokenizer: split the text into characters, classify each
+one, and stamp it with which line it's on.
+
+## How it works
+
+Newlines delimit lines and are consumed rather than emitted as tokens — each token's
+`.line` is the index of the newline-separated segment it came from (see
+[[data-and-tokenization/tokenization#lines-are-a-property-of-tokens-not-of-the-text]]).
+
+Each remaining character is classified by its Unicode class:
+
+| Type | Matches | `pinyin` |
+|------|---------|----------|
+| `'character'` | Han script (`\p{Script=Han}`) — the mappable units | starts `undefined` |
+| `'number'` | `\p{N}` | `null` |
+| `'punctuation'` | `\p{P}` or `\p{S}` | `null` |
+| `'symbol'` | anything else | `null` |
+
+In practice, the source almost never contains anything but Han characters and line
+breaks, because the source input field filters keystrokes in real time — it only
+allows Han characters, CJK punctuation, and newlines through (`SOURCE_INPUT_RE` in
+`tokenize.ts`). That filter is IME-aware: it doesn't interfere with composing a
+character via pinyin input, only with what lands in the field once composition
+finishes. See [[components/quote-workbench]].

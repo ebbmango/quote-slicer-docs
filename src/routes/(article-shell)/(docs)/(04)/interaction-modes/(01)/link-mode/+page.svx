@@ -1,0 +1,129 @@
+---
+title: Link Mode
+---
+
+# {title}
+
+Link mode (`mode.current === 'link'`) is where the alignment actually gets built — the
+user clicks source characters and target words to bind them into colored
+[[data-and-tokenization/mapping|mappings]]. All of the state and logic for this lives
+in **`Alignment`** (`src/lib/context/alignment.svelte.ts`).
+
+## Why `Alignment` doesn't own the tokens
+
+`Alignment` is a Svelte 5 class, created once in `+page.svelte` and read anywhere via
+`getAlignmentContext()`. Deliberately, it is **not** the owner of the token arrays —
+the [[data-and-tokenization/token-store|token store]] is. `Alignment` is handed the
+store (as a narrowed `TokenAccess`) and *derives* its token views from it, keyed by the
+current text:
+
+```ts
+private sourceTokens = $derived.by(() => this.store.sourceTokens(this.meta.sourceText));
+private targetTokens = $derived.by(() => this.store.targetTokens(this.meta.targetText));
+```
+
+This means there's exactly one place that owns token data, and `Alignment` can never
+end up acting on a stale copy. What `Alignment` *does* own is the mapping-specific
+state:
+
+| State | Purpose |
+|-------|---------|
+| `mappings` | the full list of mappings |
+| `activeMappingId` | the currently selected mapping, or `null` |
+| `meta` | `{ sourceText, targetText, authorship }`, pushed in by the workbench |
+| `nextColorIndex` | a monotonic counter for assigning mapping colors |
+
+And derives, on top of those:
+
+- `sourceIdToIndex` / `targetIdToIndex` — token ID → current array index (see
+  [[data-and-tokenization/tokens#stable-token-ids]]);
+- `sourceMappingIndex` / `targetMappingIndex` — array index → owning mapping;
+- `sortedMappingViews` — the [[data-and-tokenization/mapping#mappingview--the-display-snapshot|display snapshots]]
+  for [[components/mappings-list|the mappings list]], sorted by each mapping's first
+  source-token position;
+- `exportData` — the [[export|export]] shape.
+
+## The click state machine
+
+Clicking a token in either panel routes to `toggleSource` or `toggleTarget`. Both
+share a `tryRemoveOrSwitch()` helper as their first step: if the clicked token already
+belongs to a mapping, either remove it (if that mapping is the active one) or switch
+the active mapping to it (if it's a different one).
+
+### Clicking a source token — `toggleSource(i, opts)`
+
+`i` is the clicked token's current array index. `opts.force` is true when the user
+holds Cmd/Ctrl (mouse), presses Alt+Shift+Space (keyboard), or long-presses (mobile) —
+see [[interaction-modes/keyboard-navigation]].
+
+| Token state | force | Action |
+|-------------|-------|--------|
+| Whitespace or punctuation | any | No-op — can't start a mapping from these |
+| Belongs to active mapping | any | Remove it; clear its pinyin; prune the mapping if now empty |
+| Belongs to another mapping | any | Switch the active mapping to that one |
+| Unmapped; active mapping has no source yet | any | Append to the active mapping |
+| Unmapped; active mapping already has a source | `false` | Create a **new** mapping for this token |
+| Unmapped; active mapping already has a source | `true` | Force-append to the active mapping anyway |
+| Unmapped; no active mapping | any | Create a new mapping for this token |
+
+Whenever a source token is added to a mapping, its pinyin is auto-filled (see below).
+
+### Clicking a target token — `toggleTarget(i)`
+
+| Token state | Action |
+|-------------|--------|
+| Whitespace or punctuation | No-op |
+| Belongs to active mapping | Remove it; prune the mapping if now empty |
+| Belongs to another mapping | Switch the active mapping to that one |
+| Unmapped; active mapping exists | Append to the active mapping |
+| Unmapped; no active mapping | Create a new mapping for this token |
+
+Target tokens have no force/multi-add distinction — any non-whitespace,
+non-punctuation target token can always be added to the active mapping.
+
+> Both toggles guard against whitespace and punctuation tokens, so a stray click on a
+> space or a comma can never spawn an empty mapping.
+
+## Mapping lifecycle
+
+- **Create** — a fresh mapping gets a new random ID and the next `colorIndex` off the
+  monotonic counter, with empty token-ID arrays.
+- **Prune** — after every removal, if a mapping has zero source *and* zero target
+  tokens left, it's deleted. This is what makes "remove the last token from a mapping"
+  feel like "delete the mapping" without a separate step.
+- **Deselect** — clears `activeMappingId` without deleting anything.
+- **Delete** — removes a mapping by ID, and clears `activeMappingId` if it pointed at
+  the deleted mapping.
+
+`colorIndex` comes from a counter that never resets, so a mapping's color is
+permanently decoupled from its position in the list — see
+[[data-and-tokenization/mapping]].
+
+## Pinyin auto-fill
+
+When a source `'character'` token joins a mapping, its pinyin is looked up
+automatically (tone marks, not numbers) and written into the
+[[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin
+overlay]] — never onto the mapping itself. Only `'character'` tokens get pinyin this
+way; anything else gets an empty string. Removing a token from a mapping clears its
+pinyin the same way. The user can also override the auto-filled value directly in
+[[components/mapping-component|the mapping card]], which writes through the same
+store path.
+
+## Whitespace bridging
+
+A whitespace target token can never be *part* of a mapping — but it can *display* a
+mapping's color when it sits between two tokens that belong to the same mapping, so a
+multi-word phrase reads as one continuous highlight instead of a striped one.
+
+This works by scanning left and right from the whitespace token, past any other
+whitespace, to the nearest non-whitespace token on each side. If both sides resolve to
+the *same* mapping, the whitespace token is bridged into that mapping's color (idle or
+active, matching that mapping's own state). See
+[[data-and-tokenization/translation-tokenization#whitespace-strategy]] for the
+companion rule used when building a mapping's exported text.
+
+## Keyboard scheme
+
+Link mode shares its navigation with [[interaction-modes/line-mode|Line mode]] — see
+[[interaction-modes/keyboard-navigation]] for the full mechanism and shortcut tables.

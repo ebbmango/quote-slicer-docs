@@ -1,0 +1,89 @@
+---
+title: Mode Transitions
+---
+
+# {title}
+
+This article is about *motion* — how the workbench animates as the user moves between
+the four [[overview#the-four-modes|modes]]. There are three separate transitions: the
+**arrow launch** (Text → Link), the **persistent-DOM crossfade** (Link ↔ Line ↔ View),
+and the **sidebar slide** (the side panels opening as the user leaves Text mode).
+
+## The arrow launch (Text → Link)
+
+In Text mode, the only control is a downward arrow. Clicking it doesn't switch modes
+immediately — instead it plays a deliberate animation beat first, owned by
+`+page.svelte`:
+
+1. the arrow *anticipates* upward with a slight stretch, holds a beat, then
+   accelerates downward and fades — like a loosed arrow;
+2. after the animation has had time to read (450ms), if the text fields are empty they
+   get seeded with placeholder text, and *then* the mode actually switches to Link —
+   so the "shot" finishes before the tools panel fades in.
+
+A re-entrancy guard prevents the arrow from firing twice if clicked again mid-flight.
+The arrow's hover nudge and its launch animation deliberately share the same element,
+so the launch animation can fully override the hover transition — a half-finished
+hover can never bleed into the shot.
+
+## The persistent-DOM crossfade (Link ↔ Line ↔ View)
+
+### Why it's built this way
+
+A freshly-mounted DOM element can't transition *from* a previous element's state — the
+browser just paints the final value immediately. If the token panels rendered a
+different subtree per mode (a "Line mode branch" vs. a "Link/View branch"), nothing —
+not a token's color, not a line's height — could ever animate across a mode change; it
+would all just snap.
+
+The fix, covered from the component side in
+[[components/interactive-text-panels#why-these-panels-render-the-same-dom-in-every-mode]],
+is structural: the source and target panels render **one DOM tree for every mode**.
+What changes between modes is *attributes*, not *which elements are mounted* — the
+container's ARIA role, whether token spans are interactive, and whether the
+split/merge controls can receive clicks.
+
+### What actually carries the motion
+
+- **Every token span** has a `transition` on its color, opacity, and font weight. The
+  mode-dependent styling functions return only the *target* values for the new mode;
+  the timing lives in the CSS rule itself. So leaving Link mode, for example, simply
+  unsets a token's color and weight, and the span crossfades back to the default text
+  color on its own. Source-side opacity also encodes the mode (dimmer in Line mode,
+  dimmer still in View mode), so all three modes read distinctly without anything ever
+  remounting.
+- **The line-break control** (the full-width merge control between lines) is a real
+  element at zero height in Link/View mode — still forcing a line wrap, so it doubles
+  as a plain line break — and transitions to a visible height when Line mode makes it
+  active. That height transition is what makes lines visibly "come apart" when entering
+  Line mode.
+
+### How this coexists with the split/merge tween
+
+Two different things want to control a panel's scroll-box height:
+
+1. the [[data-and-tokenization/token-store#the-unified-flip-splitmerge-animation|token
+   store]], which pins an explicit pixel height *while* a split/merge animation is in
+   flight;
+2. everything else, which wants the box at its natural height so it follows whatever
+   content changes happen — including the line-break height transition above.
+
+The resolution is simple: whenever the store's animation isn't running, the panel lets
+the box go back to its natural height. The store's own animation, on completion, also
+releases to natural height rather than pinning a measured value — so the box stays
+free to follow later changes.
+
+> Both panels (`InteractiveSourceText` and `InteractiveTargetText`) have to keep this
+> logic in lockstep — divergence between them would desync the source/target
+> animations. All of these transitions are disabled under
+> `prefers-reduced-motion: reduce`.
+
+## The sidebar slide (leaving Text mode)
+
+The outer page layout animates the side panels in as the user leaves Text mode. In
+Text mode the side panels are translated fully off-screen and their grid columns are
+collapsed to zero width; the moment the mode changes, the grid columns, gaps, panel
+opacity, and panel position all animate back to their resting positions together, over
+half a second. Which columns exist at all — i.e. how many side panels there's room for
+— depends on the viewport breakpoint; see [[components/layout]]. Like the other
+transitions on this page, this is disabled under `prefers-reduced-motion`.

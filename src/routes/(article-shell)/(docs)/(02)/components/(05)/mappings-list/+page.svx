@@ -1,0 +1,36 @@
+---
+title: The Mappings List
+---
+
+# {title}
+
+`MappingsList.svelte` is the list of [[components/mapping-component|mapping cards]] —
+one of the two views that can appear in either side panel or the data modal (see
+[[components/layout]]).
+
+## What it does beyond rendering cards
+
+The list itself is a responsive grid: a single column on narrow panels, two columns
+once the panel is wide enough (at the tablet and wide-modal breakpoints). Beyond that
+grid, the list owns a few pieces of list-level behavior:
+
+- **Keeping the active card visible.** Whenever the active mapping changes, the list
+  scrolls the corresponding card into view — so selecting a mapping via the token
+  panels (or the keyboard) doesn't leave its card off-screen.
+- **Tab handling within the list**, so keyboard users can move between cards in a
+  predictable order.
+- **An empty state.** When there are no mappings yet, the list renders "No mappings."
+  instead of an empty grid.
+
+## A subtle ref-ownership detail
+
+During a breakpoint change, the side panel's copy of this list and the modal's copy of
+this list can briefly **both exist** — one mounting while the other unmounts. If the
+list grabbed its container element with a plain `bind:this`, the unmounting copy could
+null out the reference *after* the surviving copy had already claimed it, leaving the
+surviving list without a working ref.
+
+To avoid that, the list ref is set through a small Svelte action instead of
+`bind:this`. The action only clears the reference if it's still the one that set it —
+so whichever copy survives the breakpoint transition keeps its ref, regardless of
+unmount order.

@@ -1,0 +1,98 @@
+---
+title: Export
+---
+
+# {title}
+
+A side panel shows a **live JSON export** of the alignment — the same structured data
+the app exists to produce, rendered as syntax-highlighted, column-aligned JSON that
+updates as the user works. Three pieces make this up: the export *data*, the
+*formatter*, and the *panel*.
+
+## The export data
+
+The export is a `$derived` value on `Alignment`, shaped as a
+[[data-and-tokenization/tokens|`QuoteExport`]]:
+
+```ts
+{
+  meta:        { sourceText, targetText, authorship },  // sanitised
+  sourceTokens, targetTokens,                            // the live token arrays
+  mappings,                                              // colorIndex stripped (ExportMapping)
+}
+```
+
+Two deliberate transforms happen on the way out:
+
+- **`meta` text is sanitised.** The textareas can contain newlines, which shouldn't
+  leak into the exported metadata. `sourceText` has newlines removed entirely (Han
+  text has no inter-word spaces anyway); `targetText` and `authorship` collapse
+  newline runs to a single space and trim the result.
+- **`colorIndex` is dropped** from each mapping — color is a presentation concern, not
+  part of the alignment data. See [[data-and-tokenization/mapping#what-gets-exported]].
+
+## The formatter
+
+A recursive pretty-printer produces output that's *almost* standard
+`JSON.stringify(v, null, 2)`, with two differences chosen to make the result more
+readable for this specific shape of data:
+
+1. **Arrays of primitives stay on one line** — `"sourceTokenIds": [0, 1]` rather than
+   one element per line, so ID lists don't dominate the output vertically.
+2. **Arrays of token objects render as a column-aligned table.** A token is recognised
+   by its shape (`id`, `text`, `line`, `type`, all primitive-valued), and each field is
+   padded to the widest value across the array so the same field lines up in the same
+   column on every row:
+
+   ```
+   { "id": 0, "text": "知", "pinyin": "zhī",  "line": 0, "type": "character" }
+   { "id": 1, "text": "命", "pinyin": "mìng", "line": 0, "type": "character" }
+   ```
+
+   The `pinyin` column is omitted entirely when no token in the array carries one —
+   e.g. target tokens never have pinyin, so that array never gets a pinyin column.
+
+`undefined` values render as the literal text `undefined` — not valid JSON, but
+intentional: it makes an un-annotated source character's pinyin visible in the export
+rather than silently absent. See
+[[data-and-tokenization/tokens#why-pinyin-has-three-states]].
+
+This formatter has no component dependencies, so its rules (one-lining primitives, the
+literal `undefined`, column alignment and omission) are unit-tested directly.
+
+## The panel
+
+The export panel takes the formatted text and feeds it to a generic Shiki-based syntax
+highlighter.
+
+### Recoloring to the app's palette
+
+By default, a Shiki-highlighted JSON block would look like a generic code preview —
+whichever colors the highlighting theme happens to use. To make the export feel like
+part of the app rather than a code snippet pasted in, the highlighter accepts a color
+replacement map applied on top of its base theme:
+
+| Role | Replaced with |
+|------|-----------------|
+| strings | a palette color |
+| properties / colons / brackets | a flat neutral gray |
+| numbers | a different palette color |
+| the `undefined` literal | a third palette color |
+
+This is why [[data-and-tokenization/tokens#colors|the color module]] exports a
+name-keyed lookup alongside the index-keyed palette array — this recolor wants
+*specific* named entries, not "the Nth mapping color".
+
+> **Fragility:** this works by matching literal hex strings from the highlighter's base
+> theme. If that theme's palette ever changes upstream, these replacements would
+> silently stop matching and the export would revert to the theme's original colors.
+
+### Rendering details
+
+The highlighter is lazy-loaded and re-tokenizes on every change to the export text. The
+output box grows to fit its widest line (rather than wrapping), which matters because
+the panel's padding needs to sit *past* the longest line, not behind it, once the
+content is wide enough to need horizontal scrolling.
+
+For where this panel appears on screen at different viewport sizes — a side panel vs.
+the slide-in modal — see [[components/layout]].

@@ -1,0 +1,99 @@
+---
+title: The Workbench
+---
+
+# {title}
+
+Everything the user sees lives under one root component, `+page.svelte`, and its
+centerpiece, `QuoteWorkbench.svelte`. This article is the map: what each piece is
+responsible for, and how they're wired together. The *behavior* that happens inside
+each piece — how Link mode works, how Line mode works, how the modes animate into each
+other — is covered in its own article and linked from here.
+
+## Why one root, one workbench
+
+The four [[overview#the-four-modes|modes]] aren't four separate screens. They're four
+ways of looking at the *same* source text, target text, and token data — so the app
+is built as one persistent component tree that changes which parts are interactive and
+how things look, rather than swapping pages in and out. That choice is what makes the
+[[interaction-modes/mode-transitions|mode transitions]] feel like a continuous motion
+instead of a page change.
+
+To make that possible, the app needs a single place that:
+
+- holds the raw text the user typed,
+- holds the *current mode*,
+- knows the current viewport size (to decide the [[components/layout|layout]]),
+- owns the token data and the mapping data.
+
+That place is `+page.svelte`. It sets up four contexts once, at the root, and
+everything else reads from them:
+
+| Context | Owns | Read via |
+|---|---|---|
+| `ModeContext` | the current mode (`text` / `link` / `line` / `view`) | `getModeContext` |
+| `BreakpointContext` | the current viewport breakpoint | `getBreakpointContext` |
+| the [[data-and-tokenization/token-store\|token store]] | the source/target token arrays | `getTokenStoreContext` |
+| `Alignment` | the mappings, the active mapping, click handling | `getAlignmentContext` |
+
+The order matters: `Alignment` is constructed *from* the token store, so the store has
+to exist first. This is also what guarantees there's exactly **one** owner of the token
+arrays — `QuoteWorkbench` and `Alignment` both read the same store rather than each
+keeping their own copy. See [[data-and-tokenization/token-store]] for why that used to
+be a problem.
+
+Beyond the contexts, `+page.svelte` also:
+
+- owns the source/target/authorship text and the open/closed state of the side panels;
+- owns the **arrow launch** — the one-shot animation that commits the text and advances
+  from Text mode into Link mode (see [[interaction-modes/mode-transitions#the-arrow-launch-text--link]]);
+- wires up the document-level keyboard shortcuts once, on mount (see
+  [[interaction-modes/keyboard-navigation#document-level-shortcuts]]).
+
+## `QuoteWorkbench.svelte`
+
+This is the centre column — the thing the side panels flank. Its job is to render the
+*right view* for the current mode, using token data it reads from the store:
+
+- **Text mode** — two plain textareas (source, target), so the user can paste or type.
+  The source textarea filters its input live to Han characters and CJK punctuation as
+  the user types, in a way that's careful not to break IME composition (so typing pinyin
+  to produce a character still works).
+- **Link, Line, and View modes** — the token workspace: the source and target panels
+  rendered as grids of clickable/interactive tokens. These panels are
+  [[components/interactive-text-panels|`InteractiveSourceText` / `InteractiveTargetText`]],
+  and what's interactive in them depends on the mode.
+
+In every mode, an authorship textarea sits below the workbench (read-only in View mode).
+
+### Tokens stay continuous across edits
+
+When the user splits or merges a line in Line mode, the token arrays get re-tokenized,
+some tokens move to different lines, and the panel that changed grows or shrinks —
+which shifts everything below it. Rather than letting that happen as an abrupt layout
+jump, the app **animates** the rearrangement: the tokens that move slide to their new
+positions, and the panel heights tween smoothly.
+
+`QuoteWorkbench` is the component that makes this animation possible — it tags each
+panel with the DOM references the animation needs, and forwards split/merge requests
+into the [[data-and-tokenization/token-store|token store]], which actually owns and
+runs the animation. The full mechanism (and why it has to be one unified animation
+rather than several independent ones) is covered in
+[[data-and-tokenization/token-store#the-unified-flip-splitmerge-animation]].
+
+### One navigator for both interactive modes
+
+Link mode and Line mode both need keyboard navigation between the elements in the
+token grid — but they navigate *different* things (tokens vs. split/merge controls).
+`QuoteWorkbench` creates a single navigator instance and reconfigures it per mode,
+rather than building two. See [[interaction-modes/keyboard-navigation]].
+
+## Where to go next
+
+- [[components/layout]] — how the workbench and side panels are arranged on screen,
+  and how that changes with viewport size.
+- [[components/interactive-text-panels]] — the source/target token panels in depth.
+- [[interaction-modes/link-mode]], [[interaction-modes/line-mode]] — what each mode
+  actually lets the user do.
+- [[data-and-tokenization/token-store]] — the single owner of token data, and the Flip
+  animation in depth.
