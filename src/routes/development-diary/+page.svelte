@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { diaryEntries } from '$lib/generated/diary-index';
+	import SidebarSpacer from '../../components/Menu/SidebarSpacer.svelte';
 </script>
 
 <svelte:head>
@@ -48,3 +49,5 @@
 		</ul>
 	</div>
 </main>
+
+<SidebarSpacer />
