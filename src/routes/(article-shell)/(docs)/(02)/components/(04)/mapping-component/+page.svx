@@ -1,57 +1,45 @@
 ---
 title: The Mapping Card
+summary: Mapping.svelte — what a card shows, why it reads only a display snapshot, how its size and colors are derived, and how its pinyin editor commits canonical values.
+tags:
+  - components
+  - mappings
+  - pinyin
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-`Mapping.svelte` renders one card in the [[components/mappings-list|mappings list]] —
-the visual representation of a single [[data-and-tokenization/mapping|mapping]].
+`Mapping.svelte` renders one card in the [[components/mappings-list|mappings list]] — the visual representation of a single [[data-and-tokenization/mapping|mapping]].
 
 ## What's on a card
 
 Each card has three columns:
 
 - the source hanzi for that mapping,
-- an editable pinyin field for each of those characters,
-- a sequential number badge and a delete button.
+- an editable pinyin field for each of those characters, and
+- a sequential number badge plus a delete button.
 
-A mapping with no source tokens yet (just created, nothing clicked) shows a
-placeholder (`未定`, `- - - -`) instead of empty columns, so an "empty" card still
-looks like a card and not like a rendering glitch.
+A mapping with no source tokens yet — just created, nothing clicked — shows a placeholder (`未定`, `- - - -`) instead of empty columns, so an "empty" card still reads as a card rather than a rendering glitch.
 
 ## Why the card only reads a `MappingView`
 
-The card never touches the raw [[data-and-tokenization/mapping|`Mapping`]] state or the
-token arrays directly. Instead it's handed a
-[[data-and-tokenization/mapping#mappingview--the-display-snapshot|`MappingView`]] — a
-read-only snapshot built specifically for display. This keeps the card simple (it's
-just rendering a flat shape) and keeps the *real* mapping logic — token IDs, index
-lookups, which mapping is active — entirely out of the component layer, in `Alignment`
-(see [[interaction-modes/link-mode]]).
+The card never touches the raw [[data-and-tokenization/mapping|`Mapping`]] state or the token arrays directly. Instead it is handed a [[data-and-tokenization/mapping#mappingview--the-display-snapshot|`MappingView`]] — a read-only snapshot built specifically for display.
+
+This separation pays off twice. The card stays simple, because it is only rendering a flat shape. And the *real* mapping logic — token IDs, index lookups, which mapping is active — stays entirely out of the component layer, in `Alignment` (see [[interaction-modes/link-mode]]). The card cannot accidentally corrupt the alignment, because it has nothing mutable to corrupt.
 
 ## Sizing and color
 
-A card's height is quantized to the CSS grid it sits in: it spans `floor(rowCount / 2)
-+ 1` rows, where `rowCount` is the number of source entries (minimum 1). This keeps
-cards tiling cleanly regardless of how many characters a mapping covers.
+A card's height is quantized to the CSS grid it sits in: it spans `floor(rowCount / 2) + 1` rows, where `rowCount` is the number of source entries (minimum 1). That keeps cards tiling cleanly no matter how many characters a mapping covers.
 
-Every color the card uses — background, badge, bottom bar, and more — comes from one
-`theme` object derived from whether the card is the active mapping. The markup reads
-`theme.cardBg` rather than repeating an `isActive ? a : b` ternary in a dozen places,
-so the active/inactive look stays consistent as the card's styling evolves.
+Color is resolved in two steps. First the card picks the light or dark **variant** of its palette entry, following the current theme; then every surface — background, badge, bottom bar, and the rest — flows through a single `theme` object keyed by whether this card is the active mapping. The markup reads `theme.cardBg` instead of repeating an `isActive ? a : b` ternary in a dozen places, so the active and inactive looks stay consistent as the card's styling evolves. (The delete button is the one exception: its colors come straight from the variant, not from `isActive`.)
 
 ## Editing pinyin
 
-The pinyin inputs are only editable when the card is active *and* the corresponding
-source token has pinyin (i.e. it's a Han character, not punctuation). Typing into one
-calls `alignment.setPinyin(mappingId, position, value)`, which resolves which source
-token that position corresponds to and writes the value through the
-[[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] —
-the same path the automatic pinyin fill-in uses. See
-[[interaction-modes/link-mode#pinyin-auto-fill]].
+The pinyin inputs are editable only when the card is active *and* the corresponding source token actually carries pinyin — that is, it is a Han character, not punctuation. Each input is a `PinyinInput.svelte`, which holds a **local edit buffer while focused**: typing `"zhi1"` is left exactly as typed and is not reformatted to `"zhī"` mid-keystroke. On blur it commits via `alignment.setPinyin(mappingId, position, value)`, which resolves which source token that position corresponds to and writes the value through the [[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] — the same path the automatic fill-in uses.
+
+`Alignment` is the single owner of canonicalization: it runs the raw text through its converter before writing, so the input itself never has to. See [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]] for why pinyin is stored in numbered form and displayed as diacritics.
 
 ## Deleting a mapping
 
-The delete button appears on hover or focus and calls `alignment.deleteById(id)`. The
-same deletion can also be triggered from the keyboard — see
-[[interaction-modes/keyboard-navigation#document-level-shortcuts]].
+The delete button appears on hover or focus and calls `alignment.deleteById(id)`. On touch devices, where a hidden-but-hittable button was a hazard, it is replaced by a swipe gesture — see [[components/mappings-list#swipe-to-delete-touch]]. The same deletion can also be triggered from the keyboard; see [[interaction-modes/keyboard-navigation#document-level-shortcuts]].

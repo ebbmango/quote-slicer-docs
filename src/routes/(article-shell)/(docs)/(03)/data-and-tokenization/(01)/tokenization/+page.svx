@@ -1,68 +1,39 @@
 ---
 title: Tokenization
+summary: Why the raw source and target text has to be sliced into tokens, what the two tokenizers share, and how lines, IDs, and whitespace are handled before any linking can happen.
+tags:
+  - tokenization
+  - data-model
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-Everything the user clicks in Link or Line mode is a **token** — a character, a word,
-a punctuation mark, a run of whitespace. Before any of that is possible, the raw source
-and target text has to be sliced into tokens. This article covers *why* tokenization
-works the way it does and what's shared between the two sides; the source and target
-tokenizers themselves are covered in their own articles, since they solve different
-problems.
+Everything the user clicks in Link or Line mode is a **token** — a character, a word, a punctuation mark, a run of whitespace. Before any of that is possible, the raw source and target text has to be sliced into tokens. This article covers *why* tokenization works the way it does and what the two sides share; each tokenizer then gets its own article, because they solve genuinely different problems.
 
 ## Why tokenization matters here
 
-The whole app is built on a relationship between *source tokens* and *target tokens* —
-a [[data-and-tokenization/mapping|mapping]] is just a set of source token IDs paired
-with a set of target token IDs. So how the text gets sliced into tokens directly
-determines what the user *can* link together. Get the slicing wrong, and either too
-much is bundled into one token (the user can't separate two words that should be linked
-separately) or too little (punctuation ends up as its own clickable, unmappable
-fragment, cluttering the view).
+The whole app rests on a relationship between *source tokens* and *target tokens* — a [[data-and-tokenization/mapping|mapping]] is nothing more than a set of source token IDs paired with a set of target token IDs. So how the text gets sliced determines exactly what the user *can* link together. Slice it wrong, and you fail in one of two directions: bundle too much into one token and the user can't separate two words that should be linked apart; slice too finely and punctuation becomes its own clickable, unmappable fragment that just clutters the view.
 
-The two sides need different slicing strategies, because Chinese and English work
-differently:
+The two sides need different strategies, because Chinese and English work differently:
 
-- **Source (Chinese)** — the user maps one character at a time, so
-  [[data-and-tokenization/quote-tokenization|the source tokenizer]] produces one token
-  per character.
-- **Target (English)** — the user maps whole words, so
-  [[data-and-tokenization/translation-tokenization|the target tokenizer]] has to decide
-  where words begin and end, and what to do with the punctuation around them.
+- **Source (Chinese)** — the user maps one character at a time, so [[data-and-tokenization/source-tokenization|the source tokenizer]] produces one token per character.
+- **Target (English)** — the user maps whole words, so [[data-and-tokenization/target-tokenization|the target tokenizer]] has to decide where words begin and end, and what to do with the punctuation around them.
 
-Both tokenizers live in `src/lib/tokenize.ts` and both produce flat arrays of
-[[data-and-tokenization/tokens|tokens]].
+Both tokenizers live in `src/lib/tokenize.ts` and both produce flat arrays of [[data-and-tokenization/tokens|tokens]].
 
 ## Stable IDs, assigned once
 
-As the very last step, both tokenizers assign every token a stable integer `id` — its
-position in the flat output array at the moment of tokenization. This ID is what a
-[[data-and-tokenization/mapping|mapping]] actually stores, and it's designed to survive
-line edits unchanged. See [[data-and-tokenization/tokens#stable-token-ids]] for why that
-matters and how it's guaranteed.
+As its very last step, each tokenizer assigns every token a stable integer `id` — its position in the flat output array at the moment of tokenization. This ID is what a [[data-and-tokenization/mapping|mapping]] actually stores, and it is engineered to survive line edits unchanged. See [[data-and-tokenization/tokens#stable-token-ids]] for why that matters and how it is guaranteed.
 
 ## Lines are a property of tokens, not of the text
 
-Both tokenizers split the input on newlines and stamp each token with which line it
-came from — but the newlines themselves aren't tokens. This is what makes
-[[interaction-modes/line-mode|Line mode]] possible: splitting or merging a line is just
-rewriting the `.line` field on some tokens, never inserting or deleting characters from
-the underlying text.
+Both tokenizers split the input on newlines and stamp each token with which line it came from — but the newlines themselves are *consumed*, never emitted as tokens. This is precisely what makes [[interaction-modes/line-mode|Line mode]] possible: splitting or merging a line is just rewriting the `.line` field on some tokens, never inserting or deleting characters from the underlying text.
 
-On the target side, there's one more piece: a synthetic **boundary whitespace** token
-is inserted between consecutive lines (but not after the last one). This token exists
-purely as a merge affordance in Line mode — clicking it merges the two lines it sits
-between. See [[data-and-tokenization/translation-tokenization#line-stamping-and-the-boundary-whitespace-token]]
-and [[interaction-modes/line-mode#the-line-tool-affordances]].
+On the target side there is one extra piece. A synthetic **boundary whitespace** token is appended between consecutive lines — but not after the last one. It has no counterpart in the real text; it exists purely as a merge affordance in Line mode, where clicking it merges the two lines it sits between. See [[data-and-tokenization/target-tokenization#line-stamping-and-the-boundary-whitespace-token]] and [[interaction-modes/line-mode#the-line-tool-affordances]].
 
 ## Whitespace is a target-only concern
 
-The source input is filtered as the user types to allow only Han characters and CJK
-punctuation — spaces are stripped entirely, so source tokens are never whitespace.
+The source input is filtered as the user types to allow only Han characters and CJK punctuation — spaces are stripped entirely, so source tokens are never whitespace.
 
-The target side keeps whitespace as real tokens, because English needs the spaces
-between words to render correctly. Those whitespace tokens are deliberately *not*
-mappable — see [[data-and-tokenization/translation-tokenization#whitespace-strategy]]
-for how they're excluded from mappings while still participating in the visual
-highlight and in [[export|the exported text]].
+The target side keeps whitespace as real tokens, because English needs the spaces between words to render correctly. Those whitespace tokens are deliberately *not* mappable — see [[data-and-tokenization/target-tokenization#whitespace-strategy]] for how they are kept out of mappings while still participating in the visual highlight and in [[data-and-tokenization/export|the exported text]].

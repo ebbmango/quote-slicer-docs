@@ -1,12 +1,15 @@
 ---
 title: The Mapping
+summary: The core unit of the alignment — what a Mapping carries, why it stores token IDs rather than positions, the read-only MappingView the UI displays, and what gets exported.
+tags:
+  - mappings
+  - data-model
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-A **mapping** is the core unit of the alignment: it links a set of source characters to
-a set of target words. This article covers its shape, and the read-only snapshot the
-UI actually displays.
+A **mapping** is the core unit of the alignment: it links a set of source characters to a set of target words. This article covers its shape, and the read-only snapshot the UI actually displays.
 
 ## What a mapping carries
 
@@ -23,56 +26,34 @@ type Mapping = {
 };
 ```
 
-The most important design choice here is that a mapping stores **token IDs**, not
-array positions. [[interaction-modes/line-mode|Line edits]] reshuffle the token
-arrays (tokens move to different lines) but never insert or remove tokens — so a token's
-ID is stable even when its array index isn't. By storing IDs, a mapping never needs to
-be rewritten just because the user rearranged line breaks. See
-[[data-and-tokenization/tokens#stable-token-ids]] for the full guarantee.
+The most important design choice here is that a mapping stores **token IDs**, not array positions. [[interaction-modes/line-mode|Line edits]] reshuffle the token arrays — tokens move to different lines — but never insert or remove tokens, so a token's ID is stable even when its array index isn't. By storing IDs, a mapping never has to be rewritten just because the user rearranged line breaks. See [[data-and-tokenization/tokens#stable-token-ids]] for the full guarantee.
 
-`colorIndex` is assigned once, when the mapping is created, from a counter that never
-resets — so a mapping's color is decoupled from its position in the list. Deleting or
-reordering mappings can never reassign an existing card's color. See
-[[interaction-modes/link-mode#mapping-lifecycle]] for how mappings are created, pruned,
-and deleted.
+`colorIndex` is assigned once, at creation, from a counter that never resets — so a mapping's color is decoupled from its position in the list. Deleting or reordering mappings can never reassign an existing card's color. See [[interaction-modes/link-mode#mapping-lifecycle]] for how mappings are created, pruned, and deleted.
 
 ## `MappingView` — the display snapshot
 
-[[components/mapping-component|`Mapping.svelte`]] never reads the raw `Mapping` shape
-above, and never touches the token arrays directly. Instead, it's handed a
-`MappingView` — a derived, read-only snapshot built specifically for display
-(`src/lib/context/alignment.svelte.ts`):
+[[components/mapping-component|`Mapping.svelte`]] never reads the raw `Mapping` shape above, and never touches the token arrays directly. Instead it is handed a `MappingView` — a derived, read-only snapshot built specifically for display (`src/lib/context/alignment.svelte.ts`):
 
 ```ts
 type MappingView = {
   id: MappingId;
   colorIndex: number;
-  sourceEntries: { tokenIndex: number; text: string; pinyin: string }[];
+  sourceEntries: { tokenId: number; tokenIndex: number; text: string; pinyin: string }[];
   targetText: string;
 };
 ```
 
-This separation keeps the rendering layer simple — a card just renders a flat list of
-strings — while all the bookkeeping (resolving IDs to indices, reading pinyin off the
-right token, building readable text) happens once, upstream.
+This separation keeps the rendering layer simple — the card just renders a flat list of strings — while all the bookkeeping (resolving IDs to indices, reading pinyin off the right token, building readable text) happens once, upstream.
 
-A few things worth knowing about how this snapshot is built:
+A few things worth knowing about how the snapshot is built:
 
-- `sourceEntries[].pinyin` resolves to the source token's `pinyin` value, or an empty
-  string — pinyin lives on the token (via the
-  [[data-and-tokenization/token-store#the-pinyin-overlay|pinyin overlay]]), not on the
-  mapping itself.
-- `targetText` is built by stitching together contiguous runs of the mapping's target
-  tokens into phrases — bridging short whitespace/punctuation gaps (≤ 5 tokens) so they
-  don't break up a phrase — and joining any non-contiguous runs with `, `. This is the
-  same "short gap" rule mentioned in
-  [[data-and-tokenization/translation-tokenization#whitespace-strategy]].
+- Each `sourceEntries` row carries **both** a `tokenId` (the stable identity) and a `tokenIndex` (the current array position). The `tokenId` is the stable key used to look up display pinyin; the `tokenIndex` is what the card needs to address the live token.
+- `sourceEntries[].pinyin` is the **diacritic display form** (`"zhī"`), converted from the token's stored canonical pinyin (`"zhi1"`) — see [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]]. Pinyin lives on the token (via the [[data-and-tokenization/token-store#the-pinyin-overlay|pinyin overlay]]), never on the mapping.
+- `targetText` is built by stitching together contiguous runs of the mapping's target tokens into phrases — bridging short whitespace/punctuation gaps (≤ 5 tokens) so they don't break a phrase apart — and joining any non-contiguous runs with `, `. This is the same "short gap" rule described in [[data-and-tokenization/target-tokenization#whitespace-strategy]].
 
 ## What gets exported
 
-[[export|The export]] uses the raw `Mapping` shape, not `MappingView` — but with
-`colorIndex` stripped out, since color is a presentation detail, not part of the
-alignment data itself:
+[[data-and-tokenization/export|The export]] uses the raw `Mapping` shape, not `MappingView` — but with `colorIndex` stripped out, since color is a presentation detail rather than part of the alignment data itself:
 
 ```ts
 type ExportMapping = Omit<Mapping, 'colorIndex'>;

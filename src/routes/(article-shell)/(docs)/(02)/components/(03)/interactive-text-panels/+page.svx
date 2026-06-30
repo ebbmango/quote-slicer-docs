@@ -1,62 +1,47 @@
 ---
 title: The Source & Target Panels
+summary: InteractiveSourceText and InteractiveTargetText — why they render one DOM tree for every mode, what each mode makes interactive, and how they hold up their end of the line-edit animation.
+tags:
+  - components
+  - tokens
+  - animation
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and
-target [[data-and-tokenization/tokens|tokens]] as the grids of spans the user interacts
-with in Link, Line, and View modes. They're a matched pair — built the same way, for
-the same reasons — so this article covers both together.
+`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of spans the user interacts with in Link, Line, and View modes. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
 
 ## Why these panels render the same DOM in every mode
 
-Link mode, Line mode, and View mode all show "the tokens" — but each mode needs
-different things to be clickable, and Line and Link modes need to *animate into each
-other* smoothly (see [[interaction-modes/mode-transitions]]). If each mode rendered a
-different subtree for the tokens, the browser would have no way to animate a token's
-color or a line's height *across* a mode switch — it would just snap to the new
-values.
+Link mode, Line mode, and View mode all show "the tokens" — but each mode needs different things to be clickable, and the modes have to *animate into one another* smoothly (see [[interaction-modes/mode-transitions]]). If each mode rendered a different subtree for the tokens, the browser would have no way to animate a token's color, or a line's height, *across* a mode switch. It would simply snap to the new values, because a freshly-mounted element has no previous state to transition from.
 
-So both panels render **one DOM tree, used by every mode**: a single loop over the
-tokens, in a single flex-wrap container. What changes between modes is *attributes on
-those elements*, not which elements exist — whether a token span is clickable, whether
-the container has `role="listbox"`, whether the split/merge controls between tokens can
-receive clicks. That's what lets a token's highlight color, or a line's gap opening up,
-transition smoothly as the mode changes.
+So both panels render **one DOM tree, used by every mode**: a single loop over the tokens, in a single flex-wrap container. What changes between modes is *attributes on those elements*, not which elements exist — whether a token span is interactive, whether the container carries a `listbox` role, whether the split/merge controls between tokens accept clicks. That is what lets a token's highlight color, or a line gap opening up, transition smoothly as the mode changes.
+
+Per-token color, opacity, and weight all come from one shared pure function, `tokenPresentation()`, selected for the current mode and color theme. Centralising it in one function (rather than scattering `isActive ? … : …` ternaries through the markup) is what keeps the source and target panels visually identical and makes the crossfade in [[interaction-modes/mode-transitions#the-two-transitions-that-carry-the-motion|Mode Transitions]] possible.
 
 ## What's interactive, per mode
 
-- **Link mode** — non-whitespace, non-punctuation tokens become `role="option"` spans;
-  clicking one feeds into the [[interaction-modes/link-mode|click state machine]]. The
-  source panel additionally wires up a long-press gesture, so touch users have a way to
-  force-add a token (the equivalent of holding Cmd/Ctrl on desktop).
-- **Line mode** — the split/merge controls between tokens become active. See
-  [[interaction-modes/line-mode#the-line-tool-affordances]] for what those controls look
-  like on each side (the source and target token streams differ, so the affordances
-  aren't identical).
-- **View mode** — nothing is clickable; tokens are dimmed to signal read-only.
+- **Link mode** — mappable tokens become `role="option"` spans; clicking one feeds into the [[interaction-modes/link-mode|click state machine]]. The source panel additionally wires a long-press gesture, giving touch users a way to force-add a token — the equivalent of holding Cmd/Ctrl on desktop.
+- **Line mode** — the split/merge controls between tokens become active. Both panels render the same `LineDivisor` component for the affordance itself; they differ only in *which* divisor goes *where*, because the source and target token streams aren't shaped alike. See [[interaction-modes/line-mode#the-line-tool-affordances]].
+- **View mode** — nothing is clickable, and the tokens are dimmed to signal read-only. The one live interaction is the mapping highlight: hovering or tapping a mapped token lights up its whole mapping across both panels. The panels wire `onmouseenter` / tap handlers per token and `onmouseleave` on the container; the machinery behind it lives in [[interaction-modes/view-mode]].
 
-Both panels also handle a click on empty space within themselves by deselecting the
-active mapping — the mouse counterpart to pressing Escape (see
-[[interaction-modes/keyboard-navigation#document-level-shortcuts]]).
+Both panels also treat a bare click on empty container space as a request to deselect the active mapping — the mouse counterpart to pressing Escape (see [[interaction-modes/keyboard-navigation#document-level-shortcuts]]).
 
 ## Supporting the split/merge animation
 
-When a line is split or merged, the [[data-and-tokenization/token-store|token store]]
-runs one animation across both panels and the authorship field. For that animation to
-work, each panel has to hold up its end:
+When a line is split or merged, the [[data-and-tokenization/token-store|token store]] runs **one** animation across both panels and the authorship field. For that to work, each panel has to hold up its end:
 
-- Tokens are rendered with an **index-keyed loop**, not a keyed-by-identity one. Keying
-  by index keeps every span element alive across a re-tokenization, so the animation
-  library can match each element's old position to its new one and animate the
-  difference. Each span also carries a `data-flip-id` the animation reads.
-- Each panel's scrollable container is marked `data-scrollbox`, so the store can find
-  the box whose height it needs to tween.
-- While the store's animation is running (`animating === true`), the panel leaves that
-  box's height alone — the store is actively controlling it. The rest of the time, the
-  panel keeps the box at its natural height so it can follow whatever content changes
-  happen in between animations.
+###### An index-keyed loop.
 
-The full animation mechanism lives in
-[[data-and-tokenization/token-store#the-unified-flip-splitmerge-animation]].
+Tokens are rendered with an index-keyed `{#each}`, not a keyed-by-identity one. Keying by index keeps every span element *alive* across a re-derivation, so the animation can match each element's old position to its new one and tween the difference. Each span also carries a `data-flip-id` the animation reads.
+
+###### A marked scroll box.
+
+Each panel's scrollable container is marked `data-scrollbox`, so the store can find the box whose height it needs to tween.
+
+###### A height hand-off.
+
+While the store's animation is running (`animating === true`), the panel leaves that box's height alone — the store is actively controlling it. The rest of the time, the panel keeps the box at its natural height, so it follows whatever content changes happen between animations (including the line-gap transitions of a mode change).
+
+The full animation mechanism lives in [[data-and-tokenization/token-store#the-line-edit-animation-splitmerge]].

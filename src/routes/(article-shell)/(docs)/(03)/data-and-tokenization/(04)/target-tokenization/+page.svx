@@ -1,31 +1,29 @@
 ---
 title: Tokenizing the Target Text
+summary: tokenizeTarget — the hard tokenizer, and the single rule (flanking punctuation absorbed, interior punctuation split out) that decides what the user can map word by word.
+tags:
+  - tokenization
+  - target
+  - whitespace
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-`tokenizeTarget(text: string): TargetToken[]` — in `src/lib/tokenize.ts` — turns the
-English translation into [[data-and-tokenization/tokens|`TargetToken[]`]].
+`tokenizeTarget(text: string): TargetToken[]` — in `src/lib/tokenize.ts` — turns the English translation into an array of [[data-and-tokenization/tokens|target tokens]] (`TargetToken[]`).
 
 ## Why this is the hard tokenizer
 
-On the source side, "one character = one token" is unambiguous. On the target side,
-the user thinks in **words** — but English text is full of punctuation that's
-sometimes part of a word (`don't`, `programming.`) and sometimes its own thing
-(`well-known` → two mappable halves and a hyphen; an em-dash between two words). Get
-this wrong and either punctuation becomes its own confusing clickable fragment, or
-two things that should be separately mappable get stuck together.
+On the source side, "one character = one token" is unambiguous. The target side is where it gets interesting. The user thinks in **words**, but English text is riddled with punctuation that is sometimes part of a word (`don't`, `programming.`) and sometimes its own thing (`well-known` is two mappable halves and a hyphen; an em-dash sits between two words). Get this wrong and either punctuation becomes its own confusing clickable fragment, or two things that should be separately mappable get stuck together.
 
-The guiding rule the tokenizer follows: **punctuation that touches a word is absorbed
-into that word, but punctuation wedged *between* two word-characters splits out** so
-each piece stays individually mappable.
+So the tokenizer follows one guiding rule: **punctuation that touches a word is absorbed into that word, but punctuation wedged *between* two word-characters splits out** — so each piece stays individually mappable.
 
 ## How it works
 
 A single regex, `TARGET_RE`, matches in priority order:
 
 1. a single Han character;
-2. a word (Latin letters/digits) with any *flanking* punctuation absorbed;
+2. a word (Latin letters / digits) with any *flanking* punctuation absorbed;
 3. a whitespace run (excluding newlines);
 4. a standalone punctuation run not adjacent to any word.
 
@@ -36,26 +34,15 @@ There's nothing "simple" in programming.
 
 ### The merge rules, by example
 
-- **Flanking punctuation is absorbed** into the word it touches: `"simple"`,
-  `programming.`, `(hello)`, `$5`, `5%`.
-- **Interior punctuation splits out** — punctuation with word-characters on *both*
-  sides is its own token: `well-known` → `[well][-][known]`; `3.14` →
-  `[3][.][14]`; `$5,000.00` → `[$5][,][000][.][00]`. This is what makes hyphenated
-  compounds and multi-part numbers mappable piece by piece.
-- **Contractions are the one exception** to "interior splits out" — a straight `'` or
-  curly `'` apostrophe between word-characters stays merged: `don't`, `it's`, `dogs'`.
-- **Standalone punctuation** with no adjacent word is its own token: `...`, or an
-  em-dash between words (`word—word` → `[word][—][word]`).
-- **Han characters in target text** stay single-character tokens, same as the source
-  side; adjacent punctuation stays standalone (`你好!` → `[你][好][!]`).
+- **Flanking punctuation is absorbed** into the word it touches: `"simple"`, `programming.`, `(hello)`, `$5`, `5%`.
+- **Interior punctuation splits out** — punctuation with word-characters on *both* sides becomes its own token: `well-known` → `[well][-][known]`; `3.14` → `[3][.][14]`; `$5,000.00` → `[$5][,][000][.][00]`. This is what makes hyphenated compounds and multi-part numbers mappable piece by piece.
+- **Contractions are the one exception** to "interior splits out" — a straight `'` or curly `'` apostrophe between word-characters stays merged: `don't`, `it's`, `dogs'` (the regex carries an explicit `(?:['']…)*` group for exactly this case).
+- **Standalone punctuation** with no adjacent word is its own token: `...`, or an em-dash between words (`word—word` → `[word][—][word]`).
+- **Han characters in target text** stay single-character tokens, same as the source side; adjacent punctuation stays standalone (`你好!` → `[你][好][!]`).
 
-The interior-vs-flanking distinction is enforced with lookbehind/lookahead assertions
-around word characters, and is locked down by an extensive set of cases in
-`src/lib/vitest-examples/tokenize.spec.ts`.
+The interior-versus-flanking distinction is enforced by lookbehind / lookahead assertions (`(?<![A-Za-z0-9])` / `(?![A-Za-z0-9])`) around word characters, and the whole behavior is pinned down by an extensive set of cases in `src/lib/vitest-examples/tokenize.spec.ts`.
 
-> **History:** earlier versions had two separate target tokenizers for two slightly
-> different needs. They were consolidated into this single `tokenizeTarget` so the
-> rest of the app only ever has to reason about one shape of `TargetToken[]`.
+> **History:** earlier versions had two separate target tokenizers — `tokenizeTargetSeparate` and `tokenizeTargetCombined` — for two slightly different needs. They were consolidated into this single `tokenizeTarget` so the rest of the app only ever has to reason about one shape of `TargetToken[]`.
 
 ### Token types
 
@@ -63,44 +50,29 @@ around word characters, and is locked down by an extensive set of cases in
 |------|------|
 | `'whitespace'` | a whitespace run |
 | `'hanzi'` | a single Han character |
-| `'text'` | any token containing a letter or digit — so `$5` and `simple.` are `'text'` and therefore mappable |
+| `'text'` | any token containing a letter or digit (`[\p{L}\p{N}]`) — so `$5` and `simple.` are `'text'` and therefore mappable |
 | `'punctuation'` | a pure-symbol run |
 
 ## Line stamping and the boundary whitespace token
 
-Like the source tokenizer, this one splits on `\n` and stamps each token with its
-line's index, consuming the newline itself.
+Like the source tokenizer, this one splits on `\n` and stamps each token with its segment's `line` index, consuming the newline itself.
 
-Additionally, after the tokens of each line — except the last — a synthetic boundary
-token is appended:
+Additionally, after the tokens of each line — but **not** after the last one — a synthetic boundary token is appended:
 
 ```ts
 if (line < lines.length - 1) tokens.push({ text: ' ', line, type: 'whitespace' });
 ```
 
-This token has no counterpart in the real text. Its job is purely interactive: in
-[[interaction-modes/line-mode|Line mode]], clicking it merges the two lines it sits
-between. See [[interaction-modes/line-mode#the-line-tool-affordances]].
+This token has no counterpart in the real text. Its job is purely interactive: in [[interaction-modes/line-mode|Line mode]] clicking it merges the two lines it sits between. See [[interaction-modes/line-mode#the-line-tool-affordances]].
 
 ## Whitespace strategy
 
-Whitespace tokens exist in the target stream, but they're deliberately *not* full
-participants in the alignment:
+Whitespace tokens exist in the target stream, but they are deliberately *not* full participants in the alignment:
 
-- **Not interactive in Link mode** — clicking a whitespace (or punctuation) token is a
-  no-op, so it can never start or join a mapping.
-- **Never stored in a mapping** — no [[data-and-tokenization/mapping|`Mapping`]] will
-  ever hold a whitespace token's ID.
-- **Visually bridged** — a whitespace token flanked on both sides by tokens from the
-  *same* mapping inherits that mapping's color, so a multi-word phrase reads as one
-  continuous highlight rather than a striped one. See
-  [[interaction-modes/link-mode#whitespace-bridging]].
-- **Bridged in exported text** — when building the readable text for a mapping, short
-  gaps (≤ 5 tokens, all whitespace/punctuation) are treated as contiguous, so the
-  mapping's text renders as a single phrase instead of several comma-joined fragments.
-- **Still copyable** — in Line mode, whitespace tokens render as `<span
-  role="button">` rather than `<button>`, with `user-select: text`, so selecting and
-  copying the target text still includes the spaces.
+- **Not interactive in Link mode** — `toggleTarget` early-returns for whitespace (and punctuation), so they can never start or join a mapping.
+- **Never stored in a mapping** — no [[data-and-tokenization/mapping|`Mapping`]] will ever hold a whitespace token's ID.
+- **Visually bridged** — a whitespace token flanked on both sides by tokens from the *same* mapping inherits that mapping's color, so a multi-word phrase reads as one continuous highlight rather than a striped one. See [[interaction-modes/link-mode#whitespace-bridging]].
+- **Bridged in exported text** — when building the readable text for a mapping, short gaps (≤ 5 tokens, all whitespace/punctuation) are treated as contiguous, so the mapping's text renders as a single phrase instead of comma-joined fragments.
+- **Still copyable** — in Line mode, whitespace tokens render as `<span role="button">` rather than `<button>`, with `user-select: text`, so selecting and copying the target text still includes the spaces.
 
-Source tokens never have a whitespace type — the source input filter strips spaces
-entirely before tokenization ever sees them.
+Source tokens never have a whitespace type — the source input filter strips spaces entirely before tokenization ever sees them.

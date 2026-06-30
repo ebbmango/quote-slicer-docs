@@ -1,0 +1,55 @@
+---
+title: Mode Transitions
+summary: How the workbench animates between modes — the arrow launch out of Text mode, the persistent-DOM crossfade that lets tokens and line gaps animate, and the sidebar slide.
+tags:
+  - mode-transitions
+  - animation
+lastUpdated: 2026-06-29
+---
+
+# {title}
+
+This article is about *motion* — how the workbench animates as the user moves between the four [[overview#the-four-modes|modes]]. There are three separate transitions: the **arrow launch** (Text → Link), the **persistent-DOM crossfade** (Link ↔ Line ↔ View), and the **sidebar slide** (the side panels opening as the user leaves Text mode).
+
+## The arrow launch (Text → Link)
+
+In Text mode, the only control is a downward arrow. Clicking it does not switch modes immediately — instead it plays a deliberate animation beat first, owned by `+page.svelte`:
+
+1. the arrow *anticipates* upward with a slight `scaleY` stretch, holds a beat, then accelerates hard downward and fades — like a loosed arrow;
+2. after the animation has had time to read (450 ms), if the text fields are empty they are seeded with placeholder text, and *then* the mode actually switches to Link — so the shot finishes before the tools panel fades in.
+
+A re-entrancy guard prevents the arrow from firing twice if clicked again mid-flight. The arrow's hover nudge and its launch animation deliberately share the same element, so the launch can fully override the hover transition — a half-finished hover can never bleed into the shot.
+
+### Seamless text → token handoff
+
+At 450 ms Svelte swaps the textarea block for the token grid. To keep that swap from reading as a visible cut, each textarea **pre-matches** its token-mode appearance *during* the launch, so the DOM change lands on a screen that already looks like the destination. (A crossfade overlay was considered and rejected: it would need two live DOM trees, careful timing, and risks flicker — whereas pre-matching costs nothing at mount.)
+
+The match has two parts. The **geometry** is tuned so a textarea's letter-spacing and offset land exactly where the token row will sit (the per-pair gap is just a couple of pixels, since the divisor buttons between tokens are zero-width, and the font size is unified across textareas, token spans, and sidebar cards). The **color** animates over 400 ms as the fields gain an `.exiting` modifier — settling flat just before the swap. Under `prefers-reduced-motion`, the pre-match stays (the swap is still seamless) but the `.exiting` state is applied instantly rather than animated.
+
+## The persistent-DOM crossfade (Link ↔ Line ↔ View)
+
+### Why it's built this way
+
+A freshly-mounted DOM element can't transition *from* a previous element's state — the browser just paints the final value immediately. If the token panels rendered a different subtree per mode (a "Line mode branch" versus a "Link/View branch"), nothing — not a token's color, not a line's height — could ever animate across a mode change; it would all snap.
+
+The fix, covered from the component side in [[components/interactive-text-panels#why-these-panels-render-the-same-dom-in-every-mode]], is structural: the source and target panels render **one DOM tree for every mode**. What changes between modes is *attributes*, not *which elements are mounted* — the container's ARIA role (`listbox` in Link/View, none in Line), whether token spans are interactive, and whether the split/merge controls can receive clicks.
+
+### The two transitions that carry the motion
+
+- **`.tok`** — a class on every token span, with `transition: color / opacity / font-weight 280ms`. Both panels compute a token's target color, opacity, and weight through one shared pure function, `tokenPresentation()`; only the *target* values change per mode, and the timing lives in the CSS rule. So leaving Link mode simply unsets a token's color and weight, and the span crossfades back to the default text color on its own. Source-side opacity also encodes the mode — dimmer in Line, dimmer still in View — so all three read distinctly without anything ever remounting.
+- **`.merge-zone`** — the full-width line break. It is a real element at `height: 0` in Link/View (still forcing a flex wrap, so it doubles as the plain line break) and transitions to a visible height when Line mode makes it active. That height transition is what makes lines visibly "come apart" entering Line mode.
+
+### How this coexists with the split/merge tween
+
+Two different parties want to control a panel's scroll-box height:
+
+1. the [[data-and-tokenization/token-store#the-line-edit-animation-splitmerge|token store]], which pins an explicit pixel height *while* a split/merge tween is in flight;
+2. everything else, which wants the box at its natural height so it follows whatever content changes happen — including the `.merge-zone` height transition above.
+
+The resolution is simple: whenever the store's animation isn't running, the panel hands the box back to its natural height. The store's own tween, on completion, also releases to natural height rather than pinning a measured value — so the box stays free to follow later transitions.
+
+> Both panels (`InteractiveSourceText` and `InteractiveTargetText`) have to keep this logic in lockstep — divergence between them would desync the source/target animations. All of these transitions are disabled under `prefers-reduced-motion: reduce`.
+
+## The sidebar slide (leaving Text mode)
+
+The outer page layout animates the side panels in as the user leaves Text mode. In Text mode the side panels are translated fully off-screen and their grid columns collapsed to zero width; the moment the mode changes, the grid columns, gaps, panel opacity, and panel position all animate back to their resting positions together, over half a second. Which columns exist at all — that is, how many side panels there is room for — depends on the viewport breakpoint; see [[components/layout]]. Like the other transitions on this page, this one is disabled under `prefers-reduced-motion`.

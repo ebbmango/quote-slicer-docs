@@ -1,36 +1,68 @@
 ---
 title: The Mappings List
+summary: MappingsList.svelte — the responsive grid of cards, its GSAP Flip add/delete animations, swipe-to-delete, and the one re-entrancy rule the whole animation system hinges on.
+tags:
+  - components
+  - mappings
+  - animation
+  - gsap
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-`MappingsList.svelte` is the list of [[components/mapping-component|mapping cards]] —
-one of the two views that can appear in either side panel or the data modal (see
-[[components/layout]]).
+`MappingsList.svelte` is the list of [[components/mapping-component|mapping cards]] — one of the two views that can appear in either side panel or the data modal (see [[components/layout]]). It is also where all the card *animation* lives; `Mapping.svelte` itself stays free of GSAP.
 
 ## What it does beyond rendering cards
 
-The list itself is a responsive grid: a single column on narrow panels, two columns
-once the panel is wide enough (at the tablet and wide-modal breakpoints). Beyond that
-grid, the list owns a few pieces of list-level behavior:
+The list is a responsive grid: a single column on narrow panels, two columns once the panel is wide enough (at the tablet and wide-modal breakpoints). Beyond the grid, it owns a few pieces of list-level behavior:
 
-- **Keeping the active card visible.** Whenever the active mapping changes, the list
-  scrolls the corresponding card into view — so selecting a mapping via the token
-  panels (or the keyboard) doesn't leave its card off-screen.
-- **Tab handling within the list**, so keyboard users can move between cards in a
-  predictable order.
-- **An empty state.** When there are no mappings yet, the list renders "No mappings."
-  instead of an empty grid.
+- **Keeping the active card visible.** Whenever the active mapping changes, the list scrolls the corresponding card into view, so selecting a mapping from the token panels or the keyboard never leaves its card off-screen. The scroll is issued the moment the card becomes active — before the animation transforms begin — because the browser already knows where the card will land, which shaves a few hundred milliseconds of latency off the old "scroll after the animation settles" approach.
+- **Tab handling within the list**, so keyboard users move between cards in a predictable order.
+- **An empty state.** With no mappings yet, the list renders "No mappings." instead of an empty grid.
+
+## Why a hand-rolled Flip animation
+
+Without animation, adding or deleting a card makes the list jump — cards teleport to new grid positions with no continuity. Svelte's built-in `animate:flip` can't express what this list actually needs:
+
+- **column-direction awareness** — in the two-column layout, a left-column card should slide left and a right-column card right;
+- **out-then-close sequencing** — the leaving card slides out *first*, then the survivors flow closed to fill the gap; and
+- **a ripple** — the gap-close staggers outward from the deleted card's position.
+
+So the list drives the animation itself with GSAP's Flip plugin. On the **add** path, an `$effect.pre` snapshots the neighbours' positions *before* Svelte inserts the new card, then animates them apart to make room while the new card slides in. On the **delete** path, the trick is that a leaving card holds its grid slot while it slides out; only once it is invisible is it pulled from flow, the survivors reflow closed synchronously, and a second Flip animates them from their open positions into the closed ones — all before the browser paints, so there is no teleport.
+
+GSAP and Flip are lazy-loaded in `onMount` (the app prerenders statically), and a guard checks they are loaded, the list is visible, and `prefers-reduced-motion` is unset before any of this runs. If not, the change still happens; it just doesn't tween.
+
+## The re-entrancy rule the whole thing hinges on
+
+Rapidly toggling a single token — create on odd clicks, delete on even — once **froze the whole app** after about ten clicks: mode switches stopped rendering, the export went stale, yet nothing threw and the main thread wasn't pegged. Every derived value had simply stopped updating.
+
+The cause was subtle. GSAP's ticker can advance **synchronously** inside `Flip.from()`, flushing an already-complete tween's `onComplete` before returning. Under overlapping deletes, that fired a previous gap-close's callback *while Svelte was mid-flush* — and that callback wrote a `$state` variable. **Writing `$state` re-entrantly during an in-progress Svelte flush silently corrupts the reactive scheduler:** no error, the flush just stops committing, and everything freezes.
+
+The fix is a one-liner with a general lesson:
+
+```js
+onComplete: () => {
+  queueMicrotask(() => {
+    // …the $state writes, deferred until the flush has unwound
+  });
+};
+```
+
+> **The rule:** never mutate a Svelte `$state` variable synchronously inside a GSAP callback (`onComplete`, `onUpdate`, `onStart`). GSAP can advance its ticker synchronously during `Flip.from()`, `tween.kill()`, and the like, so any such callback can fire re-entrantly mid-flush. Defer the write with `queueMicrotask`.
+
+That fix stops *GSAP* from writing state mid-flush, but it can't stop the **user** from firing a second create/delete while a card is still sliding. So the list also maintains `alignment.listAnimating` — a `$state` boolean it mirrors from "is anything animating right now" — and `Alignment`'s mutation paths early-return while it is `true`. The clicks are simply dropped until the list settles.
+
+## Swipe-to-delete (touch)
+
+On coarse-pointer devices the delete button is hidden — it was hittable while invisible, so a user trying to *select* a card could accidentally delete it. A horizontal swipe replaces it.
+
+The gesture state machine lives in the `swipeToDelete` Svelte action; the component keeps only the GSAP springback and fly-off. A swipe commits only after 10 px of horizontal movement that also exceeds the vertical movement, so the browser can still resolve vertical scrolling; the card then tracks the finger 1:1, and releasing past 40 % of the card's width deletes it (otherwise it springs back). In the two-column layout a card may only swipe toward its outer edge.
+
+When a past-threshold release deletes the card, its current translate is stamped onto the node, so the exit transition can fly it the rest of the way from the finger's position rather than guessing the direction from a transform that might belong to an in-flight animation. And because deletion bails while `listAnimating` is true, a swipe that lands during another card's animation just springs back; the user retries once things settle.
 
 ## A subtle ref-ownership detail
 
-During a breakpoint change, the side panel's copy of this list and the modal's copy of
-this list can briefly **both exist** — one mounting while the other unmounts. If the
-list grabbed its container element with a plain `bind:this`, the unmounting copy could
-null out the reference *after* the surviving copy had already claimed it, leaving the
-surviving list without a working ref.
+During a breakpoint change, the side panel's copy of this list and the modal's copy can briefly **both exist** — one mounting while the other unmounts. If the list grabbed its container with a plain `bind:this`, the unmounting copy could null the reference *after* the surviving copy had already claimed it, leaving the survivor without a working ref.
 
-To avoid that, the list ref is set through a small Svelte action instead of
-`bind:this`. The action only clears the reference if it's still the one that set it —
-so whichever copy survives the breakpoint transition keeps its ref, regardless of
-unmount order.
+So the list ref is set through a small Svelte action instead of `bind:this`. The action clears the reference only if it is still the one that set it — so whichever copy survives the breakpoint transition keeps its ref, regardless of unmount order.

@@ -1,18 +1,20 @@
 ---
 title: Tokens & Token State
+summary: The token shapes the whole app is built on — the three meanings of pinyin, why token IDs stay trustworthy across edits, how a token derives its own color, and the palette behind it.
+tags:
+  - tokens
+  - data-model
+  - colors
+lastUpdated: 2026-06-29
 ---
 
 # {title}
 
-This article defines the shapes that the rest of the app is built on: what a token
-*is*, what makes a token's ID trustworthy across edits, and how a token figures out how
-to color itself on screen.
+This article defines the shapes the rest of the app is built on: what a token *is*, what makes a token's ID trustworthy across edits, and how a token works out which color to wear on screen.
 
 ## What a token is
 
-A token is the smallest selectable unit of text — one character on the source side, one
-word (or punctuation run, or whitespace run) on the target side. Both are defined in
-`src/lib/tokenize.ts`:
+A token is the smallest selectable unit of text — one character on the source side; one word, punctuation run, or whitespace run on the target side. Both are defined in `src/lib/tokenize.ts`:
 
 ```ts
 type SourceToken = {
@@ -31,51 +33,29 @@ type TargetToken = {
 };
 ```
 
-How a raw string becomes these arrays is covered in
-[[data-and-tokenization/quote-tokenization]] and
-[[data-and-tokenization/translation-tokenization]].
+How a raw string becomes these arrays is covered in [[data-and-tokenization/source-tokenization]] and [[data-and-tokenization/target-tokenization]].
 
 ### Why `pinyin` has three states
 
-`pinyin` being `string | null | undefined` isn't an accident of typing — each state
-means something different to the reader:
+`pinyin` being `string | null | undefined` is not an accident of typing — each state means something different to the reader:
 
-- **`undefined`** — a Han character that hasn't been annotated yet (not part of any
-  mapping). [[export|The export]] prints this literally as the word `undefined`, so an
-  un-annotated character is visible rather than silently missing.
-- **`null`** — this token *can't* have pinyin (it's punctuation, a number, or a
-  symbol).
-- **`string`** — the romanisation, either auto-filled when the character joins a
-  mapping or edited by the user afterwards.
+- **`undefined`** — a Han character that has not been annotated yet (not part of any mapping). [[data-and-tokenization/export|The export]] prints this literally as the word `undefined`, so an un-annotated character is visible rather than silently missing.
+- **`null`** — this token *can't* have pinyin (it is punctuation, a number, or a symbol).
+- **`string`** — the romanisation, either auto-filled when the character joins a mapping or edited by the user afterward. Stored in **canonical numbered form** (`"zhi1"`) and converted to diacritics (`"zhī"`) only for display — see [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]].
 
-Pinyin isn't stored on the cached token directly — it lives in a separate,
-id-keyed overlay inside the [[data-and-tokenization/token-store|token store]] and is
-applied whenever tokens are read. The field above is what the rest of the app sees
-*after* that overlay has been applied.
+Pinyin isn't stored on the cached token directly. It lives in a separate, id-keyed overlay inside the [[data-and-tokenization/token-store|token store]] and is applied whenever tokens are read. The field above is what the rest of the app sees *after* that overlay has been applied.
 
 ## Stable token IDs
 
-A token's `id` is assigned once, at tokenization time, as its position in the flat
-output array — and then **never changes**, no matter what happens to the text
-afterwards.
+A token's `id` is assigned once, at tokenization time, as its position in the flat output array — and then **never changes**, no matter what happens to the text afterward.
 
-This matters because a [[data-and-tokenization/mapping|mapping]] stores token *IDs*,
-not array positions. [[interaction-modes/line-mode|Line edits]] (split/merge) only ever
-rewrite a token's `.line` field — they never insert or remove tokens — so a mapping's
-stored IDs keep pointing at the same characters no matter how the lines get
-rearranged.
+This matters because a [[data-and-tokenization/mapping|mapping]] stores token *IDs*, not array positions. [[interaction-modes/line-mode|Line edits]] only ever rewrite a token's `.line` field — they never insert or remove tokens — so a mapping's stored IDs keep pointing at the same characters no matter how the lines get rearranged.
 
-Because rendering needs array *indices* but mappings store *IDs*, `Alignment` derives
-two reverse-lookup maps at runtime (`sourceIdToIndex`, `targetIdToIndex`), rebuilt
-whenever the token arrays change. If an ID is ever not found in the current array, it
-simply drops out of these maps — there's no error and nothing corrupts. That's a
-deliberate safety net for any future feature that might remove tokens (e.g. editing the
-source text after linking): a mapping can never end up holding a dangling reference.
+Because rendering needs array *indices* but mappings store *IDs*, `Alignment` derives two reverse-lookup maps at runtime (`sourceIdToIndex`, `targetIdToIndex`), rebuilt whenever the token arrays change. If an ID is ever not found in the current array, it simply drops out of these maps — no error, no corruption. That is a deliberate safety net for any future feature that might remove tokens (editing the source text after linking, say): a mapping can never end up holding a dangling reference.
 
 ## `TokenState` — how a token colors itself
 
-`TokenState` is the small piece of information a token span needs to know its own
-color:
+`TokenState` is the small piece of information a token span needs in order to color itself:
 
 ```ts
 type TokenState =
@@ -84,19 +64,12 @@ type TokenState =
   | { kind: 'active'; color: string }; // in the currently selected mapping
 ```
 
-It's produced by `deriveSourceTokenState()` / `deriveTargetTokenState()` in
-`src/lib/tokenState.ts`. These functions take no Svelte state directly — they're
-framework-free and unit-tested on their own.
+It is produced by `deriveSourceTokenState()` / `deriveTargetTokenState()` in `src/lib/tokenState.ts`. Both take an *index → owning `Mapping`* lookup, the active mapping ID, and a `mode` of `'light'` or `'dark'` (which selects the light or dark color variant); the target version additionally takes the target token array so it can apply [[interaction-modes/link-mode#whitespace-bridging|whitespace bridging]]. The lookup itself is built once by a pure `buildMappingIndex()` helper that stores the actual `Mapping` object per index — so bridging can compare mappings by identity, and no per-token `find()` scan is needed.
+
+Crucially, these functions take no Svelte state directly. They are framework-free and unit-tested on their own.
 
 ## Colors
 
-The palette lives in `src/lib/constants/colors.ts`: nine named color sets
-(`applesour`, `lush`, `seabreeze`, `azure`, `compostella`, `sugar`, `strawberry`,
-`maple`, `beeswax`). Each one provides the token highlight colors plus a full set of
-card colors used by [[components/mapping-component|the mapping card]].
+The palette lives in `src/lib/constants/colors.ts`: `MAPPING_COLORS` is an array of nine named color sets (`applesour`, `lush`, `seabreeze`, `azure`, `compostella`, `sugar`, `strawberry`, `maple`, `beeswax`). Each entry is a `{ light, dark }` pair of **variants**, and each variant holds the token highlight colors plus a full set of card colors used by [[components/mapping-component|the mapping card]]. The light/dark split lives in the data — not purely in CSS — because the card colors are applied as inline `style` attributes that a `.dark` class can't reach.
 
-A mapping's `colorIndex` (see [[data-and-tokenization/mapping]]) indexes this array
-modulo its length, so the palette cycles once there are more than nine mappings. A
-second, name-keyed lookup (`colors.azure.base`, etc.) is also exported for code that
-needs a *specific* palette entry rather than "the Nth one" — used by
-[[export#recoloring-shiki-to-the-app-palette]].
+A mapping's `colorIndex` (see [[data-and-tokenization/mapping]]) indexes this array modulo its length, so the palette cycles once there are more than nine mappings. A second, name-keyed `colors` lookup is also exported for code that needs a *specific* entry rather than "the Nth one" — e.g. `colors.azure.light.base`, used by [[data-and-tokenization/export#recoloring-shiki-to-the-app-palette|the export recolor]]. The module also exports `HIGHLIGHT_COLOR`, the single flat red used by the [[interaction-modes/view-mode|view-mode highlight]].

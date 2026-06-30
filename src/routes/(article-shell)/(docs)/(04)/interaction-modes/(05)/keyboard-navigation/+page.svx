@@ -1,0 +1,79 @@
+---
+title: Keyboard & Navigation
+summary: How the app stays fully keyboard-operable — the custom token grid navigator, the interaction-mode sensor that keeps mouse and keyboard affordances from clashing, and the document-level shortcuts.
+tags:
+  - keyboard
+  - navigation
+  - accessibility
+lastUpdated: 2026-06-29
+---
+
+# {title}
+
+The app is fully operable from the keyboard. Three pieces cooperate to make that work: a custom **token grid navigator** (moving focus between tokens or line controls), an **interaction-mode sensor** (keeping mouse and keyboard affordances from both being active at once), and a couple of **document-level shortcuts**.
+
+## Why a custom navigator
+
+The token workspace is a flex-wrapped grid of spans whose visual rows don't line up with DOM order, and the same container has to serve two very different modes: selectable tokens in [[interaction-modes/link-mode|Link mode]], split/merge controls in [[interaction-modes/line-mode|Line mode]]. Native Tab order can't express "move to the token visually below this one", and putting every token into the Tab order would make tabbing through a long text unbearable. So tokens are removed from Tab entirely, and a custom Alt+Arrow scheme drives focus instead.
+
+## The navigator
+
+`createTokenGridNav()` (in `src/lib/navigation/tokenGridNav.ts`) returns one navigator, which [[components/quote-workbench|`QuoteWorkbench`]] wires to the `role="grid"` container. A single instance serves both modes, because its configuration is a set of getters and callbacks re-evaluated on every keystroke:
+
+| Config | Link mode | Line mode |
+|--------------|-----------|-----------|
+| What's navigable | the token spans (`[role="option"]`) | the split/merge controls (`.split-zone, .merge-zone, .ws-split`) |
+| Default focus target | the alignment's default token for the zone | unused |
+| Activating an element | resolve the token and call its click handler | click the element directly |
+| Restore focus on activate | no | yes (a split/merge re-renders the focused divisor away) |
+| Escape | deselects the active mapping | does nothing extra |
+
+Cross-zone jumping (Alt+Enter and edge-wrap with Alt+↑/↓) is now **unconditional** — it works in both modes. An earlier config flag gated it to Link mode; it was removed so Line-mode users can move between source and target with the keyboard too.
+
+### Shared key bindings
+
+| Shortcut | Effect |
+|----------|--------|
+| Alt+↑ / Alt+↓ | Move focus to the element on the visual row above/below; at a zone's far edge, jump to the other zone (both modes) |
+| Alt+← / Alt+→ | Move focus to the previous/next navigable element in DOM order |
+| Alt+Enter | Toggle focus between the source and target panels, remembering the last-focused element in each |
+| Alt+Space | Activate the focused element |
+| Alt+Shift+Space | Activate "with force" — in Link mode, force-adds a source token to the active mapping even if it already has one |
+| Escape | Blur the focused element, then run the mode's Escape behavior |
+
+The navigator remembers the last-focused element per zone, so jumping away and back returns focus where the user left it.
+
+### Visual-neighbour math
+
+"Which element is on the row above/below, closest horizontally" is its own pure function, `pickVisualNeighbor()` in `src/lib/navigation/visualNeighbor.ts`. It operates on plain `{ top, bottom, left, width }` rectangles — no DOM — so it is unit-tested directly, independent of the navigator that feeds it real `getBoundingClientRect()` values.
+
+### Restoring focus after a line edit
+
+A keyboard split or merge in Line mode re-renders the activated divisor *away* — the edit replaces it — so naive focus would drop to `<body>`. When focus-restore is enabled, the navigator reads the divisor's index, waits a `tick()`, and re-acquires focus by that index. There is a fallback for one case: merging a line break between a character and a newline-orphaned punctuation mark folds them into a single [[data-and-tokenization/source-tokenization#source-punctuation-grouping|group]], so the merged divisor is now intra-group and unrendered; the fallback focuses the nearest remaining divisor at or before the original index, keeping focus in the panel.
+
+### The grid DOM contract
+
+The navigator does not hand-write selector strings like `[data-zone="source"]`. Those selectors, builders, and dataset accessors are centralized in `src/lib/navigation/gridDom.ts` — the single source of truth for the token grid's DOM contract — and imported by every reader (this navigator, the hover-spread logic, the token store's animation, and the document-level shortcuts). So renaming an attribute means touching the component templates that write it plus this one module, rather than hunting down five separate readers.
+
+## The interaction-mode sensor
+
+`src/lib/context/interactionMode.svelte.ts`.
+
+### Why it's needed
+
+Line mode's split/merge controls reveal themselves on both `:hover` and `:focus-visible`. If both selectors were unconditionally live, a mouse hovering one control and a Tab-focused other control could light up at once — confusing when the user mixes input devices.
+
+### How it works
+
+A global `$state` singleton tracks the input device most recently used: `'mouse' | 'keyboard'`. `initModeTracking()` — called once from `+layout.svelte` — attaches two document listeners: any `mousemove` sets `'mouse'`, a `Tab` keydown sets `'keyboard'`. **Last input wins, and only Tab flips to keyboard** — other keys are ignored, so using arrow-key navigation while the mouse sits idle doesn't cause flicker.
+
+On every change, the singleton also writes the current mode onto a `data-` attribute on the root `<html>` element, so plain CSS can gate the hover-versus-focus affordances without any component needing to import the singleton at all.
+
+> `initModeTracking()` is called from a **synchronous** `onMount`, separate from the async one that lazy-loads the animation library — an async `onMount` returns a Promise, and Svelte ignores the cleanup function in that case.
+
+## Document-level shortcuts
+
+`initAlignmentShortcuts(alignment)` (in `src/lib/actions/globalShortcuts.ts`) is called once from `+page.svelte`'s `onMount`. It attaches two document listeners:
+
+- **Delete / Backspace** deletes a mapping. It targets whichever mapping card is currently focused, falling back to the *active* mapping if none is — so pressing Backspace works immediately after creating a mapping, before the user has tabbed to its card. It bails while focus is in a text input.
+- **Click anywhere** deselects the active mapping, unless the click landed inside a mapping card or one of the token panels (matched by the shared panel selector from `gridDom`). This is the mouse half of click-outside-to-deselect; Escape, via the navigator above, is the keyboard half.

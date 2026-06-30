@@ -1,0 +1,28 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "dev",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "dev", "--", "--port", "4317", "--strictPort"],
+			"port": 4317,
+			"autoPort": false
+		},
+		{
+			"name": "quote-slicer-dev",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": [
+				"--prefix",
+				"/Users/ebbmango/Coding/quote-slicer",
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"5188",
+				"--strictPort"
+			],
+			"port": 5188,
+			"autoPort": false
+		}
+	]
+}
