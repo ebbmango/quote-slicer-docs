@@ -2,9 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
 	extractHeadingEntriesFromSvx,
+	findFiles,
 	routeIdFromRouteFile,
 	routePathFromRouteId,
-	slugHeading
+	slugHeading,
+	toPosixPath
 } from './articleToc.js';
 
 const routePageSuffix = '/+page.svx';
@@ -467,38 +469,4 @@ function unresolvedLinkMessage(target, currentArticle) {
 	const location = currentArticle ? ` in ${currentArticle.path}` : '';
 
 	return `Unresolved article link${location}: [[${target}]]`;
-}
-
-/**
- * @param {string} root
- * @param {(file: string) => boolean} predicate
- * @returns {string[]}
- */
-function findFiles(root, predicate) {
-	if (!fs.existsSync(root)) return [];
-
-	const result = [];
-	const entries = fs.readdirSync(root, { withFileTypes: true });
-
-	for (const entry of entries) {
-		const entryPath = path.join(root, entry.name);
-
-		if (entry.isDirectory()) {
-			result.push(...findFiles(entryPath, predicate));
-			continue;
-		}
-
-		if (entry.isFile() && predicate(entryPath)) {
-			result.push(entryPath);
-		}
-	}
-
-	return result.sort();
-}
-
-/**
- * @param {string} value
- */
-function toPosixPath(value) {
-	return value.split(path.sep).join('/');
 }

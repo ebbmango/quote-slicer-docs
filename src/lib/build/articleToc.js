@@ -422,7 +422,7 @@ function isRelevantSvxFile(file, root, { includeDiary = true } = {}) {
  * @param {(file: string) => boolean} predicate
  * @returns {string[]}
  */
-function findFiles(root, predicate) {
+export function findFiles(root, predicate) {
 	if (!fs.existsSync(root)) return [];
 
 	/** @type {string[]} */
@@ -448,6 +448,6 @@ function findFiles(root, predicate) {
 /**
  * @param {string} value
  */
-function toPosixPath(value) {
+export function toPosixPath(value) {
 	return value.split(path.sep).join('/');
 }
