@@ -54,10 +54,10 @@ Users should be able to change the theme at any time through a clear and accessi
 These functionalities are implemented across several different files:
 
 1. `src/app.html` applies the OS theme before hydration so the page does not flash in the wrong mode on first paint.
-2. `src/lib/systemTheme.ts` manages the runtime theme state, reacts to both OS and user changes, and synchronizes that state across open tabs with `BroadcastChannel`.
+2. `src/lib/systemTheme.ts` manages the runtime theme state, reacts to both OS and user changes, and synchronizes that state across open tabs with the `storage` event.
 3. `src/lib/theme.ts` exports a shared theme controller instance for the app.
 4. `src/routes/+layout.svelte` mirrors the current theme onto the root document element.
-5. `src/components/DarkModeToggle.svelte` provides the UI that lets users switch themes manually.
+5. `src/components/Menu/Navbar.svelte` wires the `ThemeToggle` (top nav) and `AnimatedThemeToggle` (sidebar) that let users switch themes manually.
 
 ---
 
@@ -282,4 +282,17 @@ And now we know how external events propagate through Svelte’s reactivity syst
 
 With the reactive system now fully understood, the only remaining piece is the third requirement — [[#3. Share the current theme across all open tabs|synchronizing the theme across multiple open tabs]].
 
-**This section will come in the near future.**
+After the reactivity machinery, this part is almost anticlimactic: it rides entirely on a browser primitive we get for free — the `storage` event.
+
+Whenever any tab writes the theme to `localStorage`, the browser fires a `storage` event in **every other tab** of the same origin — never in the tab that made the change, since it already knows. So synchronization needs no message bus and no handshake:
+
+```js
+window.addEventListener('storage', (event) => {
+	if (event.key !== THEME_STATE_KEY) return;
+	reconcile();
+});
+```
+
+When a tab hears that event, it re-reads the stored state and re-resolves the current theme, calling `update()` if the mode changed — the very same reactive path used for OS changes. A newly opened tab needs nothing special either: it just reads `localStorage` on load.
+
+That is the whole of it. An earlier version of this site reached for `BroadcastChannel` with a request/reply handshake and a tab registry that tracked which tabs were alive. All of it was removed once the desired behavior was simplified: a manual choice simply persists, so there is nothing to coordinate beyond "what is the current value." For that, the `storage` event is all the synchronization the theme needs.
