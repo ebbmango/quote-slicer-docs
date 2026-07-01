@@ -1,15 +1,11 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import {
+	collectArticleSources,
 	extractHeadingEntriesFromSvx,
-	findFiles,
-	routeIdFromRouteFile,
-	routePathFromRouteId,
 	slugHeading,
 	toPosixPath
 } from './articleToc.js';
 
-const routePageSuffix = '/+page.svx';
 const wikiLinkPattern = /\[\[([^\]\n]+?)\]\]/g;
 
 /**
@@ -86,30 +82,9 @@ export function remarkArticleLinks({ root = process.cwd(), basePath = '' } = {})
  * @returns {ArticleLinkCatalog}
  */
 export function buildArticleLinkCatalog(root, { includeDiary = true } = {}) {
-	/** @type {ArticleLinkEntry[]} */
-	const articles = [];
-	const routeRoot = path.join(root, 'src/routes/(article-shell)');
-	const routeFiles = findFiles(routeRoot, (file) => toPosixPath(file).endsWith(routePageSuffix));
-
-	for (const file of routeFiles) {
-		const source = fs.readFileSync(file, 'utf8');
-		const routeId = routeIdFromRouteFile(file, root);
-		const articlePath = routePathFromRouteId(routeId);
-
-		articles.push(buildArticleEntry(file, articlePath, source));
-	}
-
-	if (includeDiary) {
-		const diaryRoot = path.join(root, 'src/content/diary');
-		const diaryFiles = findFiles(diaryRoot, (file) => file.endsWith('.svx'));
-
-		for (const file of diaryFiles) {
-			const source = fs.readFileSync(file, 'utf8');
-			const slug = path.basename(file, '.svx');
-
-			articles.push(buildArticleEntry(file, `/development-diary/${slug}`, source));
-		}
-	}
+	const articles = collectArticleSources(root, { includeDiary }).map(
+		({ file, articlePath, source }) => buildArticleEntry(file, articlePath, source)
+	);
 
 	return indexArticles(articles);
 }

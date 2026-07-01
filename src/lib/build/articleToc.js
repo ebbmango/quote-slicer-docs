@@ -309,44 +309,69 @@ export function articleTocPlugin({ includeDiary = true } = {}) {
 }
 
 /**
+ * @typedef {{ file: string; source: string; articlePath: string; routeId: string | null }} ArticleSource
+ */
+
+/**
+ * Enumerates every article source file (docs routes + diary entries) once,
+ * with its contents and navigation path. Single source of truth for where
+ * articles live and which URL each maps to, shared by the ToC builder and the
+ * wiki-link catalog.
+ *
  * @param {string} root
  * @param {{ includeDiary?: boolean }} [options]
- * @returns {{ tocByRoute: TocByRoute; files: string[] }}
+ * @returns {ArticleSource[]}
  */
-export function buildTocByRoute(root, { includeDiary = true } = {}) {
+export function collectArticleSources(root, { includeDiary = true } = {}) {
 	const routeRoot = path.join(root, 'src/routes/(article-shell)');
 	const routeFiles = findFiles(routeRoot, (file) => toPosixPath(file).endsWith(routePageSuffix));
-	/** @type {TocByRoute} */
-	const tocByRoute = {};
 
-	for (const file of routeFiles) {
-		const source = fs.readFileSync(file, 'utf8');
-		const toc = extractTocFromSvx(source);
+	/** @type {ArticleSource[]} */
+	const sources = routeFiles.map((file) => {
 		const routeId = routeIdFromRouteFile(file, root);
-		const routePath = routePathFromRouteId(routeId);
 
-		tocByRoute[routeId] = toc;
-		tocByRoute[routePath] = toc;
-	}
-
-	const files = [...routeFiles];
+		return {
+			file,
+			source: fs.readFileSync(file, 'utf8'),
+			articlePath: routePathFromRouteId(routeId),
+			routeId
+		};
+	});
 
 	if (includeDiary) {
 		const diaryRoot = path.join(root, 'src/content/diary');
 		const diaryFiles = findFiles(diaryRoot, (file) => file.endsWith('.svx'));
 
 		for (const file of diaryFiles) {
-			const source = fs.readFileSync(file, 'utf8');
-			const toc = extractTocFromSvx(source);
-			const slug = path.basename(file, '.svx');
-
-			tocByRoute[`/development-diary/${slug}`] = toc;
+			sources.push({
+				file,
+				source: fs.readFileSync(file, 'utf8'),
+				articlePath: `/development-diary/${path.basename(file, '.svx')}`,
+				routeId: null
+			});
 		}
-
-		files.push(...diaryFiles);
 	}
 
-	return { tocByRoute, files };
+	return sources;
+}
+
+/**
+ * @param {string} root
+ * @param {{ includeDiary?: boolean }} [options]
+ * @returns {{ tocByRoute: TocByRoute; files: string[] }}
+ */
+export function buildTocByRoute(root, { includeDiary = true } = {}) {
+	const sources = collectArticleSources(root, { includeDiary });
+	/** @type {TocByRoute} */
+	const tocByRoute = {};
+
+	for (const { source, articlePath, routeId } of sources) {
+		const toc = extractTocFromSvx(source);
+		if (routeId) tocByRoute[routeId] = toc;
+		tocByRoute[articlePath] = toc;
+	}
+
+	return { tocByRoute, files: sources.map((entry) => entry.file) };
 }
 
 /**
