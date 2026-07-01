@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { nestByLevel } from '../nestByLevel.js';
 
 const virtualModuleId = 'virtual:article-toc';
 const resolvedVirtualModuleId = `\0${virtualModuleId}`;
@@ -10,7 +11,6 @@ const anchorMinHeadingLevel = 1;
 const anchorMaxHeadingLevel = 6;
 
 /**
- * @typedef {import('../navigation/tocTypes').TocHeading} TocHeading
  * @typedef {import('../navigation/tocTypes').TocTree} TocTree
  * @typedef {import('../navigation/tocTypes').TocByRoute} TocByRoute
  */
@@ -64,7 +64,7 @@ export function extractTocFromSvx(
 ) {
 	const headings = extractHeadingEntriesFromSvx(source, { minLevel, maxLevel });
 
-	return buildTocTree(headings);
+	return nestByLevel(headings);
 }
 
 /**
@@ -182,34 +182,6 @@ function markdownHeadingToText(heading) {
 		.replace(/\{([^}]+)\}/g, '$1')
 		.replace(/\s+/g, ' ')
 		.trim();
-}
-
-/**
- * @param {TocTree} headings
- * @returns {TocTree}
- */
-function buildTocTree(headings) {
-	/** @type {TocHeading} */
-	const root = {
-		title: '',
-		id: '',
-		level: 0,
-		position: -1,
-		children: []
-	};
-	/** @type {TocHeading[]} */
-	const stack = [root];
-
-	for (const heading of headings) {
-		while (stack[stack.length - 1].level >= heading.level) {
-			stack.pop();
-		}
-
-		stack[stack.length - 1].children.push(heading);
-		stack.push(heading);
-	}
-
-	return root.children;
 }
 
 /**
