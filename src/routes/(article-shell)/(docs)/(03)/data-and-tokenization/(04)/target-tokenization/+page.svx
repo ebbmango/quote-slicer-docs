@@ -5,7 +5,7 @@ tags:
   - tokenization
   - target
   - whitespace
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
@@ -40,7 +40,7 @@ There's nothing "simple" in programming.
 - **Standalone punctuation** with no adjacent word is its own token: `...`, or an em-dash between words (`word—word` → `[word][—][word]`).
 - **Han characters in target text** stay single-character tokens, same as the source side; adjacent punctuation stays standalone (`你好!` → `[你][好][!]`).
 
-The interior-versus-flanking distinction is enforced by lookbehind / lookahead assertions (`(?<![A-Za-z0-9])` / `(?![A-Za-z0-9])`) around word characters, and the whole behavior is pinned down by an extensive set of cases in `src/lib/vitest-examples/tokenize.spec.ts`.
+The interior-versus-flanking distinction is enforced by lookbehind / lookahead assertions (`(?<![A-Za-z0-9])` / `(?![A-Za-z0-9])`) around word characters, and the whole behavior is pinned down by an extensive set of cases in `src/lib/tokenize.spec.ts`, right beside the tokenizer itself.
 
 > **History:** earlier versions had two separate target tokenizers — `tokenizeTargetSeparate` and `tokenizeTargetCombined` — for two slightly different needs. They were consolidated into this single `tokenizeTarget` so the rest of the app only ever has to reason about one shape of `TargetToken[]`.
 
@@ -67,12 +67,12 @@ This token has no counterpart in the real text. Its job is purely interactive: i
 
 ## Whitespace strategy
 
-Whitespace tokens exist in the target stream, but they are deliberately *not* full participants in the alignment:
+Whitespace tokens exist in the target stream, but they are deliberately *not* full participants in the alignment — nobody maps a space to a Chinese character:
 
 - **Not interactive in Link mode** — `toggleTarget` early-returns for whitespace (and punctuation), so they can never start or join a mapping.
 - **Never stored in a mapping** — no [[data-and-tokenization/mapping|`Mapping`]] will ever hold a whitespace token's ID.
 - **Visually bridged** — a whitespace token flanked on both sides by tokens from the *same* mapping inherits that mapping's color, so a multi-word phrase reads as one continuous highlight rather than a striped one. See [[interaction-modes/link-mode#whitespace-bridging]].
-- **Bridged in exported text** — when building the readable text for a mapping, short gaps (≤ 5 tokens, all whitespace/punctuation) are treated as contiguous, so the mapping's text renders as a single phrase instead of comma-joined fragments.
+- **Bridged in exported text** — when building the readable text for a mapping, short gaps (at most `MAX_BRIDGE_GAP = 5` tokens, all whitespace/punctuation) are treated as contiguous, so the mapping's text renders as a single phrase instead of comma-joined fragments.
 - **Still copyable** — in Line mode, whitespace tokens render as `<span role="button">` rather than `<button>`, with `user-select: text`, so selecting and copying the target text still includes the spaces.
 
 Source tokens never have a whitespace type — the source input filter strips spaces entirely before tokenization ever sees them.

@@ -6,12 +6,12 @@ tags:
   - mappings
   - animation
   - gsap
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-`MappingsList.svelte` is the list of [[components/mapping-component|mapping cards]] — one of the two views that can appear in either side panel or the data modal (see [[components/layout]]). It is also where all the card *animation* lives; `Mapping.svelte` itself stays free of GSAP.
+`MappingsList.svelte` is the list of [[components/mapping-component|mapping cards]] — one of the two views that can appear in either side panel or the data modal (see [[components/layout]]). It is also where all the card *animation* lives; `Mapping.svelte` itself stays free of GSAP (the animation library the app uses for its heavier motion work).
 
 ## What it does beyond rendering cards
 
@@ -27,9 +27,9 @@ Without animation, adding or deleting a card makes the list jump — cards telep
 
 - **column-direction awareness** — in the two-column layout, a left-column card should slide left and a right-column card right;
 - **out-then-close sequencing** — the leaving card slides out *first*, then the survivors flow closed to fill the gap; and
-- **a ripple** — the gap-close staggers outward from the deleted card's position.
+- **a ripple** — the gap-close staggers outward from the deleted card's position, like a splash settling.
 
-So the list drives the animation itself with GSAP's Flip plugin. On the **add** path, an `$effect.pre` snapshots the neighbours' positions *before* Svelte inserts the new card, then animates them apart to make room while the new card slides in. On the **delete** path, the trick is that a leaving card holds its grid slot while it slides out; only once it is invisible is it pulled from flow, the survivors reflow closed synchronously, and a second Flip animates them from their open positions into the closed ones — all before the browser paints, so there is no teleport.
+So the list drives the animation itself with GSAP's Flip plugin. (FLIP — *First, Last, Invert, Play* — is a standard trick: measure where everything is, let the layout change, then animate each element from its old position to its new one.) On the **add** path, an `$effect.pre` snapshots the neighbours' positions *before* Svelte inserts the new card, then animates them apart to make room while the new card slides in. On the **delete** path, the trick is that a leaving card holds its grid slot while it slides out; only once it is invisible is it pulled from flow, the survivors reflow closed synchronously, and a second Flip animates them from their open positions into the closed ones — all before the browser paints, so there is no teleport.
 
 GSAP and Flip are lazy-loaded in `onMount` (the app prerenders statically), and a guard checks they are loaded, the list is visible, and `prefers-reduced-motion` is unset before any of this runs. If not, the change still happens; it just doesn't tween.
 
@@ -37,7 +37,7 @@ GSAP and Flip are lazy-loaded in `onMount` (the app prerenders statically), and 
 
 Rapidly toggling a single token — create on odd clicks, delete on even — once **froze the whole app** after about ten clicks: mode switches stopped rendering, the export went stale, yet nothing threw and the main thread wasn't pegged. Every derived value had simply stopped updating.
 
-The cause was subtle. GSAP's ticker can advance **synchronously** inside `Flip.from()`, flushing an already-complete tween's `onComplete` before returning. Under overlapping deletes, that fired a previous gap-close's callback *while Svelte was mid-flush* — and that callback wrote a `$state` variable. **Writing `$state` re-entrantly during an in-progress Svelte flush silently corrupts the reactive scheduler:** no error, the flush just stops committing, and everything freezes.
+The cause was subtle. GSAP's ticker can advance **synchronously** inside `Flip.from()`, flushing an already-complete tween's `onComplete` before returning. Under overlapping deletes, that fired a previous gap-close's callback *while Svelte was mid-flush* — that is, while Svelte was still in the middle of applying one round of state updates to the page. And that callback wrote a `$state` variable. **Writing `$state` re-entrantly during an in-progress Svelte flush silently corrupts the reactive scheduler:** no error, the flush just stops committing, and everything freezes.
 
 The fix is a one-liner with a general lesson:
 

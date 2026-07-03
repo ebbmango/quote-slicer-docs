@@ -5,16 +5,16 @@ tags:
   - export
   - data-model
   - shiki
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-A side panel shows a **live JSON export** of the alignment — the same structured data the app exists to produce, rendered as syntax-highlighted, column-aligned JSON that updates as the user works. Three pieces make it up: the export *data*, the *formatter*, and the *panel*.
+A side panel shows a **live JSON export** of the alignment — the structured data the whole app exists to produce, rendered as syntax-highlighted, column-aligned JSON that updates as the user works. It doubles as a window into the machine's view of things: every click in Link mode lands in this panel a moment later. Three pieces make it up: the export *data*, the *formatter*, and the *panel*.
 
 ## The export data
 
-The export is a `$derived` value on `Alignment`, shaped as a [[data-and-tokenization/tokens|`QuoteExport`]]:
+The export is a `$derived` value on `Alignment` — recomputed automatically whenever the alignment changes — shaped as a [[data-and-tokenization/tokens|`QuoteExport`]]:
 
 ```ts
 {
@@ -49,7 +49,7 @@ This formatter has no component dependencies, so its rules — one-lining primit
 
 ## The panel — `JsonExportPanel` + `HighlightedCode`
 
-`JsonExportPanel.svelte` derives `formatExport(alignment.exportData)` and feeds it to `HighlightedCode.svelte`, a generic Shiki-based highlighter.
+`JsonExportPanel.svelte` derives `formatExport(alignment.exportData)` and feeds it to `HighlightedCode.svelte`, a generic syntax highlighter built on Shiki (the same highlighting engine VS Code uses).
 
 ### Recoloring Shiki to the app palette
 

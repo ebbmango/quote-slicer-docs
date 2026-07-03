@@ -4,14 +4,16 @@ summary: What Quote Slicer is for, the four interaction modes it is built around
 tags:
   - overview
   - architecture
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-**Quote Slicer** is a tool built to power \[project V's\] core feature: linking words to their translations.
+**Quote Slicer** is a small workbench built to power \[project V's\] core feature: linking the words of a Chinese quote to the words of its English translation.
 
-Behind that simple-sounding interaction is a surprisingly intricate data structure — a many-to-many relationship between two streams of text. Assembling it by hand would be tedious and error-prone, so the whole point of Quote Slicer is to make building it feel direct: you click characters and words, and the structure assembles itself behind the scenes. In practice, the app lets you:
+Here is the problem it solves. Take a short quote and its translation. Which English words correspond to which Chinese characters? A single character can stand for a whole English word, several characters can share one word between them, and one English word can stretch across several characters. Formally, that is a **many-to-many relationship** between two streams of text. Practically, assembling that structure by hand — in a spreadsheet, or in raw JSON — is tedious and error-prone.
+
+Quote Slicer makes building it feel direct instead: you click a character, click the words it corresponds to, and the structure assembles itself behind the scenes. In practice, the app lets you:
 
 1. map many-to-many relationships between segments of the original text and of its translation;
 2. organize both sides into paragraphs with clean line breaks; and
@@ -21,14 +23,14 @@ It does all of this through four **interaction modes**, each described in depth 
 
 ## The four modes
 
-The app is organized around four modes. Only one is ever active at a time, and the current one lives in `ModeContext` (`src/lib/context/mode.svelte.ts`).
+Think of the four modes as four different sets of tools laid over the same text. Only one is ever active at a time, and the current one lives in `ModeContext` (`src/lib/context/mode.svelte.ts`).
 
-| Mode key | User-facing name | What the user does |
+| Mode key | User-facing name | What you do in it |
 |----------|------------------|--------------------|
 | `'text'` | Text entry | Paste or type the source (Chinese) and target (English) texts, plus an optional attribution line. |
 | `'link'` | Link mode | Click tokens in both panels to bind them into word-to-word [[data-and-tokenization/mapping\|mappings]]; edit pinyin; delete mappings. |
 | `'line'` | Line tool | Adjust where line breaks fall in source and target *independently* — split one line into two, or merge two into one. |
-| `'view'` | View | Read-only display of the finished alignment; hovering or tapping a mapped token lights up its whole mapping across both panels. |
+| `'view'` | View | Read the finished alignment; hovering or tapping a mapped token lights up its whole mapping across both panels. |
 
 The app **starts** in Text mode. Clicking the advance arrow commits both texts and animates into Link mode (see [[interaction-modes/mode-transitions#the-arrow-launch-text--link|the arrow launch]]); from then on, the bottom toolbar switches freely between Link, Line, and View.
 
@@ -36,6 +38,6 @@ The app **starts** in Text mode. Clicking the advance arrow commits both texts a
 
 ## How it's arranged
 
-The screen is built around a central **workbench** — the source text, the target text, and an attribution line — flanked by up to two side panels: the list of [[components/mappings-list|mapping cards]] and a live [[data-and-tokenization/export|JSON preview]] of the alignment.
+The screen is built around a central **workbench** — the source text, the target text, and an attribution line — flanked by up to two side panels: the list of [[components/mappings-list|mapping cards]] (one card per link you have made) and a live [[data-and-tokenization/export|JSON preview]] of the data being built.
 
-How those side panels appear depends on how much room there is. On a wide screen both sit beside the workbench at once; on a narrower screen only one shows at a time, toggled from the bottom toolbar; on a phone they live in a slide-in panel instead, so the workbench keeps the full width. In Text mode the side panels are hidden entirely, and they slide into view the moment the user advances — see [[components/layout]] for the full breakdown.
+How those side panels appear depends on how much room there is. On a wide screen, both sit beside the workbench at once. On a narrower screen, only one shows at a time, toggled from the bottom toolbar. On a phone, they live in a slide-in panel instead, so the workbench keeps the full width. In Text mode the side panels are hidden entirely — there is nothing to show yet — and they slide into view the moment you advance. See [[components/layout]] for the full breakdown.

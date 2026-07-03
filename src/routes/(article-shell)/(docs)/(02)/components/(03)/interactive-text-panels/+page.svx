@@ -5,16 +5,18 @@ tags:
   - components
   - tokens
   - animation
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of spans the user interacts with in Link, Line, and View modes. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
+`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of clickable spans the user works with in Link, Line, and View modes. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
 
 ## Why these panels render the same DOM in every mode
 
-Link mode, Line mode, and View mode all show "the tokens" — but each mode needs different things to be clickable, and the modes have to *animate into one another* smoothly (see [[interaction-modes/mode-transitions]]). If each mode rendered a different subtree for the tokens, the browser would have no way to animate a token's color, or a line's height, *across* a mode switch. It would simply snap to the new values, because a freshly-mounted element has no previous state to transition from.
+Link mode, Line mode, and View mode all show "the tokens" — but each mode needs different things to be clickable, and the modes have to *animate into one another* smoothly (see [[interaction-modes/mode-transitions]]).
+
+Here is the constraint that shapes everything: a browser can only animate a change on an element that stays on the page. A freshly created element has no "previous state" to transition from — it just appears, painted directly in its final form. So if each mode rendered its own separate copy of the tokens, nothing could ever glide across a mode switch; every color and every line height would snap.
 
 So both panels render **one DOM tree, used by every mode**: a single loop over the tokens, in a single flex-wrap container. What changes between modes is *attributes on those elements*, not which elements exist — whether a token span is interactive, whether the container carries a `listbox` role, whether the split/merge controls between tokens accept clicks. That is what lets a token's highlight color, or a line gap opening up, transition smoothly as the mode changes.
 
@@ -34,7 +36,7 @@ When a line is split or merged, the [[data-and-tokenization/token-store|token st
 
 ###### An index-keyed loop.
 
-Tokens are rendered with an index-keyed `{#each}`, not a keyed-by-identity one. Keying by index keeps every span element *alive* across a re-derivation, so the animation can match each element's old position to its new one and tween the difference. Each span also carries a `data-flip-id` the animation reads.
+Tokens are rendered with an index-keyed `{#each}`, not a keyed-by-identity one. Keying by index keeps every span element *alive* across a re-derivation — Svelte updates the existing spans in place instead of tearing them down and remounting — so the animation can match each element's old position to its new one and tween the difference. Each span also carries a `data-flip-id` the animation reads.
 
 ###### A marked scroll box.
 

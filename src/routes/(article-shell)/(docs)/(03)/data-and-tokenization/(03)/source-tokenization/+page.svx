@@ -4,7 +4,7 @@ summary: tokenizeSource — why the Chinese side is one character per token, how
 tags:
   - tokenization
   - source
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
@@ -28,12 +28,12 @@ Each remaining character is classified by its Unicode class:
 | `'punctuation'` | `\p{P}` or `\p{S}` | `null` |
 | `'symbol'` | anything else | `null` |
 
-In practice the source almost never contains anything but Han characters and line breaks, because the source input field filters keystrokes in real time — it only lets Han characters, CJK punctuation, and newlines through (`SOURCE_INPUT_RE` in `tokenize.ts`). That filter is IME-aware: it doesn't interfere with composing a character via pinyin input, only with what lands in the field once composition finishes. See [[components/quote-workbench]].
+In practice the source almost never contains anything but Han characters and line breaks, because the source input field filters keystrokes in real time — it only lets Han characters, CJK punctuation, and newlines through (`SOURCE_INPUT_RE` in `tokenize.ts`). That filter is IME-aware: it doesn't interfere while a character is being composed via pinyin input, only with what lands in the field once composition finishes. See [[components/quote-workbench]].
 
 ## Source punctuation grouping
 
-Classical Chinese punctuation belongs, semantically and typographically, to a neighbouring character: terminal marks (`。，！？`) and closing brackets trail the character before them, while opening brackets (`「『《【（`) lead the character after them. If the source panel wraps a line right at such a boundary, a stray `，` or `。` can orphan onto the start of the next line — wrong for CJK.
+Classical Chinese punctuation belongs, semantically and typographically, to a neighbouring character: terminal marks (`。，！？`) and closing brackets trail the character before them, while opening brackets (`「『《【（`) lead the character after them. If the source panel wraps a line right at such a boundary, a stray `，` or `。` can end up orphaned at the start of the next line — wrong for CJK text, and jarring to read.
 
-To prevent that, `groupSourceTokens(tokens)` (also in `tokenize.ts`) computes a **display grouping** over the already-tokenized array. It returns `number[][]` — arrays of token *indices*, one per group — and does **not** create new tokens or touch IDs, mappings, or pinyin. Each group is a base character plus its glued punctuation, which the renderer then wraps as one non-breaking unit (`.tok-group`).
+To prevent that, `groupSourceTokens(tokens)` (also in `tokenize.ts`) computes a **display grouping** over the already-tokenized array. It returns `number[][]` — arrays of token *indices*, one per group — and does **not** create new tokens or touch IDs, mappings, or pinyin. Each group is a base character plus its glued punctuation, which the renderer then wraps as one non-breaking unit (`.tok-group`). The grouping is a lens over the tokens, never a change to them.
 
-Which side a mark binds to is read from the character itself via Unicode property escapes — `\p{Ps}` (opening brackets) and `\p{Pi}` (initial quotes) bind to the token that *follows*; everything else binds to the token that *precedes* — rather than from a hand-maintained list. And **grouping never crosses a `.line` boundary**: a line split that lands between a character and its mark simply puts them in different groups. That invariant is what makes the [[interaction-modes/line-mode#source-panel|line-mode rule against splitting inside a group]] safe.
+Which side a mark binds to is read from the character itself via Unicode property escapes — `\p{Ps}` (opening brackets) and `\p{Pi}` (initial quotes) bind to the token that *follows*; everything else binds to the token that *precedes* — rather than from a hand-maintained list of punctuation marks. And **grouping never crosses a `.line` boundary**: a line split that lands between a character and its mark simply puts them in different groups. That invariant is what makes the [[interaction-modes/line-mode#source-panel|line-mode rule against splitting inside a group]] safe.

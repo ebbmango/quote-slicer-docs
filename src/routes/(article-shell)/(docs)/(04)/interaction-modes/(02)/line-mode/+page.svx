@@ -5,12 +5,12 @@ tags:
   - line-mode
   - tokens
   - animation
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-Line mode (`mode.current === 'line'`) lets the user adjust where line breaks fall in the source and target texts **independently** of each other. A line edit never changes the underlying text strings — it only rewrites the affected tokens' `.line` fields, and those edits are preserved by the [[data-and-tokenization/token-store#the-text-keyed-cache|token store's cache]].
+Line mode (`mode.current === 'line'`) lets the user adjust where line breaks fall in the source and target texts **independently** of each other — useful because a Chinese verse and its English translation rarely break in the same places. A line edit never changes the underlying text strings — it only rewrites the affected tokens' `.line` fields, and those edits are preserved by the [[data-and-tokenization/token-store#the-text-keyed-cache|token store's cache]].
 
 ## The core operations
 
@@ -36,7 +36,7 @@ A hairline indicator appears on hover or focus, so the user can see where a spli
 
 ### Target panel
 
-The target panel reuses its **whitespace tokens** as the interaction surface, since they are already there:
+The target panel reuses its **whitespace tokens** as the interaction surface, since they are already there — every place a line could sensibly break is a space:
 
 - an **interior** whitespace token becomes a split control, rendered as a `<span role="button">` rather than a `<button>`, with `user-select: text` — so selecting and copying the target text still includes the space.
 - the synthetic **boundary whitespace** token (see [[data-and-tokenization/target-tokenization#line-stamping-and-the-boundary-whitespace-token]]) becomes a full-width `.merge-zone` button — clicking it merges the two lines it sits between.
@@ -45,7 +45,7 @@ These callbacks bubble up to [[components/quote-workbench|the workbench]], which
 
 ### Touch: the two-tap model
 
-On touch there is no hover, and the split indicators are zero-width and invisible without it — so a divisor's hit zone would be effectively unreachable. The substitute is a two-tap model: the first tap previews a divisor (highlights it, and for split zones spreads the row open so it is tappable), and the second tap on the same one activates. The workbench keeps a single "touched divisor" across both panels, so only one is ever lit at a time; mouse and keyboard skip the staging step and activate immediately.
+On touch there is no hover, and the split indicators are zero-width and invisible without it — so a divisor's hit zone would be effectively unreachable on a phone. The substitute is a two-tap model, the same pattern as "tap once to preview, tap again to confirm": the first tap previews a divisor (highlights it, and for split zones spreads the row open so it is comfortably tappable), and the second tap on the same one activates it. The workbench keeps a single "touched divisor" across both panels, so only one is ever lit at a time; mouse and keyboard skip the staging step and activate immediately.
 
 ## The split/merge animation
 

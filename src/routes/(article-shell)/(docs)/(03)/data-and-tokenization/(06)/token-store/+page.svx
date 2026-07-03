@@ -6,12 +6,12 @@ tags:
   - data-model
   - animation
   - gsap
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-`src/lib/animation/tokenStore.svelte.ts` is the single owner of the source and target token arrays. [[components/quote-workbench|The Workbench]] introduced it in passing; this article covers the store in full, including how its line-edit animation actually works.
+`src/lib/context/tokenStore.svelte.ts` is the single owner of the source and target token arrays. [[components/quote-workbench|The Workbench]] introduced it in passing; this article covers the store in full, including how its line-edit animation actually works.
 
 ## Why it exists
 
@@ -22,7 +22,7 @@ Two facts about the app are in tension, and they pull in opposite directions:
 
 Earlier versions split these two responsibilities across two places: `QuoteWorkbench` held a token cache, and `Alignment` held its *own* synced copy of the tokens with pinyin attached. Keeping two copies in sync via effects was fragile — a split or merge had to be handed the *specific* pinyin-bearing array, and if it got a freshly-tokenized (pinyin-less) one instead, pinyin would silently vanish.
 
-The token store fixes this by collapsing both responsibilities into **one owner**. It tokenizes, holds the line-edit cache, holds the pinyin overlay, and runs the split/merge animation. Both `QuoteWorkbench` and `Alignment` [[components/quote-workbench#why-one-root-one-workbench|derive their views from it]] — neither keeps a copy.
+The token store fixes this by collapsing both responsibilities into **one owner**. It tokenizes, holds the line-edit cache, holds the pinyin overlay, and runs the split/merge animation. Both `QuoteWorkbench` and `Alignment` [[components/quote-workbench#why-one-root-one-workbench|derive their views from it]] — neither keeps a copy. When there is only one copy of the data, there is no second copy to fall out of sync.
 
 > Always call this the **token store** — not "lineEdit" (an old name) or "token cache" (the cache is only one part of what it does).
 
@@ -110,7 +110,7 @@ The authorship ref is **passed in**, not discovered — the workbench owns the l
 
 ### The slide is flow-driven, not a second Flip
 
-`Flip.getState` *includes* the non-edited wrapper and the authorship field, but they are not meant to carry their own transform — they should simply ride the flow as the edited wrapper grows. Because `absolute: false` reverts the layout to "before" when `Flip.from` starts, any transform Flip computed for them would land on an element already at its before-flow position and double-count the displacement. So immediately after `Flip.from`, the store clears those transforms.
+`Flip.getState` *includes* the non-edited wrapper and the authorship field, but they are not meant to carry their own transform — they should simply ride the flow as the edited wrapper grows, the way everything below a growing element naturally slides down a page. Because `absolute: false` reverts the layout to "before" when `Flip.from` starts, any transform Flip computed for them would land on an element already at its before-flow position and double-count the displacement. So immediately after `Flip.from`, the store clears those transforms.
 
 There is one exception: when the stack is **capped** and can't grow, flex redistributes height between both panels, and in that regime the Flip transform genuinely *is* load-bearing for the other panel's position — so it is kept. This dual behavior (flow-driven slide when the stack can grow, Flip-driven position when it is capped) is the subtle part, and the store decides between them by measuring the other panel's height before and after the mutation.
 

@@ -5,7 +5,7 @@ tags:
   - components
   - layout
   - responsive
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
@@ -25,7 +25,7 @@ So the layout doesn't try to cram everything in everywhere. Instead, the **same 
 | Medium width (≥900px) | one side panel + workbench | that panel, toggled from the toolbar |
 | Desktop (≥1200px) | side panel + workbench + side panel | both panels at once, no toggle needed |
 
-These breakpoints are mirrored in JS by `BreakpointContext`, not left to CSS alone, because some components need to *branch* on viewport size rather than merely restyle — deciding whether a panel even exists to render into, say, or whether the modal must force-close. The context exposes `wide`, `belowMedium`, and `tabletPortrait`, plus the derived **`minimal = belowMedium && !tabletPortrait`** — the one case with no aside to host the side content, where the modal takes over.
+Normally, responsive layouts are handled by CSS alone. Here the breakpoints are *also* mirrored in JavaScript, by `BreakpointContext`, because some components need to *branch* on viewport size rather than merely restyle — deciding whether a panel even exists to render into, say, or whether the modal must force-close. The context exposes `wide`, `belowMedium`, and `tabletPortrait`, plus the derived **`minimal = belowMedium && !tabletPortrait`** — the one case with no aside to host the side content, where the modal takes over.
 
 > Those thresholds are encoded in three places that must stay in step: the `matchMedia` queries in `BreakpointContext`, the `@media` blocks in `+page.svelte`, and the `@media` blocks in `ModeToolbar`. Change one and you must change all three.
 
@@ -44,7 +44,7 @@ On phones, the toggle in the toolbar opens `DataModal` — a panel that slides i
 
 - Opening the modal pushes a browser history entry (via SvelteKit's router, deliberately, rather than raw `history.*`), so the device's back button closes it — the gesture a user expects for any overlay. A `popstate` listener closes the modal on back-nav without itself popping again, so a back-close can't double-unwind.
 - Switching between "maps" and "json" while the modal is already open does **not** replay the slide-in. Calling open again just reassigns the view and returns early; only the content swaps. The two views fly in from opposite edges — maps from the left, json from the right — so the direction itself hints at which view you are looking at. (Svelte reads transition params only at the *start* of a transition, which is exactly why swapping mid-open never re-animates.)
-- If the viewport grows past the phone breakpoint while the modal is open, an `$effect` force-closes it **instantly** — a `forceClose` flag drives the exit duration to `0` — because the aside it would otherwise live in has just become available.
+- If the viewport grows past the phone breakpoint while the modal is open — rotating a tablet, resizing a window — an `$effect` force-closes it **instantly**, with a `forceClose` flag driving the exit duration to `0`. The aside the content belongs in has just become available, so the modal steps out of the way without ceremony.
 
 ## Side panels and Text mode
 

@@ -5,16 +5,16 @@ tags:
   - components
   - architecture
   - contexts
-lastUpdated: 2026-06-29
+lastUpdated: 2026-07-03
 ---
 
 # {title}
 
-Everything the user sees lives under one root component, `+page.svelte`, and its centerpiece, `QuoteWorkbench.svelte`. Think of this article as the map: what each piece is responsible for, and how they are wired together. The *behavior* inside each piece — how Link mode works, how Line mode works, how the modes animate into one another — is covered in its own article and linked from here.
+Everything you see in Quote Slicer lives under one root component, `+page.svelte`, and its centerpiece, `QuoteWorkbench.svelte`. Think of this article as the map: what each piece is responsible for, and how they are wired together. The *behavior* inside each piece — how Link mode works, how Line mode works, how the modes animate into one another — is covered in its own article and linked from here.
 
 ## Why one root, one workbench
 
-The four [[overview#the-four-modes|modes]] are not four separate screens. They are four ways of looking at the *same* source text, target text, and token data. So rather than swapping pages in and out, the app is built as **one persistent component tree** that changes which parts are interactive and how things look. That single decision is what lets the [[interaction-modes/mode-transitions|mode transitions]] feel like continuous motion instead of a page change.
+The four [[overview#the-four-modes|modes]] are not four separate screens. They are four ways of looking at the *same* source text, target text, and token data. So rather than swapping whole pages in and out, the app is built as **one persistent component tree** that changes which parts are interactive and how things look. That single decision is what lets the [[interaction-modes/mode-transitions|mode transitions]] feel like continuous motion instead of a page change — you can only animate between two states of a thing that stays on screen.
 
 For that to work, the app needs one place that:
 
@@ -23,7 +23,7 @@ For that to work, the app needs one place that:
 - knows the current viewport size (to decide the [[components/layout|layout]]), and
 - owns the token data and the mapping data.
 
-That place is `+page.svelte`. It sets up four contexts once, at the root, and everything else reads from them:
+That place is `+page.svelte`. It sets up four **contexts** — shared objects any component in the tree can read without props being passed down hand to hand — once, at the root:
 
 <!-- src/routes/+page.svelte -->
 
@@ -46,12 +46,12 @@ Beyond the contexts, `+page.svelte` also:
 
 This is the centre column — the thing the side panels flank. Its job is to render the *right view* for the current mode, using token data it reads from the store:
 
-- **Text mode** — two plain textareas (source, target), so the user can paste or type. The source textarea filters its input live to Han characters and CJK punctuation, in a way that is careful not to break IME composition: it skips filtering while a character is being composed and re-filters once composition finishes, so typing pinyin to produce a character still works.
+- **Text mode** — two plain textareas (source, target), so the user can paste or type freely. The source textarea filters its input live, letting only Han characters and CJK punctuation through. That filter is careful not to break **IME composition** — the input method Chinese typists use, where you type pinyin and pick a character from a menu. Mid-composition the text field briefly holds Latin letters, so the filter skips those moments and re-filters once composition finishes; typing pinyin to produce a character still works.
 - **Link, Line, and View modes** — the token workspace: the source and target panels rendered as a `role="grid"` of interactive tokens. These panels are [[components/interactive-text-panels|`InteractiveSourceText` / `InteractiveTargetText`]], and what is interactive inside them depends on the mode.
 
 In every mode, an authorship textarea sits below the workbench (locked in View mode).
 
-One subtlety worth stating plainly: the workbench does **not** push tokens into `Alignment`. The single thing it pushes is the raw text, via `alignment.setMeta({ sourceText, targetText, authorship })` inside an `$effect`. `Alignment` then derives its own token view from the shared store. So the store stays the one owner, and there is no two-way `$effect` sync to keep honest.
+One subtlety worth stating plainly: the workbench does **not** push tokens into `Alignment`. The single thing it pushes is the raw text, via `alignment.setMeta({ sourceText, targetText, authorship })` inside an `$effect` (Svelte's mechanism for reacting to changes). `Alignment` then derives its own token view from the shared store. So the store stays the one owner, and there is no two-way sync to keep honest.
 
 ### Tokens stay continuous across edits
 
