@@ -102,6 +102,12 @@ article :where(:not(pre) > code) {
 	box-decoration-break: clone;
 }
 
+article table :where(:not(pre) > code) {
+	white-space: nowrap;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
 /* removes backticks */
 article :where(code)::before,
 article :where(code)::after {
