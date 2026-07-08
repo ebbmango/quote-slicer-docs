@@ -1,13 +1,14 @@
 import { browser } from '$app/environment';
 import { createSubscriber } from 'svelte/reactivity';
-import type { Mode } from './types';
+import type { ThemeName } from './types';
 import {
+	LEGACY_THEME_STATE_KEY,
 	THEME_STATE_KEY,
 	parseThemeState,
 	resolveTheme,
-	systemState,
-	toMode,
-	userState,
+	systemThemeState,
+	toTheme,
+	userThemeState,
 	type StorageLike,
 	type StoredThemeState
 } from './themeState';
@@ -20,40 +21,53 @@ function withStorage<T>(callback: (storage: StorageLike) => T, fallback: T): T {
 	}
 }
 
-function applyDocumentTheme(mode: Mode) {
-	document.documentElement.classList.toggle('dark', mode === 'dark');
-	document.documentElement.style.colorScheme = mode;
+function applyDocumentTheme(themeName: ThemeName) {
+	document.documentElement.classList.toggle('dark', themeName === 'dark');
+	document.documentElement.style.colorScheme = themeName;
 }
 
 export function adaptiveTheme() {
 	if (!browser) {
 		return {
-			get current(): Mode {
+			get current(): ThemeName {
 				return 'light';
 			},
-			set current(_mode: Mode) {}
+			set current(_theme: ThemeName) {}
 		};
 	}
 
 	const media = window.matchMedia('(prefers-color-scheme: dark)');
-	const getSystemMode = () => toMode(media.matches);
+	const getSystemTheme = () => toTheme(media.matches);
 
 	const read = () =>
-		withStorage((storage) => parseThemeState(storage.getItem(THEME_STATE_KEY)), null);
+		withStorage((storage) => {
+			const current = parseThemeState(storage.getItem(THEME_STATE_KEY));
+			if (current) return current;
+
+			const legacy = parseThemeState(storage.getItem(LEGACY_THEME_STATE_KEY));
+			if (legacy) {
+				try {
+					storage.setItem(THEME_STATE_KEY, JSON.stringify(legacy));
+				} catch {
+					// Preserve the read even if migration write is blocked.
+				}
+			}
+			return legacy;
+		}, null);
 	const write = (state: StoredThemeState) =>
 		withStorage((storage) => storage.setItem(THEME_STATE_KEY, JSON.stringify(state)), undefined);
 
-	const initial = resolveTheme(read(), getSystemMode());
-	let currentMode: Mode = initial.mode;
+	const initial = resolveTheme(read(), getSystemTheme());
+	let currentTheme: ThemeName = initial.theme;
 	let notify = () => {};
 
-	applyDocumentTheme(currentMode);
+	applyDocumentTheme(currentTheme);
 	if (initial.fresh) write(initial.state);
 
 	const set = (state: StoredThemeState, { persist = true } = {}) => {
-		const changed = state.mode !== currentMode;
-		currentMode = state.mode;
-		applyDocumentTheme(currentMode);
+		const changed = state.theme !== currentTheme;
+		currentTheme = state.theme;
+		applyDocumentTheme(currentTheme);
 		if (persist) write(state);
 		if (changed) notify();
 	};
@@ -63,14 +77,14 @@ export function adaptiveTheme() {
 	// hidden. Only persists when the resolved state is fresh (a first visit or an
 	// OS drift) so cross-tab writes are adopted without echoing back.
 	const reconcile = ({ persist = true } = {}) => {
-		const { state, fresh } = resolveTheme(read(), getSystemMode());
+		const { state, fresh } = resolveTheme(read(), getSystemTheme());
 		set(state, { persist: persist && fresh });
 	};
 
 	const subscribe = createSubscriber((update) => {
 		notify = update;
 
-		const onMedia = () => set(systemState(getSystemMode()));
+		const onMedia = () => set(systemThemeState(getSystemTheme()));
 		const onStorage = (event: StorageEvent) => {
 			if (event.key !== THEME_STATE_KEY) return;
 			reconcile({ persist: false });
@@ -93,13 +107,13 @@ export function adaptiveTheme() {
 	});
 
 	return {
-		get current(): Mode {
+		get current(): ThemeName {
 			subscribe();
-			return currentMode;
+			return currentTheme;
 		},
 
-		set current(mode: Mode) {
-			set(userState(mode, getSystemMode()));
+		set current(themeName: ThemeName) {
+			set(userThemeState(themeName, getSystemTheme()));
 		}
 	};
 }

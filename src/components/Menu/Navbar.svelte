@@ -13,8 +13,8 @@
 	}
 
 	const toggle = () => {
-		const nextMode = theme.current === 'dark' ? 'light' : 'dark';
-		theme.current = nextMode;
+		const nextTheme = theme.current === 'dark' ? 'light' : 'dark';
+		theme.current = nextTheme;
 	};
 </script>
 

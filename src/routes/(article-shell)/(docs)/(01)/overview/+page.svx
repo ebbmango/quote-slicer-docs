@@ -1,6 +1,6 @@
 ---
 title: Overview
-summary: What Quote Slicer is for, the four interaction modes it is built around, and how the workbench and its side panels are arranged on screen.
+summary: What Quote Slicer is for, the four tools it is built around, and how the workbench and its side panels are arranged on screen.
 tags:
   - overview
   - architecture
@@ -19,25 +19,27 @@ Quote Slicer makes building it feel direct instead: you click a character, click
 2. organize both sides into paragraphs with clean line breaks; and
 3. instantly preview how the linked display will read.
 
-It does all of this through four **interaction modes**, each described in depth in its own article.
+It does all of this through four **tools**, each described in depth in its own article.
 
-## The four modes
+## The four tools
 
-Think of the four modes as four different sets of tools laid over the same text. Only one is ever active at a time, and the current one lives in `ModeContext` (`src/lib/context/mode.svelte.ts`).
+Think of the four tools as four different ways to work with the same text. Only one is ever active at a time, and the current one lives in `ToolContext` (`src/lib/context/tool.svelte.ts`).
 
-| Mode key | User-facing name | What you do in it |
-|----------|------------------|--------------------|
-| `'text'` | Text entry | Paste or type the source (Chinese) and target (English) texts, plus an optional attribution line. |
-| `'link'` | Link mode | Click tokens in both panels to bind them into word-to-word [[data-and-tokenization/mapping\|mappings]]; edit pinyin; delete mappings. |
-| `'line'` | Line tool | Adjust where line breaks fall in source and target *independently* — split one line into two, or merge two into one. |
-| `'view'` | View | Read the finished alignment; hovering or tapping a mapped token lights up its whole mapping across both panels. |
+| Tool     | Description                                                                                                                           |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `'text'` | Paste or type the source (Chinese) and target (English) texts, plus an optional attribution line.                                     |
+| `'link'` | Click tokens in both panels to bind them into word-to-word [[data-and-tokenization/mapping\|mappings]]; edit pinyin; delete mappings. |
+| `'line'` | Adjust where line breaks fall in source and target _independently_ — split one line into two, or merge two into one.                  |
+| `'view'` | Read the finished alignment; hovering or tapping a mapped token lights up its whole mapping across both panels.                       |
 
-The app **starts** in Text mode. Clicking the advance arrow commits both texts and animates into Link mode (see [[interaction-modes/mode-transitions#the-arrow-launch-text--link|the arrow launch]]); from then on, the bottom toolbar switches freely between Link, Line, and View.
-
-> A quick disambiguation worth making early: this **mode** (text / link / line / view) is a different thing from the **interaction mode** (mouse vs. keyboard input tracking) discussed in [[interaction-modes/keyboard-navigation]]. Same word, unrelated concepts.
+The app **starts** with the Text tool. Clicking the advance arrow commits both texts and proceeds to the Link tool (see [[tools-and-mediums/tool-transitions#the-arrow-launch-text--link|the arrow launch]]); from then on, the bottom toolbar switches freely between the Link, Line, and View tools.
 
 ## How it's arranged
 
 The screen is built around a central **workbench** — the source text, the target text, and an attribution line — flanked by up to two side panels: the list of [[components/mappings-list|mapping cards]] (one card per link you have made) and a live [[data-and-tokenization/export|JSON preview]] of the data being built.
 
-How those side panels appear depends on how much room there is. On a wide screen, both sit beside the workbench at once. On a narrower screen, only one shows at a time, toggled from the bottom toolbar. On a phone, they live in a slide-in panel instead, so the workbench keeps the full width. In Text mode the side panels are hidden entirely — there is nothing to show yet — and they slide into view the moment you advance. See [[components/layout]] for the full breakdown.
+How those side panels appear depends on how much room there is. On a wide screen, both sit beside the workbench at once. On a narrower screen, only one shows at a time, toggled from the bottom toolbar. On a phone, they live in a slide-in panel instead, so the workbench keeps the full width.
+
+With the Text tool, the side panels are hidden entirely, as there is still nothing to be shown. As soon as the user advances to the editing tools, the layout updates and the panels will appear as best fits the current viewport, according to the predefined breakpoints.
+
+Please read the article on the [[components/layout]] for the full breakdown.

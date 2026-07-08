@@ -17,16 +17,16 @@
 	onclick={toggle}
 	class="top-theme-toggle focus-ring-none group relative flex size-5 no-js:hidden"
 >
-	<span class="top-theme-icon top-theme-light-mode" data-weight="light">
+	<span class="top-theme-icon top-theme-light-theme" data-weight="light">
 		<Fa icon={sunLight} />
 	</span>
-	<span class="top-theme-icon top-theme-light-mode" data-weight="solid">
+	<span class="top-theme-icon top-theme-light-theme" data-weight="solid">
 		<Fa icon={sunSolid} />
 	</span>
-	<span class="top-theme-icon top-theme-dark-mode" data-weight="light">
+	<span class="top-theme-icon top-theme-dark-theme" data-weight="light">
 		<Fa icon={moonLight} />
 	</span>
-	<span class="top-theme-icon top-theme-dark-mode" data-weight="solid">
+	<span class="top-theme-icon top-theme-dark-theme" data-weight="solid">
 		<Fa icon={moonSolid} />
 	</span>
 </button>
@@ -43,12 +43,12 @@
 		transition: opacity 180ms ease;
 	}
 
-	.top-theme-dark-mode,
-	:global(html.dark) .top-theme-light-mode {
+	.top-theme-dark-theme,
+	:global(html.dark) .top-theme-light-theme {
 		display: none;
 	}
 
-	:global(html.dark) .top-theme-dark-mode {
+	:global(html.dark) .top-theme-dark-theme {
 		display: flex;
 	}
 

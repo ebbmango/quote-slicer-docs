@@ -17,8 +17,8 @@ lastUpdated: 2026-07-03
 
 Two facts about the app are in tension, and they pull in opposite directions:
 
-1. **Line edits must survive.** When the user splits or merges a line in [[interaction-modes/line-mode|Line mode]], only the tokens' `.line` fields should change. But [[data-and-tokenization/tokenization|tokenizing]] reads the *raw text string* — so naively re-tokenizing on every render would throw the user's line breaks away every time.
-2. **Pinyin must survive.** Pinyin is attached to source tokens as they join mappings (see [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]]), and it has to persist across those same line edits.
+1. **Line edits must survive.** When the user splits or merges a line in [[tools-and-mediums/line-tool|Line tool]], only the tokens' `.line` fields should change. But [[data-and-tokenization/tokenization|tokenizing]] reads the *raw text string* — so naively re-tokenizing on every render would throw the user's line breaks away every time.
+2. **Pinyin must survive.** Pinyin is attached to source tokens as they join mappings (see [[tools-and-mediums/link-tool#pinyin-auto-fill-and-canonical-storage]]), and it has to persist across those same line edits.
 
 Earlier versions split these two responsibilities across two places: `QuoteWorkbench` held a token cache, and `Alignment` held its *own* synced copy of the tokens with pinyin attached. Keeping two copies in sync via effects was fragile — a split or merge had to be handed the *specific* pinyin-bearing array, and if it got a freshly-tokenized (pinyin-less) one instead, pinyin would silently vanish.
 
@@ -116,4 +116,4 @@ There is one exception: when the stack is **capped** and can't grow, flex redist
 
 > Avoid calling this a "unified Flip" or a "double Flip". There is **one** Flip; the panels below the edit move because flow pushes them, not because a transform carries them — except in that one capped regime.
 
-GSAP and its Flip plugin are lazy-loaded on mount (the app is statically prerendered, so import-time browser API calls must be avoided). **If they haven't loaded yet, or `prefers-reduced-motion` is set, `mutate()` runs synchronously with no animation** — the edit still happens, it just doesn't tween. See [[interaction-modes/mode-transitions]] for how this coexists with the mode crossfade, and [[interaction-modes/line-mode#the-splitmerge-animation]] for what each panel contributes.
+GSAP and its Flip plugin are lazy-loaded on mount (the app is statically prerendered, so import-time browser API calls must be avoided). **If they haven't loaded yet, or `prefers-reduced-motion` is set, `mutate()` runs synchronously with no animation** — the edit still happens, it just doesn't tween. See [[tools-and-mediums/tool-transitions]] for how this coexists with the tool crossfade, and [[tools-and-mediums/line-tool#the-splitmerge-animation]] for what each panel contributes.

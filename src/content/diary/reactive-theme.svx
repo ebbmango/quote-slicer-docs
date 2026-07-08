@@ -35,7 +35,7 @@ To achieve the desired behavior, multiple functionalities have to be implemented
 
 ###### 1. Follow the system theme by default.
 
-The application should match the user’s OS theme on first load. This prevents users who prefer dark mode from being met with a bright interface unexpectedly.
+The application should match the user’s OS theme on first load. This prevents users who prefer the dark theme from being met with a bright interface unexpectedly.
 
 ###### 2. React to later OS theme changes.
 
@@ -53,7 +53,7 @@ Users should be able to change the theme at any time through a clear and accessi
 
 These functionalities are implemented across several different files:
 
-1. `src/app.html` applies the OS theme before hydration so the page does not flash in the wrong mode on first paint.
+1. `src/app.html` applies the OS theme before hydration so the page does not flash in the wrong theme on first paint.
 2. `src/lib/systemTheme.ts` manages the runtime theme state, reacts to both OS and user changes, and synchronizes that state across open tabs with the `storage` event.
 3. `src/lib/theme.ts` exports a shared theme controller instance for the app.
 4. `src/routes/+layout.svelte` mirrors the current theme onto the root document element.
@@ -188,7 +188,7 @@ This works because both the subscriber callback and the `set current(...)` sette
 As a result, even code outside the body of `createSubscriber()` still retains access to that shared variable, and can thus trigger reactive updates:
 
 ```js
-set current(mode: Mode) {
+set current(themeName: ThemeName) {
 	// [...]
 	notify();
 }
@@ -238,13 +238,13 @@ And `adaptiveTheme()` ultimately returns an object shaped like this:
 
 ```svelte
 return {
-	get current(): Mode {
+	get current(): ThemeName {
 		subscribe();
-		return currentMode;
+		return currentTheme;
 	},
-	set current(mode: Mode) {
-		if (mode === currentMode) return;
-		currentMode = mode;
+	set current(themeName: ThemeName) {
+		if (themeName === currentTheme) return;
+		currentTheme = themeName;
 		broadcastState();
 		notify();
 	}
@@ -293,6 +293,6 @@ window.addEventListener('storage', (event) => {
 });
 ```
 
-When a tab hears that event, it re-reads the stored state and re-resolves the current theme, calling `update()` if the mode changed — the very same reactive path used for OS changes. A newly opened tab needs nothing special either: it just reads `localStorage` on load.
+When a tab hears that event, it re-reads the stored state and re-resolves the current theme, calling `update()` if the theme changed — the very same reactive path used for OS changes. A newly opened tab needs nothing special either: it just reads `localStorage` on load.
 
 That is the whole of it. An earlier version of this site reached for `BroadcastChannel` with a request/reply handshake and a tab registry that tracked which tabs were alive. All of it was removed once the desired behavior was simplified: a manual choice simply persists, so there is nothing to coordinate beyond "what is the current value." For that, the `storage` event is all the synchronization the theme needs.

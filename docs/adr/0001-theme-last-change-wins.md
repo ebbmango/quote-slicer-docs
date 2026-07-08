@@ -31,19 +31,20 @@ the most recent change," which revert-on-close contradicts.
 Adopt "last change wins", persisted across full close, for both codebases:
 
 - On load, follow the OS preference on a first visit.
-- A manual pick (or an adopted OS mode) is stored in `localStorage` and
+- A manual pick (or an adopted OS theme) is stored in `localStorage` and
   **persists across reloads and full closes**.
 - The only thing that overrides a stored pick while the app is away is the OS
   preference itself changing — a genuinely later change — detected by comparing
-  the OS mode now against `osAtPick`, the OS mode recorded when the pick was
+  the OS theme now against `osThemeAtPick`, the OS theme recorded when the pick was
   written (`resolveTheme`).
 - A live OS change while a tab is open wins (most recent change).
 - Cross-tab sync uses the native `storage` event; a new tab reads `localStorage`
   on load. No `BroadcastChannel`, tab registry, heartbeat, or grace window.
 
-Storage schema is bumped to `:v2` (`{ version, mode, source, osAtPick }`). The
-v1 keys are abandoned; a stale v1 value fails validation and is treated as a
-first visit.
+Storage schema is bumped to `:v3` (`{ version, theme, source, osThemeAtPick }`).
+Legacy v2 values (`mode` / `osAtPick`) are accepted and migrated into the v3 shape
+so existing manual picks survive the terminology rename. v1 values are abandoned;
+stale values fail validation and are treated as a first visit.
 
 ## Consequences
 

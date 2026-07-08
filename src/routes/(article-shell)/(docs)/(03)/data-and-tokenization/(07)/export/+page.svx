@@ -10,7 +10,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-A side panel shows a **live JSON export** of the alignment — the structured data the whole app exists to produce, rendered as syntax-highlighted, column-aligned JSON that updates as the user works. It doubles as a window into the machine's view of things: every click in Link mode lands in this panel a moment later. Three pieces make it up: the export *data*, the *formatter*, and the *panel*.
+A side panel shows a **live JSON export** of the alignment — the structured data the whole app exists to produce, rendered as syntax-highlighted, column-aligned JSON that updates as the user works. It doubles as a window into the machine's view of things: every click in Link tool lands in this panel a moment later. Three pieces make it up: the export *data*, the *formatter*, and the *panel*.
 
 ## The export data
 
@@ -53,14 +53,14 @@ This formatter has no component dependencies, so its rules — one-lining primit
 
 ### Recoloring Shiki to the app palette
 
-By default a Shiki-highlighted JSON block would look like a generic code preview — whichever colors the highlighting theme happens to use. To make the export feel like part of the app rather than a snippet pasted in, `HighlightedCode` takes an optional `colorReplacements` map, forwarded straight to Shiki. The base theme is **dracula** (chosen because its token colors are well-known hex values, easy to target), and `JsonExportPanel` passes a map that swaps dracula's hexes for the app's mapping palette. The map is **theme-aware** — `mode = appTheme.current` picks the light or dark variant — so the export tracks the app's color theme:
+By default a Shiki-highlighted JSON block would look like a generic code preview — whichever colors the highlighting theme happens to use. To make the export feel like part of the app rather than a snippet pasted in, `HighlightedCode` takes an optional `colorReplacements` map, forwarded straight to Shiki. The base theme is **dracula** (chosen because its token colors are well-known hex values, easy to target), and `JsonExportPanel` passes a map that swaps dracula's hexes for the app's mapping palette. The map is **theme-aware** — `themeName = appTheme.current` picks the light or dark variant — so the export tracks the app's color theme:
 
 | Role | Replaced with |
 |------|-----------------|
-| strings | `colors.compostella[mode].base` |
+| strings | `colors.compostella[themeName].base` |
 | properties / colons / brackets | a dimmer neutral grey |
-| numbers | `colors.azure[mode].base` |
-| the `undefined` literal | `colors.sugar[mode].base` |
+| numbers | `colors.azure[themeName].base` |
+| the `undefined` literal | `colors.sugar[themeName].base` |
 
 This is why [[data-and-tokenization/tokens#colors|the color module]] exports a name-keyed lookup alongside the index-keyed palette array — the recolor wants *specific* named entries, not "the Nth mapping color".
 

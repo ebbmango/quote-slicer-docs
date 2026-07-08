@@ -41,7 +41,7 @@ How a raw string becomes these arrays is covered in [[data-and-tokenization/sour
 
 - **`undefined`** — a Han character that has not been annotated yet (not part of any mapping). [[data-and-tokenization/export|The export]] prints this literally as the word `undefined`, so an un-annotated character is visible rather than silently missing.
 - **`null`** — this token *can't* have pinyin (it is punctuation, a number, or a symbol — things without a pronunciation to write down).
-- **`string`** — the romanisation, either auto-filled when the character joins a mapping or edited by the user afterward. Stored in **canonical numbered form** (`"zhi1"`) and converted to diacritics (`"zhī"`) only for display — see [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]].
+- **`string`** — the romanisation, either auto-filled when the character joins a mapping or edited by the user afterward. Stored in **canonical numbered form** (`"zhi1"`) and converted to diacritics (`"zhī"`) only for display — see [[tools-and-mediums/link-tool#pinyin-auto-fill-and-canonical-storage]].
 
 Pinyin isn't stored on the cached token directly. It lives in a separate, id-keyed overlay inside the [[data-and-tokenization/token-store|token store]] and is applied whenever tokens are read. The field above is what the rest of the app sees *after* that overlay has been applied.
 
@@ -49,7 +49,7 @@ Pinyin isn't stored on the cached token directly. It lives in a separate, id-key
 
 A token's `id` is assigned once, at tokenization time, as its position in the flat output array — and then **never changes**, no matter what happens to the text afterward.
 
-This matters because a [[data-and-tokenization/mapping|mapping]] stores token *IDs*, not array positions. [[interaction-modes/line-mode|Line edits]] only ever rewrite a token's `.line` field — they never insert or remove tokens — so a mapping's stored IDs keep pointing at the same characters no matter how the lines get rearranged. Positions shift; identities don't.
+This matters because a [[data-and-tokenization/mapping|mapping]] stores token *IDs*, not array positions. [[tools-and-mediums/line-tool|Line edits]] only ever rewrite a token's `.line` field — they never insert or remove tokens — so a mapping's stored IDs keep pointing at the same characters no matter how the lines get rearranged. Positions shift; identities don't.
 
 Because rendering needs array *indices* but mappings store *IDs*, `Alignment` derives two reverse-lookup maps at runtime (`sourceIdToIndex`, `targetIdToIndex`), rebuilt whenever the token arrays change. If an ID is ever not found in the current array, it simply drops out of these maps — no error, no corruption. That is a deliberate safety net for any future feature that might remove tokens (editing the source text after linking, say): a mapping can never end up holding a dangling reference.
 
@@ -64,7 +64,7 @@ type TokenState =
   | { kind: 'active'; color: string }; // in the currently selected mapping
 ```
 
-It is produced by `deriveSourceTokenState()` / `deriveTargetTokenState()` in `src/lib/tokenState.ts`. Both take an *index → owning `Mapping`* lookup, the active mapping ID, and a `mode` of `'light'` or `'dark'` (which selects the light or dark color variant); the target version additionally takes the target token array so it can apply [[interaction-modes/link-mode#whitespace-bridging|whitespace bridging]]. The lookup itself is built once by a pure `buildMappingIndex()` helper that stores the actual `Mapping` object per index — so bridging can compare mappings by identity, and no per-token `find()` scan is needed.
+It is produced by `deriveSourceTokenState()` / `deriveTargetTokenState()` in `src/lib/tokenState.ts`. Both take an *index → owning `Mapping`* lookup, the active mapping ID, and a `theme` of `'light'` or `'dark'` (which selects the light or dark color variant); the target version additionally takes the target token array so it can apply [[tools-and-mediums/link-tool#whitespace-bridging|whitespace bridging]]. The lookup itself is built once by a pure `buildMappingIndex()` helper that stores the actual `Mapping` object per index — so bridging can compare mappings by identity, and no per-token `find()` scan is needed.
 
 Crucially, these functions take no Svelte state directly. They are framework-free — plain functions in, plain values out — and unit-tested on their own.
 
@@ -72,4 +72,4 @@ Crucially, these functions take no Svelte state directly. They are framework-fre
 
 The palette lives in `src/lib/constants/colors.ts`: `MAPPING_COLORS` is an array of nine named color sets (`applesour`, `lush`, `seabreeze`, `azure`, `compostella`, `sugar`, `strawberry`, `maple`, `beeswax`). Each entry is a `{ light, dark }` pair of **variants**, and each variant holds the token highlight colors plus a full set of card colors used by [[components/mapping-component|the mapping card]]. The light/dark split lives in the data — not purely in CSS — because the card colors are applied as inline `style` attributes that a `.dark` class can't reach.
 
-A mapping's `colorIndex` (see [[data-and-tokenization/mapping]]) indexes this array modulo its length, so the palette cycles once there are more than nine mappings on screen at once. A second, name-keyed `colors` lookup is also exported for code that needs a *specific* entry rather than "the Nth one" — e.g. `colors.azure.light.base`, used by [[data-and-tokenization/export#recoloring-shiki-to-the-app-palette|the export recolor]]. The module also exports `HIGHLIGHT_COLOR`, the single flat red used by the [[interaction-modes/view-mode|view-mode highlight]].
+A mapping's `colorIndex` (see [[data-and-tokenization/mapping]]) indexes this array modulo its length, so the palette cycles once there are more than nine mappings on screen at once. A second, name-keyed `colors` lookup is also exported for code that needs a *specific* entry rather than "the Nth one" — e.g. `colors.azure.light.base`, used by [[data-and-tokenization/export#recoloring-shiki-to-the-app-palette|the export recolor]]. The module also exports `HIGHLIGHT_COLOR`, the single flat red used by the [[tools-and-mediums/view-tool|view-tool highlight]].

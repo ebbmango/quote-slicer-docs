@@ -1,8 +1,8 @@
 ---
-title: Line Mode
+title: Line Tool
 summary: Adjusting line breaks independently in source and target — the two pure line functions, the split/merge affordances on each panel, the touch two-tap model, and the shared edit animation.
 tags:
-  - line-mode
+  - line-tool
   - tokens
   - animation
 lastUpdated: 2026-07-03
@@ -10,7 +10,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-Line mode (`mode.current === 'line'`) lets the user adjust where line breaks fall in the source and target texts **independently** of each other — useful because a Chinese verse and its English translation rarely break in the same places. A line edit never changes the underlying text strings — it only rewrites the affected tokens' `.line` fields, and those edits are preserved by the [[data-and-tokenization/token-store#the-text-keyed-cache|token store's cache]].
+Line tool (`tool.current === 'line'`) lets the user adjust where line breaks fall in the source and target texts **independently** of each other — useful because a Chinese verse and its English translation rarely break in the same places. A line edit never changes the underlying text strings — it only rewrites the affected tokens' `.line` fields, and those edits are preserved by the [[data-and-tokenization/token-store#the-text-keyed-cache|token store's cache]].
 
 ## The core operations
 
@@ -55,10 +55,10 @@ The height tween and token reflow that happen when a line is split or merged are
 2. A marked scroll container tells the store which box's height to tween.
 3. While the store's animation is running, the panel leaves that box's height alone — the rest of the time, it keeps the box at its natural height. See [[components/interactive-text-panels#supporting-the-splitmerge-animation]].
 
-Because the workbench's three panels are stacked, a height change in one shifts the others — which is why the *other* panel and the authorship field are also animated, as whole units, in the same motion. See [[interaction-modes/mode-transitions]] for how this interacts with the mode-change animations.
+Because the workbench's three panels are stacked, a height change in one shifts the others — which is why the *other* panel and the authorship field are also animated, as whole units, in the same motion. See [[tools-and-mediums/tool-transitions]] for how this interacts with the tool-change animations.
 
 ## Keyboard scheme
 
-Line mode shares its navigation mechanism with [[interaction-modes/link-mode|Link mode]], reconfigured so the navigable elements are the split/merge controls instead of tokens — see [[interaction-modes/keyboard-navigation]] for the full mechanism and shortcut tables.
+Line tool shares its navigation mechanism with [[tools-and-mediums/link-tool|Link tool]], reconfigured so the navigable elements are the split/merge controls instead of tokens — see [[tools-and-mediums/mediums-and-keyboard-navigation]] for the full mechanism and shortcut tables.
 
-Cross-zone jumping between source and target (Alt+Enter, and wrapping at a panel's edge) works in **every** mode, including Line mode — an earlier config flag that restricted it to Link mode was removed. One Line-mode-specific wrinkle: activating a divisor re-renders it away (the edit replaces it), so the navigator re-acquires focus by index afterward, with a fallback for the case where a merge folds the focused divisor into an unsplittable group.
+Cross-zone jumping between source and target (Alt+Enter, and wrapping at a panel's edge) works in **every** tool, including the Line tool — an earlier config flag that restricted it to the Link tool was removed. One Line-tool-specific wrinkle: activating a divisor re-renders it away (the edit replaces it), so the navigator re-acquires focus by index afterward, with a fallback for the case where a merge folds the focused divisor into an unsplittable group.

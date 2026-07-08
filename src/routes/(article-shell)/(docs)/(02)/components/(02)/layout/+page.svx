@@ -27,7 +27,7 @@ So the layout doesn't try to cram everything in everywhere. Instead, the **same 
 
 Normally, responsive layouts are handled by CSS alone. Here the breakpoints are *also* mirrored in JavaScript, by `BreakpointContext`, because some components need to *branch* on viewport size rather than merely restyle — deciding whether a panel even exists to render into, say, or whether the modal must force-close. The context exposes `wide`, `belowMedium`, and `tabletPortrait`, plus the derived **`minimal = belowMedium && !tabletPortrait`** — the one case with no aside to host the side content, where the modal takes over.
 
-> Those thresholds are encoded in three places that must stay in step: the `matchMedia` queries in `BreakpointContext`, the `@media` blocks in `+page.svelte`, and the `@media` blocks in `ModeToolbar`. Change one and you must change all three.
+> Those thresholds are encoded in three places that must stay in step: the `matchMedia` queries in `BreakpointContext`, the `@media` blocks in `+page.svelte`, and the `@media` blocks in `ToolToolbar`. Change one and you must change all three.
 
 ## The shared rendering surface
 
@@ -46,6 +46,6 @@ On phones, the toggle in the toolbar opens `DataModal` — a panel that slides i
 - Switching between "maps" and "json" while the modal is already open does **not** replay the slide-in. Calling open again just reassigns the view and returns early; only the content swaps. The two views fly in from opposite edges — maps from the left, json from the right — so the direction itself hints at which view you are looking at. (Svelte reads transition params only at the *start* of a transition, which is exactly why swapping mid-open never re-animates.)
 - If the viewport grows past the phone breakpoint while the modal is open — rotating a tablet, resizing a window — an `$effect` force-closes it **instantly**, with a `forceClose` flag driving the exit duration to `0`. The aside the content belongs in has just become available, so the modal steps out of the way without ceremony.
 
-## Side panels and Text mode
+## Side panels and Text tool
 
-In [[overview#the-four-modes|Text mode]] there is nothing to show in the side panels yet — no tokens, no mappings. So they are collapsed to zero width and slid off-screen. The moment the user advances past Text mode (see [[interaction-modes/mode-transitions#the-arrow-launch-text--link|the arrow launch]]), the grid columns, gaps, opacity, and panel positions animate back to their resting state together, over half a second. Which columns exist at all — that is, how many panels there is room for — is decided by the breakpoint table above.
+In [[overview#the-four-tools|the Text tool]] there is nothing to show in the side panels yet — no tokens, no mappings. So they are collapsed to zero width and slid off-screen. The moment the user advances past Text tool (see [[tools-and-mediums/tool-transitions#the-arrow-launch-text--link|the arrow launch]]), the grid columns, gaps, opacity, and panel positions animate back to their resting state together, over half a second. Which columns exist at all — that is, how many panels there is room for — is decided by the breakpoint table above.

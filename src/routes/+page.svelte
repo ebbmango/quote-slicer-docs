@@ -10,19 +10,19 @@
 		<h1>Quote Slicer Docs</h1>
 
 		<p>
-			[Project V] is a Chinese character learning and dictionary app, built around deep Hanzi
-			study — dictionary entries, lessons, flashcards, etymology, historical forms,
-			handwriting, and quote-based reading, all in one place.
+			[Project V] is a Chinese character learning and dictionary app, built around deep Hanzi study
+			— dictionary entries, lessons, flashcards, etymology, historical forms, handwriting, and
+			quote-based reading, all in one place.
 		</p>
 
 		<p>
-			<strong>Quote Slicer</strong> is the first of two accessory apps that feed [Project V].
-			It processes Chinese quotes and texts, segmenting them and linking words and phrases to
-			their translations, so [Project V] can display interactive, annotated reading passages.
+			<strong>Quote Slicer</strong> is the first of two accessory apps that feed [Project V]. It processes
+			Chinese quotes and texts, segmenting them and linking words and phrases to their translations,
+			so [Project V] can display interactive, annotated reading passages.
 		</p>
 
 		<p>
-			These docs cover Quote Slicer itself — its interaction modes, components, and the
+			These docs cover Quote Slicer itself — its tools, interaction mediums, components, and the
 			tokenization pipeline behind the data it produces.
 		</p>
 

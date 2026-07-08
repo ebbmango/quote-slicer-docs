@@ -2,7 +2,7 @@
 	import { onDestroy, onMount, tick } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { theme } from '$lib/theme';
-	import type { Mode } from '$lib/types';
+	import type { ThemeName } from '$lib/types';
 	import {
 		faMoon as MoonSolid,
 		faSunBright as SunSolid
@@ -16,9 +16,9 @@
 	type ThemeIcon = typeof SunLight;
 	type PointerPosition = { x: number; y: number };
 
-	const initialMode = theme.current;
-	let displayedMode = initialMode;
-	let rotation = $state(initialMode === 'dark' ? 180 : 0);
+	const initialTheme = theme.current;
+	let displayedTheme = initialTheme;
+	let rotation = $state(initialTheme === 'dark' ? 180 : 0);
 
 	// important for initial render
 	let hasHydrated = $state(false);
@@ -40,37 +40,37 @@
 		hasHydrated = true;
 	});
 
-	const buttonForMode = (mode: Mode) => {
-		return mode === 'dark' ? moonButton : sunButton;
+	const buttonForTheme = (themeName: ThemeName) => {
+		return themeName === 'dark' ? moonButton : sunButton;
 	};
 
 	let focusRequest = 0;
 
-	const focusCurrentControl = async (mode: Mode) => {
+	const focusCurrentControl = async (themeName: ThemeName) => {
 		const request = ++focusRequest;
 		await tick();
 		if (request !== focusRequest) return;
 
-		buttonForMode(mode)?.focus({ preventScroll: true });
+		buttonForTheme(themeName)?.focus({ preventScroll: true });
 	};
 
 	const toggle = (event: MouseEvent & { currentTarget: HTMLButtonElement }) => {
-		const nextMode = theme.current === 'dark' ? 'light' : 'dark';
+		const nextTheme = theme.current === 'dark' ? 'light' : 'dark';
 		const shouldPreserveToggleFocus = document.activeElement === event.currentTarget;
 		rotation += 180;
-		displayedMode = nextMode;
-		theme.current = nextMode;
+		displayedTheme = nextTheme;
+		theme.current = nextTheme;
 
 		if (shouldPreserveToggleFocus) {
-			void focusCurrentControl(nextMode);
+			void focusCurrentControl(nextTheme);
 		}
 	};
 
 	$effect(() => {
-		const currentMode = theme.current;
-		if (currentMode === displayedMode) return;
+		const currentTheme = theme.current;
+		if (currentTheme === displayedTheme) return;
 		rotation += 180;
-		displayedMode = currentMode;
+		displayedTheme = currentTheme;
 	});
 
 	const controlAt = (target: Element | null): ThemeControl | null => {

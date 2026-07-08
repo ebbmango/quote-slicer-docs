@@ -63,16 +63,16 @@ Additionally, after the tokens of each line — but **not** after the last one �
 if (line < lines.length - 1) tokens.push({ text: ' ', line, type: 'whitespace' });
 ```
 
-This token has no counterpart in the real text. Its job is purely interactive: in [[interaction-modes/line-mode|Line mode]] clicking it merges the two lines it sits between. See [[interaction-modes/line-mode#the-line-tool-affordances]].
+This token has no counterpart in the real text. Its job is purely interactive: in [[tools-and-mediums/line-tool|Line tool]] clicking it merges the two lines it sits between. See [[tools-and-mediums/line-tool#the-line-tool-affordances]].
 
 ## Whitespace strategy
 
 Whitespace tokens exist in the target stream, but they are deliberately *not* full participants in the alignment — nobody maps a space to a Chinese character:
 
-- **Not interactive in Link mode** — `toggleTarget` early-returns for whitespace (and punctuation), so they can never start or join a mapping.
+- **Not interactive in Link tool** — `toggleTarget` early-returns for whitespace (and punctuation), so they can never start or join a mapping.
 - **Never stored in a mapping** — no [[data-and-tokenization/mapping|`Mapping`]] will ever hold a whitespace token's ID.
-- **Visually bridged** — a whitespace token flanked on both sides by tokens from the *same* mapping inherits that mapping's color, so a multi-word phrase reads as one continuous highlight rather than a striped one. See [[interaction-modes/link-mode#whitespace-bridging]].
+- **Visually bridged** — a whitespace token flanked on both sides by tokens from the *same* mapping inherits that mapping's color, so a multi-word phrase reads as one continuous highlight rather than a striped one. See [[tools-and-mediums/link-tool#whitespace-bridging]].
 - **Bridged in exported text** — when building the readable text for a mapping, short gaps (at most `MAX_BRIDGE_GAP = 5` tokens, all whitespace/punctuation) are treated as contiguous, so the mapping's text renders as a single phrase instead of comma-joined fragments.
-- **Still copyable** — in Line mode, whitespace tokens render as `<span role="button">` rather than `<button>`, with `user-select: text`, so selecting and copying the target text still includes the spaces.
+- **Still copyable** — in Line tool, whitespace tokens render as `<span role="button">` rather than `<button>`, with `user-select: text`, so selecting and copying the target text still includes the spaces.
 
 Source tokens never have a whitespace type — the source input filter strips spaces entirely before tokenization ever sees them.

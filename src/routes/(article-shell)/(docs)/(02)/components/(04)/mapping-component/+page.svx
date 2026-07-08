@@ -26,7 +26,7 @@ A mapping with no source tokens yet — just created, nothing clicked — shows 
 
 The card never touches the raw [[data-and-tokenization/mapping|`Mapping`]] state or the token arrays directly. Instead it is handed a [[data-and-tokenization/mapping#mappingview--the-display-snapshot|`MappingView`]] — a read-only snapshot built specifically for display.
 
-This separation pays off twice. The card stays simple, because it is only rendering a flat shape — a list of strings, essentially. And the *real* mapping logic — token IDs, index lookups, which mapping is active — stays entirely out of the component layer, in `Alignment` (see [[interaction-modes/link-mode]]). The card cannot accidentally corrupt the alignment, because it has nothing mutable to corrupt.
+This separation pays off twice. The card stays simple, because it is only rendering a flat shape — a list of strings, essentially. And the *real* mapping logic — token IDs, index lookups, which mapping is active — stays entirely out of the component layer, in `Alignment` (see [[tools-and-mediums/link-tool]]). The card cannot accidentally corrupt the alignment, because it has nothing mutable to corrupt.
 
 ## Sizing and color
 
@@ -38,8 +38,8 @@ Color is resolved in two steps. First the card picks the light or dark **variant
 
 The pinyin inputs are editable only when the card is active *and* the corresponding source token actually carries pinyin — that is, it is a Han character, not punctuation. Each input is a `PinyinInput.svelte`, which holds a **local edit buffer while focused**: typing `"zhi1"` is left exactly as typed and is not reformatted to `"zhī"` mid-keystroke. On blur it commits via `alignment.setPinyin(mappingId, tokenId, value)` — addressed by the token's stable ID, which the card's display snapshot already carries, so the edit can never land on the wrong character even if tokens have been reordered by a line edit in the meantime. The value is written through the [[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] — the same path the automatic fill-in uses. (A `tokenId` that no longer belongs to the mapping is a silent no-op rather than an error, fitting the method's role as a UI commit handler.)
 
-`Alignment` is the single owner of canonicalization: it runs the raw text through its converter before writing, so the input itself never has to. See [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]] for why pinyin is stored in numbered form and displayed as diacritics.
+`Alignment` is the single owner of canonicalization: it runs the raw text through its converter before writing, so the input itself never has to. See [[tools-and-mediums/link-tool#pinyin-auto-fill-and-canonical-storage]] for why pinyin is stored in numbered form and displayed as diacritics.
 
 ## Deleting a mapping
 
-The delete button appears on hover or focus and calls `alignment.deleteById(id)`. On touch devices, where a hidden-but-hittable button was a hazard, it is replaced by a swipe gesture — see [[components/mappings-list#swipe-to-delete-touch]]. The same deletion can also be triggered from the keyboard; see [[interaction-modes/keyboard-navigation#document-level-shortcuts]].
+The delete button appears on hover or focus and calls `alignment.deleteById(id)`. On touch devices, where a hidden-but-hittable button was a hazard, it is replaced by a swipe gesture — see [[components/mappings-list#swipe-to-delete-touch]]. The same deletion can also be triggered from the keyboard; see [[tools-and-mediums/mediums-and-keyboard-navigation#document-level-shortcuts]].

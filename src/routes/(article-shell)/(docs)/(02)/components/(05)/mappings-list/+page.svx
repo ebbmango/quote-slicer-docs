@@ -35,7 +35,7 @@ GSAP and Flip are lazy-loaded in `onMount` (the app prerenders statically), and 
 
 ## The re-entrancy rule the whole thing hinges on
 
-Rapidly toggling a single token — create on odd clicks, delete on even — once **froze the whole app** after about ten clicks: mode switches stopped rendering, the export went stale, yet nothing threw and the main thread wasn't pegged. Every derived value had simply stopped updating.
+Rapidly toggling a single token — create on odd clicks, delete on even — once **froze the whole app** after about ten clicks: tool switches stopped rendering, the export went stale, yet nothing threw and the main thread wasn't pegged. Every derived value had simply stopped updating.
 
 The cause was subtle. GSAP's ticker can advance **synchronously** inside `Flip.from()`, flushing an already-complete tween's `onComplete` before returning. Under overlapping deletes, that fired a previous gap-close's callback *while Svelte was mid-flush* — that is, while Svelte was still in the middle of applying one round of state updates to the page. And that callback wrote a `$state` variable. **Writing `$state` re-entrantly during an in-progress Svelte flush silently corrupts the reactive scheduler:** no error, the flush just stops committing, and everything freezes.
 

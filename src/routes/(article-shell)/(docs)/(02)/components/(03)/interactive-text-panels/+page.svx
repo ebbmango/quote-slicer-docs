@@ -1,6 +1,6 @@
 ---
 title: The Source & Target Panels
-summary: InteractiveSourceText and InteractiveTargetText — why they render one DOM tree for every mode, what each mode makes interactive, and how they hold up their end of the line-edit animation.
+summary: InteractiveSourceText and InteractiveTargetText — why they render one DOM tree for every tool, what each tool makes interactive, and how they hold up their end of the line-edit animation.
 tags:
   - components
   - tokens
@@ -10,25 +10,25 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of clickable spans the user works with in Link, Line, and View modes. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
+`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of clickable spans the user works with in Link, Line, and View tools. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
 
-## Why these panels render the same DOM in every mode
+## Why these panels render the same DOM in every tool
 
-Link mode, Line mode, and View mode all show "the tokens" — but each mode needs different things to be clickable, and the modes have to *animate into one another* smoothly (see [[interaction-modes/mode-transitions]]).
+Link tool, Line tool, and View tool all show "the tokens" — but each tool needs different things to be clickable, and the tools have to *animate into one another* smoothly (see [[tools-and-mediums/tool-transitions]]).
 
-Here is the constraint that shapes everything: a browser can only animate a change on an element that stays on the page. A freshly created element has no "previous state" to transition from — it just appears, painted directly in its final form. So if each mode rendered its own separate copy of the tokens, nothing could ever glide across a mode switch; every color and every line height would snap.
+Here is the constraint that shapes everything: a browser can only animate a change on an element that stays on the page. A freshly created element has no "previous state" to transition from — it just appears, painted directly in its final form. So if each tool rendered its own separate copy of the tokens, nothing could ever glide across a tool switch; every color and every line height would snap.
 
-So both panels render **one DOM tree, used by every mode**: a single loop over the tokens, in a single flex-wrap container. What changes between modes is *attributes on those elements*, not which elements exist — whether a token span is interactive, whether the container carries a `listbox` role, whether the split/merge controls between tokens accept clicks. That is what lets a token's highlight color, or a line gap opening up, transition smoothly as the mode changes.
+So both panels render **one DOM tree, used by every tool**: a single loop over the tokens, in a single flex-wrap container. What changes between tools is *attributes on those elements*, not which elements exist — whether a token span is interactive, whether the container carries a `listbox` role, whether the split/merge controls between tokens accept clicks. That is what lets a token's highlight color, or a line gap opening up, transition smoothly as the tool changes.
 
-Per-token color, opacity, and weight all come from one shared pure function, `tokenPresentation()`, selected for the current mode and color theme. Centralising it in one function (rather than scattering `isActive ? … : …` ternaries through the markup) is what keeps the source and target panels visually identical and makes the crossfade in [[interaction-modes/mode-transitions#the-two-transitions-that-carry-the-motion|Mode Transitions]] possible.
+Per-token color, opacity, and weight all come from one shared pure function, `tokenPresentation()`, selected for the current tool and color theme. Centralising it in one function (rather than scattering `isActive ? … : …` ternaries through the markup) is what keeps the source and target panels visually identical and makes the crossfade in [[tools-and-mediums/tool-transitions#the-two-transitions-that-carry-the-motion|Tool Transitions]] possible.
 
-## What's interactive, per mode
+## What's interactive, per tool
 
-- **Link mode** — mappable tokens become `role="option"` spans; clicking one feeds into the [[interaction-modes/link-mode|click state machine]]. The source panel additionally wires a long-press gesture, giving touch users a way to force-add a token — the equivalent of holding Cmd/Ctrl on desktop.
-- **Line mode** — the split/merge controls between tokens become active. Both panels render the same `LineDivisor` component for the affordance itself; they differ only in *which* divisor goes *where*, because the source and target token streams aren't shaped alike. See [[interaction-modes/line-mode#the-line-tool-affordances]].
-- **View mode** — nothing is clickable, and the tokens are dimmed to signal read-only. The one live interaction is the mapping highlight: hovering or tapping a mapped token lights up its whole mapping across both panels. The panels wire `onmouseenter` / tap handlers per token and `onmouseleave` on the container; the machinery behind it lives in [[interaction-modes/view-mode]].
+- **Link tool** — mappable tokens become `role="option"` spans; clicking one feeds into the [[tools-and-mediums/link-tool|click state machine]]. The source panel additionally wires a long-press gesture, giving touch users a way to force-add a token — the equivalent of holding Cmd/Ctrl on desktop.
+- **Line tool** — the split/merge controls between tokens become active. Both panels render the same `LineDivisor` component for the affordance itself; they differ only in *which* divisor goes *where*, because the source and target token streams aren't shaped alike. See [[tools-and-mediums/line-tool#the-line-tool-affordances]].
+- **View tool** — nothing is clickable, and the tokens are dimmed to signal read-only. The one live interaction is the mapping highlight: hovering or tapping a mapped token lights up its whole mapping across both panels. The panels wire `onmouseenter` / tap handlers per token and `onmouseleave` on the container; the machinery behind it lives in [[tools-and-mediums/view-tool]].
 
-Both panels also treat a bare click on empty container space as a request to deselect the active mapping — the mouse counterpart to pressing Escape (see [[interaction-modes/keyboard-navigation#document-level-shortcuts]]).
+Both panels also treat a bare click on empty container space as a request to deselect the active mapping — the mouse counterpart to pressing Escape (see [[tools-and-mediums/mediums-and-keyboard-navigation#document-level-shortcuts]]).
 
 ## Supporting the split/merge animation
 
@@ -44,6 +44,6 @@ Each panel's scrollable container is marked `data-scrollbox`, so the store can f
 
 ###### A height hand-off.
 
-While the store's animation is running (`animating === true`), the panel leaves that box's height alone — the store is actively controlling it. The rest of the time, the panel keeps the box at its natural height, so it follows whatever content changes happen between animations (including the line-gap transitions of a mode change).
+While the store's animation is running (`animating === true`), the panel leaves that box's height alone — the store is actively controlling it. The rest of the time, the panel keeps the box at its natural height, so it follows whatever content changes happen between animations (including the line-gap transitions of a tool change).
 
 The full animation mechanism lives in [[data-and-tokenization/token-store#the-line-edit-animation-splitmerge]].

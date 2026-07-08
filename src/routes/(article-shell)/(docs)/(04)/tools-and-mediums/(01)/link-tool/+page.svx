@@ -1,8 +1,8 @@
 ---
-title: Link Mode
+title: Link Tool
 summary: Where the alignment is built — the Alignment model, the click state machine that creates and edits mappings, the mapping lifecycle, canonical pinyin, and whitespace bridging.
 tags:
-  - link-mode
+  - link-tool
   - alignment
   - mappings
   - pinyin
@@ -11,7 +11,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-Link mode (`mode.current === 'link'`) is where the alignment actually gets built — the user clicks source characters and target words to bind them into colored [[data-and-tokenization/mapping|mappings]]. Click a character, click the word it means, and the two light up in the same color: that is one mapping. All of the state and logic for this lives in **`Alignment`** (`src/lib/context/alignment.svelte.ts`).
+Link tool (`tool.current === 'link'`) is where the alignment actually gets built — the user clicks source characters and target words to bind them into colored [[data-and-tokenization/mapping|mappings]]. Click a character, click the word it means, and the two light up in the same color: that is one mapping. All of the state and logic for this lives in **`Alignment`** (`src/lib/context/alignment.svelte.ts`).
 
 ## Why `Alignment` doesn't own the tokens
 
@@ -39,7 +39,7 @@ And derives, on top of those:
 - `sortedMappingViews` — the [[data-and-tokenization/mapping#mappingview--the-display-snapshot|display snapshots]] for [[components/mappings-list|the mappings list]], sorted by each mapping's first source-token position;
 - `exportData` — the [[data-and-tokenization/export|export]] shape.
 
-`Alignment` also hosts the [[interaction-modes/view-mode|view-mode highlight]], delegated to an internal `ViewHighlight` instance exposed as `alignment.highlight`.
+`Alignment` also hosts the [[tools-and-mediums/view-tool|View tool highlight]], delegated to an internal `ViewHighlight` instance exposed as `alignment.highlight`.
 
 ## The click state machine
 
@@ -47,7 +47,7 @@ Every click on a token means something, and what it means depends on what the to
 
 ### Clicking a source token — `toggleSource(i, opts)`
 
-`i` is the clicked token's current array index. `opts.force` is true when the user holds Cmd/Ctrl (mouse), presses Alt+Shift+Space (keyboard), or long-presses (mobile) — see [[interaction-modes/keyboard-navigation]].
+`i` is the clicked token's current array index. `opts.force` is true when the user holds Cmd/Ctrl (mouse), presses Alt+Shift+Space (keyboard), or long-presses (mobile) — see [[tools-and-mediums/mediums-and-keyboard-navigation]].
 
 | Token state | force | Action |
 |-------------|-------|--------|
@@ -102,4 +102,4 @@ A helper scans left and right from the whitespace token, past any other whitespa
 
 ## Keyboard scheme
 
-Link mode shares its navigation with [[interaction-modes/line-mode|Line mode]] — see [[interaction-modes/keyboard-navigation]] for the full mechanism and shortcut tables.
+Link tool shares its navigation with [[tools-and-mediums/line-tool|Line tool]] — see [[tools-and-mediums/mediums-and-keyboard-navigation]] for the full mechanism and shortcut tables.

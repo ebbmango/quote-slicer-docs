@@ -26,9 +26,9 @@ type Mapping = {
 };
 ```
 
-The most important design choice here is that a mapping stores **token IDs**, not array positions. [[interaction-modes/line-mode|Line edits]] reshuffle the token arrays — tokens move to different lines — but never insert or remove tokens, so a token's ID is stable even when its array index isn't. By storing IDs, a mapping never has to be rewritten just because the user rearranged line breaks. See [[data-and-tokenization/tokens#stable-token-ids]] for the full guarantee.
+The most important design choice here is that a mapping stores **token IDs**, not array positions. [[tools-and-mediums/line-tool|Line edits]] reshuffle the token arrays — tokens move to different lines — but never insert or remove tokens, so a token's ID is stable even when its array index isn't. By storing IDs, a mapping never has to be rewritten just because the user rearranged line breaks. See [[data-and-tokenization/tokens#stable-token-ids]] for the full guarantee.
 
-`colorIndex` is assigned once, at creation, and never changes for the life of that mapping — so its card can't suddenly change color mid-session. A new mapping takes the **lowest palette slot not currently in use**: delete a mapping and its color is freed for the next mapping you create, rather than the palette drifting ever forward through a delete-and-recreate workflow. Because the choice is computed from the current mappings at creation time, there is no separate color counter to keep consistent. See [[interaction-modes/link-mode#mapping-lifecycle]] for how mappings are created, pruned, and deleted.
+`colorIndex` is assigned once, at creation, and never changes for the life of that mapping — so its card can't suddenly change color mid-session. A new mapping takes the **lowest palette slot not currently in use**: delete a mapping and its color is freed for the next mapping you create, rather than the palette drifting ever forward through a delete-and-recreate workflow. Because the choice is computed from the current mappings at creation time, there is no separate color counter to keep consistent. See [[tools-and-mediums/link-tool#mapping-lifecycle]] for how mappings are created, pruned, and deleted.
 
 ## `MappingView` — the display snapshot
 
@@ -48,7 +48,7 @@ This separation keeps the rendering layer simple — the card just renders a fla
 A few things worth knowing about how the snapshot is built:
 
 - Each `sourceEntries` row carries **both** a `tokenId` (the stable identity) and a `tokenIndex` (the current array position). The `tokenId` is the stable key used to look up display pinyin — and the key the card's pinyin editor commits back with; the `tokenIndex` is what the card needs to address the live token.
-- `sourceEntries[].pinyin` is the **diacritic display form** (`"zhī"`), converted from the token's stored canonical pinyin (`"zhi1"`) — see [[interaction-modes/link-mode#pinyin-auto-fill-and-canonical-storage]]. Pinyin lives on the token (via the [[data-and-tokenization/token-store#the-pinyin-overlay|pinyin overlay]]), never on the mapping.
+- `sourceEntries[].pinyin` is the **diacritic display form** (`"zhī"`), converted from the token's stored canonical pinyin (`"zhi1"`) — see [[tools-and-mediums/link-tool#pinyin-auto-fill-and-canonical-storage]]. Pinyin lives on the token (via the [[data-and-tokenization/token-store#the-pinyin-overlay|pinyin overlay]]), never on the mapping.
 - `targetText` is built by stitching together contiguous runs of the mapping's target tokens into phrases — bridging short whitespace/punctuation gaps (at most `MAX_BRIDGE_GAP = 5` tokens) so they don't break a phrase apart — and joining any non-contiguous runs with `, `. This is the same "short gap" rule described in [[data-and-tokenization/target-tokenization#whitespace-strategy]].
 
 ## What gets exported

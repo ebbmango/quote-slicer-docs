@@ -9,7 +9,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-Everything the user clicks in Link or Line mode is a **token** — a character, a word, a punctuation mark, a run of whitespace. Tokenization is the step that slices the raw pasted text into those clickable pieces. This article covers *why* it works the way it does and what the two sides share; each tokenizer then gets its own article, because they solve genuinely different problems.
+Everything the user clicks in Link or Line tool is a **token** — a character, a word, a punctuation mark, a run of whitespace. Tokenization is the step that slices the raw pasted text into those clickable pieces. This article covers *why* it works the way it does and what the two sides share; each tokenizer then gets its own article, because they solve genuinely different problems.
 
 ## Why tokenization matters here
 
@@ -28,9 +28,9 @@ As its very last step, each tokenizer assigns every token a stable integer `id` 
 
 ## Lines are a property of tokens, not of the text
 
-Both tokenizers split the input on newlines and stamp each token with which line it came from — but the newlines themselves are *consumed*, never emitted as tokens. This is precisely what makes [[interaction-modes/line-mode|Line mode]] possible: splitting or merging a line is just rewriting the `.line` field on some tokens, never inserting or deleting characters from the underlying text. The text stays untouched; only the labels on the tokens change.
+Both tokenizers split the input on newlines and stamp each token with which line it came from — but the newlines themselves are *consumed*, never emitted as tokens. This is precisely what makes [[tools-and-mediums/line-tool|Line tool]] possible: splitting or merging a line is just rewriting the `.line` field on some tokens, never inserting or deleting characters from the underlying text. The text stays untouched; only the labels on the tokens change.
 
-On the target side there is one extra piece. A synthetic **boundary whitespace** token is appended between consecutive lines — but not after the last one. It has no counterpart in the real text; it exists purely as a merge affordance in Line mode, where clicking it merges the two lines it sits between. See [[data-and-tokenization/target-tokenization#line-stamping-and-the-boundary-whitespace-token]] and [[interaction-modes/line-mode#the-line-tool-affordances]].
+On the target side there is one extra piece. A synthetic **boundary whitespace** token is appended between consecutive lines — but not after the last one. It has no counterpart in the real text; it exists purely as a merge affordance in Line tool, where clicking it merges the two lines it sits between. See [[data-and-tokenization/target-tokenization#line-stamping-and-the-boundary-whitespace-token]] and [[tools-and-mediums/line-tool#the-line-tool-affordances]].
 
 ## Whitespace is a target-only concern
 

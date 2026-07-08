@@ -13,7 +13,7 @@ lastUpdated: 2026-07-03
 
 ## Why one character per token
 
-In [[interaction-modes/link-mode|Link mode]] the user maps Chinese text to its translation one character at a time: a single hanzi might correspond to a whole English word, or several hanzi might together correspond to one word. For that to work, every individually-clickable unit on the source side has to be a single character. That is the whole job of this tokenizer — split the text into characters, classify each one, and stamp it with the line it sits on.
+In [[tools-and-mediums/link-tool|Link tool]] the user maps Chinese text to its translation one character at a time: a single hanzi might correspond to a whole English word, or several hanzi might together correspond to one word. For that to work, every individually-clickable unit on the source side has to be a single character. That is the whole job of this tokenizer — split the text into characters, classify each one, and stamp it with the line it sits on.
 
 ## How it works
 
@@ -36,4 +36,4 @@ Classical Chinese punctuation belongs, semantically and typographically, to a ne
 
 To prevent that, `groupSourceTokens(tokens)` (also in `tokenize.ts`) computes a **display grouping** over the already-tokenized array. It returns `number[][]` — arrays of token *indices*, one per group — and does **not** create new tokens or touch IDs, mappings, or pinyin. Each group is a base character plus its glued punctuation, which the renderer then wraps as one non-breaking unit (`.tok-group`). The grouping is a lens over the tokens, never a change to them.
 
-Which side a mark binds to is read from the character itself via Unicode property escapes — `\p{Ps}` (opening brackets) and `\p{Pi}` (initial quotes) bind to the token that *follows*; everything else binds to the token that *precedes* — rather than from a hand-maintained list of punctuation marks. And **grouping never crosses a `.line` boundary**: a line split that lands between a character and its mark simply puts them in different groups. That invariant is what makes the [[interaction-modes/line-mode#source-panel|line-mode rule against splitting inside a group]] safe.
+Which side a mark binds to is read from the character itself via Unicode property escapes — `\p{Ps}` (opening brackets) and `\p{Pi}` (initial quotes) bind to the token that *follows*; everything else binds to the token that *precedes* — rather than from a hand-maintained list of punctuation marks. And **grouping never crosses a `.line` boundary**: a line split that lands between a character and its mark simply puts them in different groups. That invariant is what makes the [[tools-and-mediums/line-tool#source-panel|line-tool rule against splitting inside a group]] safe.
