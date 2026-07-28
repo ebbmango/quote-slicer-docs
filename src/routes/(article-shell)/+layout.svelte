@@ -107,6 +107,10 @@
 		text-decoration: none;
 	}
 
+	article :global(a:has(> code) > code) {
+		color: var(--tw-prose-code);
+	}
+
 	article :global(a:has(> code)),
 	article :global(a:has(> code) > code) {
 		transition:
@@ -117,6 +121,10 @@
 
 	article :global(a:has(> code):is(:hover, :focus-visible)) {
 		color: var(--article-link-color);
+	}
+
+	article :global(a:has(> code):is(:hover, :focus-visible) > code) {
+		color: inherit;
 	}
 
 	:global(html.theme-transitioning) article :global(a:has(> code)),
