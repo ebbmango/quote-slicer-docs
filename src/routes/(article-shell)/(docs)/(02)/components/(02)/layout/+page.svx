@@ -1,33 +1,64 @@
 ---
 title: Layout
-summary: The responsive grid — which panels are visible at each viewport, how the same two side views are routed between asides and a slide-in modal, and why the breakpoints live in JS as well as CSS.
+summary: The responsive grid — which panels are visible in each layout mode, how the same two side views are routed between asides and a slide-in modal, and why viewport facts live in JS as well as CSS.
 tags:
   - components
   - layout
   - responsive
-lastUpdated: 2026-07-03
+lastUpdated: 2026-07-28
 ---
 
 # {title}
 
-The app is a single page, but how much of it is on screen at once depends on the device. This article covers the responsive arrangement: which panels are visible, where they go, and how the same content moves between a side panel and a slide-in modal.
+The app is a single page, but how much is visible at once depends on the current viewport.
+
+This article covers the responsive arrangement: which panels are visible and when, where they go, and how the same content moves between a side panel and a slide-in modal.
 
 ## Why the layout has to flex
 
-The app has up to three things to show at once: the workbench (source + target + authorship), the list of mapping cards, and a live JSON preview. On a desktop monitor all three sit side by side comfortably. On a phone, showing all three would leave no room for the text the user is actually editing.
+The app has up to three things to display at once:
 
-So the layout doesn't try to cram everything in everywhere. Instead, the **same two side views** — mapping cards and JSON export — get routed to different homes depending on how much horizontal space is available:
+- the quote workbench,
+- the list of mapping cards,
+- the live JSON preview.
 
-| Viewport | What's visible | Side content lives in |
-|---|---|---|
-| Phone (default) | workbench only | a slide-in **modal**, opened from the toolbar |
-| Tall tablet portrait | workbench + one side panel | that panel, toggled from the toolbar |
-| Medium width (≥900px) | one side panel + workbench | that panel, toggled from the toolbar |
-| Desktop (≥1200px) | side panel + workbench + side panel | both panels at once, no toggle needed |
+On a desktop monitor all three sit side by side comfortably. On a mobile phone, all three cannot possibly fit the same screen at once.
 
-Normally, responsive layouts are handled by CSS alone. Here the breakpoints are *also* mirrored in JavaScript, by `BreakpointContext`, because some components need to *branch* on viewport size rather than merely restyle — deciding whether a panel even exists to render into, say, or whether the modal must force-close. The context exposes `wide`, `belowMedium`, and `tabletPortrait`, plus the derived **`minimal = belowMedium && !tabletPortrait`** — the one case with no aside to host the side content, where the modal takes over.
+Instead, the **two side views** — mapping cards and JSON export — get routed to different homes according to one of four layout modes:
 
-> Those thresholds are encoded in three places that must stay in step: the `matchMedia` queries in `BreakpointContext`, the `@media` blocks in [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte), and the `@media` blocks in `ToolToolbar`. Change one and you must change all three.
+| Layout mode | What's visible                   | Side content lives in                         |
+| ----------- | -------------------------------- | --------------------------------------------- |
+| `mini`      | workbench only                   | a slide-in **modal**, opened from the toolbar |
+| `stacked`   | workbench above a bottom panel   | bottom panel, toggled from the toolbar        |
+| `single`    | side panel beside the workbench  | side panel, toggled from the toolbar          |
+| `dual`      | workbench between two side panels | both panels at once, no toggle needed         |
+
+Normally, responsive layouts are handled by CSS alone.
+
+However, because some components need to _branch_ on viewport size rather than merely restyle, here **the media-query facts are also mirrored in JavaScript.**
+
+`BreakpointContext` keeps those facts separate from the layout decision:
+
+| Viewport fact          | Media query                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| `isWide`               | `(min-width: 1200px)`                                                                  |
+| `isNarrow`             | `(max-width: 899px)`                                                                   |
+| `isTallNarrowPortrait` | `(orientation: portrait) and (min-height: 1000px) and (max-width: 899px)`               |
+
+These booleans describe what the viewport matches; none of them names a complete layout. The derived `layoutMode` combines them:
+
+| `layoutMode` | Derivation                                  |
+| ------------ | ------------------------------------------- |
+| `dual`       | `isWide`                                    |
+| `single`     | neither `isWide` nor `isNarrow` (900–1199px) |
+| `stacked`    | `isNarrow && isTallNarrowPortrait`          |
+| `mini`       | `isNarrow && !isTallNarrowPortrait`         |
+
+The components branch on `layoutMode`, not on an individual width threshold. For example, `mini` is the one layout with no aside to host the side content, so the modal takes over. `ToolToolbar` uses the same decision to show a modal toggle in `mini`, an aside toggle in `single` and `stacked`, and no toggle in `dual`.
+
+> The three `matchMedia` queries in `BreakpointContext` must stay in step with the layout `@media` blocks in [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte). The tall-narrow-portrait predicate is also repeated by the `tablet` custom variant in [`layout.css`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/layout.css) for the mappings grid. `ToolToolbar` does not encode viewport thresholds itself; it consumes `layoutMode`.
+
+The separate `modal-wide` custom variant, from 600px through 899px, only changes the mappings grid inside its available surface. It is a component-level breakpoint, not an input to `layoutMode`.
 
 ## The shared rendering surface
 
@@ -36,16 +67,16 @@ Both side panels show the same two possible views — the [[components/mappings-
 Because exactly one place decides "maps or json, faded how", the three homes for that content can never visually drift apart.
 
 - The **right panel**, when visible (desktop only), always shows the JSON export.
-- The **left panel** shows the mapping cards by default, but can be toggled to show the JSON export — except on the smallest screens, where it renders nothing at all and the **modal** takes over instead. That way the same content never exists in two places at once.
+- The **left panel** shows the mapping cards by default, but can be toggled to show the JSON export — except in the `mini` layout, where it renders nothing at all and the **modal** takes over instead. That way the same content never exists in two places at once.
 
 ## The data modal
 
-On phones, the toggle in the toolbar opens `DataModal` — a panel that slides in **over** the workbench rather than beside it. A few details keep it feeling native rather than jarring:
+In the `mini` layout, the toggle in the toolbar opens `DataModal` — a panel that slides in **over** the workbench rather than beside it. A few details keep it feeling native rather than jarring:
 
 - Opening the modal pushes a browser history entry (via SvelteKit's router, deliberately, rather than raw `history.*`), so the device's back button closes it — the gesture a user expects for any overlay. A `popstate` listener closes the modal on back-nav without itself popping again, so a back-close can't double-unwind.
-- Switching between "maps" and "json" while the modal is already open does **not** replay the slide-in. Calling open again just reassigns the view and returns early; only the content swaps. The two views fly in from opposite edges — maps from the left, json from the right — so the direction itself hints at which view you are looking at. (Svelte reads transition params only at the *start* of a transition, which is exactly why swapping mid-open never re-animates.)
-- If the viewport grows past the phone breakpoint while the modal is open — rotating a tablet, resizing a window — an `$effect` force-closes it **instantly**, with a `forceClose` flag driving the exit duration to `0`. The aside the content belongs in has just become available, so the modal steps out of the way without ceremony.
+- Switching between "maps" and "json" while the modal is already open does **not** replay the slide-in. Calling open again just reassigns the view and returns early; only the content swaps. The two views fly in from opposite edges — maps from the left, json from the right — so the direction itself hints at which view you are looking at. (Svelte reads transition params only at the _start_ of a transition, which is exactly why swapping mid-open never re-animates.)
+- If the viewport leaves the `mini` layout while the modal is open — rotating a tablet, resizing a window — an `$effect` force-closes it **instantly**, with a `forceClose` flag driving the exit duration to `0`. The aside the content belongs in has just become available, so the modal steps out of the way without ceremony.
 
 ## Side panels and Text tool
 
-In [[overview#the-four-tools|the Text tool]] there is nothing to show in the side panels yet — no tokens, no mappings. So they are collapsed to zero width and slid off-screen. The moment the user advances past Text tool (see [[tools-and-mediums/tool-transitions#the-arrow-launch-text--link|the arrow launch]]), the grid columns, gaps, opacity, and panel positions animate back to their resting state together, over half a second. Which columns exist at all — that is, how many panels there is room for — is decided by the breakpoint table above.
+In [[overview#the-four-tools|the Text tool]] there is nothing to show in the side panels yet — no tokens, no mappings. So they are collapsed to zero width and slid off-screen. The moment the user advances past Text tool (see [[tools-and-mediums/tool-transitions#the-arrow-launch-text--link|the arrow launch]]), the grid columns, gaps, opacity, and panel positions animate back to their resting state together, over half a second. Which columns exist at all — that is, how many panels there is room for — is decided by `layoutMode`.

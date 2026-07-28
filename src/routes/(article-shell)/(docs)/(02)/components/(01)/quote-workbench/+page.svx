@@ -5,7 +5,7 @@ tags:
   - components
   - architecture
   - contexts
-lastUpdated: 2026-07-03
+lastUpdated: 2026-07-28
 ---
 
 # {title}
@@ -34,7 +34,7 @@ That place is [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/mai
 | Context                                                | Owns                                                 | Read via               |
 | ------------------------------------------------------ | ---------------------------------------------------- | ---------------------- |
 | `ToolContext`                                          | the current tool (`text` / `link` / `line` / `view`) | `getToolContext`       |
-| `BreakpointContext`                                    | the current viewport breakpoint                      | `getBreakpointContext` |
+| `BreakpointContext`                                    | viewport facts and the derived layout mode           | `getBreakpointContext` |
 | the [[data-and-tokenization/token-store\|token store]] | the source/target token arrays                       | `getTokenStoreContext` |
 | `Alignment`                                            | the mappings, the active mapping, click handling     | `getAlignmentContext`  |
 

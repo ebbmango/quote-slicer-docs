@@ -4,7 +4,7 @@ summary: How the workbench animates between tools — the arrow launch out of th
 tags:
   - tool-transitions
   - animation
-lastUpdated: 2026-07-03
+lastUpdated: 2026-07-28
 ---
 
 # {title}
@@ -52,4 +52,4 @@ The resolution is simple: whenever the store's animation isn't running, the pane
 
 ## The sidebar slide (leaving Text tool)
 
-The outer page layout animates the side panels in as the user leaves Text tool. In Text tool the side panels are translated fully off-screen and their grid columns collapsed to zero width; the moment the tool changes, the grid columns, gaps, panel opacity, and panel position all animate back to their resting positions together, over half a second. Which columns exist at all — that is, how many side panels there is room for — depends on the viewport breakpoint; see [[components/layout]]. Like the other transitions on this page, this one is disabled under `prefers-reduced-motion`.
+The outer page layout animates the side panels in as the user leaves Text tool. In Text tool the side panels are translated fully off-screen and their grid columns collapsed to zero width; the moment the tool changes, the grid columns, gaps, panel opacity, and panel position all animate back to their resting positions together, over half a second. Which columns exist at all — that is, how many side panels there is room for — depends on the derived `layoutMode`; see [[components/layout]]. Like the other transitions on this page, this one is disabled under `prefers-reduced-motion`.
