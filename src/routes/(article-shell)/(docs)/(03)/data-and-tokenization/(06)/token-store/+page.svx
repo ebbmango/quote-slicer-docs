@@ -11,7 +11,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-`src/lib/context/tokenStore.svelte.ts` is the single owner of the source and target token arrays. [[components/quote-workbench|The Workbench]] introduced it in passing; this article covers the store in full, including how its line-edit animation actually works.
+[`src/lib/context/tokenStore.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/tokenStore.svelte.ts) is the single owner of the source and target token arrays. [[components/quote-workbench|The Workbench]] introduced it in passing; this article covers the store in full, including how its line-edit animation actually works.
 
 ## Why it exists
 

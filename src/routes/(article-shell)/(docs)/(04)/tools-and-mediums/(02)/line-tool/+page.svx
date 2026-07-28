@@ -14,7 +14,7 @@ Line tool (`tool.current === 'line'`) lets the user adjust where line breaks fal
 
 ## The core operations
 
-Two pure functions in `src/lib/line.ts` do all the work. Both are generic over any token type with a `.line` field (`T extends { line: number }`), so the same functions serve both source and target tokens, and they are trivially unit-testable since they take and return plain arrays.
+Two pure functions in [`src/lib/line.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/line.ts) do all the work. Both are generic over any token type with a `.line` field (`T extends { line: number }`), so the same functions serve both source and target tokens, and they are trivially unit-testable since they take and return plain arrays.
 
 - **`splitAfterToken(tokens, afterIndex)`** — inserts a line break right after `tokens[afterIndex]`. Tokens on earlier lines are untouched; tokens at or before the split point on the split line stay there; tokens after it move to a new line; everything on later lines shifts down by one to make room.
 - **`mergeLines(tokens, lineN)`** — merges line `lineN + 1` back into line `lineN`. Tokens from the merged-in line move up to `lineN`; everything below shifts up to close the gap.

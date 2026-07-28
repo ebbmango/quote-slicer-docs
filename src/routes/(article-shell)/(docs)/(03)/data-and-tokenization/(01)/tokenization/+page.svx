@@ -20,7 +20,7 @@ The two sides need different strategies, because Chinese and English work differ
 - **Source (Chinese)** — the user maps one character at a time, so [[data-and-tokenization/source-tokenization|the source tokenizer]] produces one token per character. (Chinese has no spaces between words, and a single character can carry a word's worth of meaning.)
 - **Target (English)** — the user maps whole words, so [[data-and-tokenization/target-tokenization|the target tokenizer]] has to decide where words begin and end, and what to do with the punctuation around them.
 
-Both tokenizers live in `src/lib/tokenize.ts` and both produce flat arrays of [[data-and-tokenization/tokens|tokens]].
+Both tokenizers live in [`src/lib/tokenize.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/tokenize.ts) and both produce flat arrays of [[data-and-tokenization/tokens|tokens]].
 
 ## Stable IDs, assigned once
 

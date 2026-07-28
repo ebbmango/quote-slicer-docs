@@ -10,7 +10,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-`tokenizeTarget(text: string): TargetToken[]` — in `src/lib/tokenize.ts` — turns the English translation into an array of [[data-and-tokenization/tokens|target tokens]] (`TargetToken[]`).
+`tokenizeTarget(text: string): TargetToken[]` — in [`src/lib/tokenize.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/tokenize.ts) — turns the English translation into an array of [[data-and-tokenization/tokens|target tokens]] (`TargetToken[]`).
 
 ## Why this is the hard tokenizer
 
@@ -40,7 +40,7 @@ There's nothing "simple" in programming.
 - **Standalone punctuation** with no adjacent word is its own token: `...`, or an em-dash between words (`word—word` → `[word][—][word]`).
 - **Han characters in target text** stay single-character tokens, same as the source side; adjacent punctuation stays standalone (`你好!` → `[你][好][!]`).
 
-The interior-versus-flanking distinction is enforced by lookbehind / lookahead assertions (`(?<![A-Za-z0-9])` / `(?![A-Za-z0-9])`) around word characters, and the whole behavior is pinned down by an extensive set of cases in `src/lib/tokenize.spec.ts`, right beside the tokenizer itself.
+The interior-versus-flanking distinction is enforced by lookbehind / lookahead assertions (`(?<![A-Za-z0-9])` / `(?![A-Za-z0-9])`) around word characters, and the whole behavior is pinned down by an extensive set of cases in [`src/lib/tokenize.spec.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/tokenize.spec.ts), right beside the tokenizer itself.
 
 > **History:** earlier versions had two separate target tokenizers — `tokenizeTargetSeparate` and `tokenizeTargetCombined` — for two slightly different needs. They were consolidated into this single `tokenizeTarget` so the rest of the app only ever has to reason about one shape of `TargetToken[]`.
 

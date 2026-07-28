@@ -27,7 +27,7 @@ So the layout doesn't try to cram everything in everywhere. Instead, the **same 
 
 Normally, responsive layouts are handled by CSS alone. Here the breakpoints are *also* mirrored in JavaScript, by `BreakpointContext`, because some components need to *branch* on viewport size rather than merely restyle — deciding whether a panel even exists to render into, say, or whether the modal must force-close. The context exposes `wide`, `belowMedium`, and `tabletPortrait`, plus the derived **`minimal = belowMedium && !tabletPortrait`** — the one case with no aside to host the side content, where the modal takes over.
 
-> Those thresholds are encoded in three places that must stay in step: the `matchMedia` queries in `BreakpointContext`, the `@media` blocks in `+page.svelte`, and the `@media` blocks in `ToolToolbar`. Change one and you must change all three.
+> Those thresholds are encoded in three places that must stay in step: the `matchMedia` queries in `BreakpointContext`, the `@media` blocks in [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte), and the `@media` blocks in `ToolToolbar`. Change one and you must change all three.
 
 ## The shared rendering surface
 

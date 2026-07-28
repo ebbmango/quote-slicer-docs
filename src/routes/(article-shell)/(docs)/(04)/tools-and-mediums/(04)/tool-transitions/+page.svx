@@ -13,7 +13,7 @@ This article is about *motion* — how the workbench animates as the user moves 
 
 ## The arrow launch (Text → Link)
 
-In Text tool, the only control is a downward arrow. Clicking it does not switch tools immediately — instead it plays a deliberate animation beat first, owned by `+page.svelte`:
+In Text tool, the only control is a downward arrow. Clicking it does not switch tools immediately — instead it plays a deliberate animation beat first, owned by [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte):
 
 1. the arrow *anticipates* upward with a slight `scaleY` stretch, holds a beat, then accelerates hard downward and fades — like a loosed arrow;
 2. after the animation has had time to read (450 ms), if the text fields are empty they are seeded with placeholder text, and *then* the tool actually switches to Link — so the shot finishes before the tools panel fades in.

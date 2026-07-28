@@ -11,11 +11,11 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-Link tool (`tool.current === 'link'`) is where the alignment actually gets built — the user clicks source characters and target words to bind them into colored [[data-and-tokenization/mapping|mappings]]. Click a character, click the word it means, and the two light up in the same color: that is one mapping. All of the state and logic for this lives in **`Alignment`** (`src/lib/context/alignment.svelte.ts`).
+Link tool (`tool.current === 'link'`) is where the alignment actually gets built — the user clicks source characters and target words to bind them into colored [[data-and-tokenization/mapping|mappings]]. Click a character, click the word it means, and the two light up in the same color: that is one mapping. All of the state and logic for this lives in **`Alignment`** ([`src/lib/context/alignment.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/alignment.svelte.ts)).
 
 ## Why `Alignment` doesn't own the tokens
 
-`Alignment` is a Svelte 5 class, created once in `+page.svelte` and read anywhere via `getAlignmentContext()`. Deliberately, it is **not** the owner of the token arrays — the [[data-and-tokenization/token-store|token store]] is. `Alignment` is handed the store (as a narrowed `TokenAccess`) and *derives* its token views from it, keyed by the current text:
+`Alignment` is a Svelte 5 class, created once in [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte) and read anywhere via `getAlignmentContext()`. Deliberately, it is **not** the owner of the token arrays — the [[data-and-tokenization/token-store|token store]] is. `Alignment` is handed the store (as a narrowed `TokenAccess`) and *derives* its token views from it, keyed by the current text:
 
 ```ts
 private sourceTokens = $derived.by(() => this.store.sourceTokens(this.meta.sourceText));
@@ -90,9 +90,9 @@ Pinyin is **stored in canonical numbered form** (`"zhi1"`) and **displayed as di
 
 When a source `'character'` token joins a mapping, its pinyin is looked up automatically and written into the [[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] — never onto the mapping itself. Only `'character'` tokens get pinyin; anything else gets an empty string. Removing a token from a mapping clears its pinyin the same way.
 
-The user can override the auto-filled value directly in [[components/mapping-component|the mapping card]]'s `PinyinInput`. `Alignment` is the single owner of canonicalization: it runs the raw input through `toCanonical()` (from `pinyinConvert.ts`) before writing to the store, and derives the diacritic form via `toDisplay()` only for display. The UI never canonicalizes.
+The user can override the auto-filled value directly in [[components/mapping-component|the mapping card]]'s `PinyinInput`. `Alignment` is the single owner of canonicalization: it runs the raw input through `toCanonical()` (from [`pinyinConvert.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/pinyinConvert.ts)) before writing to the store, and derives the diacritic form via `toDisplay()` only for display. The UI never canonicalizes.
 
-> `pinyinConvert.ts` carries a table of valid toneless Mandarin syllables. It is there to tell toneless pinyin (`"zhi"`, which gets a neutral tone) apart from a free-text annotation note (`"river"`, stored as-is) — so unparseable input survives as a literal note rather than being mangled. Blank input clears the annotation entirely, so the export omits the field rather than storing `""`.
+> [`pinyinConvert.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/pinyinConvert.ts) carries a table of valid toneless Mandarin syllables. It is there to tell toneless pinyin (`"zhi"`, which gets a neutral tone) apart from a free-text annotation note (`"river"`, stored as-is) — so unparseable input survives as a literal note rather than being mangled. Blank input clears the annotation entirely, so the export omits the field rather than storing `""`.
 
 ## Whitespace bridging
 

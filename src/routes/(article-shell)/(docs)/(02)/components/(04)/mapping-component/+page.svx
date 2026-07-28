@@ -10,7 +10,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-`Mapping.svelte` renders one card in the [[components/mappings-list|mappings list]] — the visual representation of a single [[data-and-tokenization/mapping|mapping]]. Every link the user builds gets a card like this: the Chinese characters on one side, their pronunciation in the middle, and the card's place in the list on the right.
+[`Mapping.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/Mapping.svelte) renders one card in the [[components/mappings-list|mappings list]] — the visual representation of a single [[data-and-tokenization/mapping|mapping]]. Every link the user builds gets a card like this: the Chinese characters on one side, their pronunciation in the middle, and the card's place in the list on the right.
 
 ## What's on a card
 
@@ -36,7 +36,7 @@ Color is resolved in two steps. First the card picks the light or dark **variant
 
 ## Editing pinyin
 
-The pinyin inputs are editable only when the card is active *and* the corresponding source token actually carries pinyin — that is, it is a Han character, not punctuation. Each input is a `PinyinInput.svelte`, which holds a **local edit buffer while focused**: typing `"zhi1"` is left exactly as typed and is not reformatted to `"zhī"` mid-keystroke. On blur it commits via `alignment.setPinyin(mappingId, tokenId, value)` — addressed by the token's stable ID, which the card's display snapshot already carries, so the edit can never land on the wrong character even if tokens have been reordered by a line edit in the meantime. The value is written through the [[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] — the same path the automatic fill-in uses. (A `tokenId` that no longer belongs to the mapping is a silent no-op rather than an error, fitting the method's role as a UI commit handler.)
+The pinyin inputs are editable only when the card is active *and* the corresponding source token actually carries pinyin — that is, it is a Han character, not punctuation. Each input is a [`PinyinInput.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/PinyinInput.svelte), which holds a **local edit buffer while focused**: typing `"zhi1"` is left exactly as typed and is not reformatted to `"zhī"` mid-keystroke. On blur it commits via `alignment.setPinyin(mappingId, tokenId, value)` — addressed by the token's stable ID, which the card's display snapshot already carries, so the edit can never land on the wrong character even if tokens have been reordered by a line edit in the meantime. The value is written through the [[data-and-tokenization/token-store#the-pinyin-overlay|token store's pinyin overlay]] — the same path the automatic fill-in uses. (A `tokenId` that no longer belongs to the mapping is a silent no-op rather than an error, fitting the method's role as a UI commit handler.)
 
 `Alignment` is the single owner of canonicalization: it runs the raw text through its converter before writing, so the input itself never has to. See [[tools-and-mediums/link-tool#pinyin-auto-fill-and-canonical-storage]] for why pinyin is stored in numbered form and displayed as diacritics.
 

@@ -18,7 +18,7 @@ The token workspace is a flex-wrapped grid of spans whose visual rows don't line
 
 ## The navigator
 
-`createTokenGridNav()` (in `src/lib/navigation/tokenGridNav.ts`) returns one navigator, which [[components/quote-workbench|`QuoteWorkbench`]] wires to the `role="grid"` container. A single instance serves both tools, because its configuration is a set of getters and callbacks re-evaluated on every keystroke:
+`createTokenGridNav()` (in [`src/lib/navigation/tokenGridNav.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/navigation/tokenGridNav.ts)) returns one navigator, which [[components/quote-workbench|`QuoteWorkbench`]] wires to the `role="grid"` container. A single instance serves both tools, because its configuration is a set of getters and callbacks re-evaluated on every keystroke:
 
 | Config | Link tool | Line tool |
 |--------------|-----------|-----------|
@@ -45,7 +45,7 @@ The navigator remembers the last-focused element per zone, so jumping away and b
 
 ### Visual-neighbour math
 
-"Which element is on the row above/below, closest horizontally" is its own pure function, `pickVisualNeighbor()` in `src/lib/navigation/visualNeighbor.ts`. It operates on plain `{ top, bottom, left, width }` rectangles — no DOM at all — so it is unit-tested directly, independent of the navigator that feeds it real `getBoundingClientRect()` values.
+"Which element is on the row above/below, closest horizontally" is its own pure function, `pickVisualNeighbor()` in [`src/lib/navigation/visualNeighbor.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/navigation/visualNeighbor.ts). It operates on plain `{ top, bottom, left, width }` rectangles — no DOM at all — so it is unit-tested directly, independent of the navigator that feeds it real `getBoundingClientRect()` values.
 
 ### Restoring focus after a line edit
 
@@ -53,11 +53,11 @@ A keyboard split or merge in Line tool re-renders the activated divisor *away* �
 
 ### The grid DOM contract
 
-The navigator does not hand-write selector strings like `[data-zone="source"]`. Those selectors, builders, and dataset accessors are centralized in `src/lib/navigation/gridDom.ts` — the single source of truth for the token grid's DOM contract — and imported by every reader (this navigator, the hover-spread logic, the token store's animation, and the document-level shortcuts). So renaming an attribute means touching the component templates that write it plus this one module, rather than hunting down five separate readers.
+The navigator does not hand-write selector strings like `[data-zone="source"]`. Those selectors, builders, and dataset accessors are centralized in [`src/lib/navigation/gridDom.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/navigation/gridDom.ts) — the single source of truth for the token grid's DOM contract — and imported by every reader (this navigator, the hover-spread logic, the token store's animation, and the document-level shortcuts). So renaming an attribute means touching the component templates that write it plus this one module, rather than hunting down five separate readers.
 
 ## The interaction-medium sensor
 
-`src/lib/context/interactionMedium.svelte.ts`.
+[`src/lib/context/interactionMedium.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/interactionMedium.svelte.ts).
 
 ### Why it's needed
 
@@ -65,7 +65,7 @@ Line tool's split/merge controls reveal themselves through different affordances
 
 ### How it works
 
-A global `$state` singleton tracks the interaction medium most recently used: `'mouse' | 'keyboard' | 'touch'`. `initInteractionMediumTracking()` — called once from `+layout.svelte` — listens for pointer and keyboard input: mouse movement sets `'mouse'`, touch input sets `'touch'`, and a `Tab` keydown sets `'keyboard'`. **Last medium wins, and only Tab flips to keyboard** — other keys are ignored, so using arrow-key navigation while the mouse sits idle doesn't cause flicker.
+A global `$state` singleton tracks the interaction medium most recently used: `'mouse' | 'keyboard' | 'touch'`. `initInteractionMediumTracking()` — called once from [`+layout.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Blayout.svelte) — listens for pointer and keyboard input: mouse movement sets `'mouse'`, touch input sets `'touch'`, and a `Tab` keydown sets `'keyboard'`. **Last medium wins, and only Tab flips to keyboard** — other keys are ignored, so using arrow-key navigation while the mouse sits idle doesn't cause flicker.
 
 On every change, the singleton also writes the current medium onto a `data-` attribute on the root `<html>` element, so plain CSS can gate hover, focus, and touch affordances without any component needing to import the singleton at all.
 
@@ -73,7 +73,7 @@ On every change, the singleton also writes the current medium onto a `data-` att
 
 ## Document-level shortcuts
 
-`initAlignmentShortcuts(alignment)` (in `src/lib/actions/globalShortcuts.ts`) is called once from `+page.svelte`'s `onMount`. It attaches two document listeners:
+`initAlignmentShortcuts(alignment)` (in [`src/lib/actions/globalShortcuts.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/actions/globalShortcuts.ts)) is called once from [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte)'s `onMount`. It attaches two document listeners:
 
 - **Delete / Backspace** deletes a mapping. It targets whichever mapping card is currently focused, falling back to the *active* mapping if none is — so pressing Backspace works immediately after creating a mapping, before the user has tabbed to its card. It bails while focus is in a text input, so editing pinyin never deletes a mapping.
 - **Click anywhere** deselects the active mapping, unless the click landed inside a mapping card or one of the token panels (matched by the shared panel selector from `gridDom`). This is the mouse half of click-outside-to-deselect; Escape, via the navigator above, is the keyboard half.

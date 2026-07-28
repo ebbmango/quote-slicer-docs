@@ -14,7 +14,7 @@ This article defines the shapes the rest of the app is built on: what a token *i
 
 ## What a token is
 
-A token is the smallest selectable unit of text — one character on the source side; one word, punctuation run, or whitespace run on the target side. Both are defined in `src/lib/tokenize.ts`:
+A token is the smallest selectable unit of text — one character on the source side; one word, punctuation run, or whitespace run on the target side. Both are defined in [`src/lib/tokenize.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/tokenize.ts):
 
 ```ts
 type SourceToken = {
@@ -64,12 +64,12 @@ type TokenState =
   | { kind: 'active'; color: string }; // in the currently selected mapping
 ```
 
-It is produced by `deriveSourceTokenState()` / `deriveTargetTokenState()` in `src/lib/tokenState.ts`. Both take an *index → owning `Mapping`* lookup, the active mapping ID, and a `theme` of `'light'` or `'dark'` (which selects the light or dark color variant); the target version additionally takes the target token array so it can apply [[tools-and-mediums/link-tool#whitespace-bridging|whitespace bridging]]. The lookup itself is built once by a pure `buildMappingIndex()` helper that stores the actual `Mapping` object per index — so bridging can compare mappings by identity, and no per-token `find()` scan is needed.
+It is produced by `deriveSourceTokenState()` / `deriveTargetTokenState()` in [`src/lib/tokenState.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/tokenState.ts). Both take an *index → owning `Mapping`* lookup, the active mapping ID, and a `theme` of `'light'` or `'dark'` (which selects the light or dark color variant); the target version additionally takes the target token array so it can apply [[tools-and-mediums/link-tool#whitespace-bridging|whitespace bridging]]. The lookup itself is built once by a pure `buildMappingIndex()` helper that stores the actual `Mapping` object per index — so bridging can compare mappings by identity, and no per-token `find()` scan is needed.
 
 Crucially, these functions take no Svelte state directly. They are framework-free — plain functions in, plain values out — and unit-tested on their own.
 
 ## Colors
 
-The palette lives in `src/lib/constants/colors.ts`: `MAPPING_COLORS` is an array of nine named color sets (`applesour`, `lush`, `seabreeze`, `azure`, `compostella`, `sugar`, `strawberry`, `maple`, `beeswax`). Each entry is a `{ light, dark }` pair of **variants**, and each variant holds the token highlight colors plus a full set of card colors used by [[components/mapping-component|the mapping card]]. The light/dark split lives in the data — not purely in CSS — because the card colors are applied as inline `style` attributes that a `.dark` class can't reach.
+The palette lives in [`src/lib/constants/colors.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/constants/colors.ts): `MAPPING_COLORS` is an array of nine named color sets (`applesour`, `lush`, `seabreeze`, `azure`, `compostella`, `sugar`, `strawberry`, `maple`, `beeswax`). Each entry is a `{ light, dark }` pair of **variants**, and each variant holds the token highlight colors plus a full set of card colors used by [[components/mapping-component|the mapping card]]. The light/dark split lives in the data — not purely in CSS — because the card colors are applied as inline `style` attributes that a `.dark` class can't reach.
 
 A mapping's `colorIndex` (see [[data-and-tokenization/mapping]]) indexes this array modulo its length, so the palette cycles once there are more than nine mappings on screen at once. A second, name-keyed `colors` lookup is also exported for code that needs a *specific* entry rather than "the Nth one" — e.g. `colors.azure.light.base`, used by [[data-and-tokenization/export#recoloring-shiki-to-the-app-palette|the export recolor]]. The module also exports `HIGHLIGHT_COLOR`, the single flat red used by the [[tools-and-mediums/view-tool|view-tool highlight]].

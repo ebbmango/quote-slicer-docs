@@ -31,7 +31,7 @@ Two deliberate transforms happen on the way out:
 
 ## The formatter — `formatExport()`
 
-A recursive pretty-printer (`formatJson`, in `src/lib/exportFormat.ts`) produces output that is *almost* standard `JSON.stringify(v, null, 2)`, with two differences chosen to make this specific shape of data more readable:
+A recursive pretty-printer (`formatJson`, in [`src/lib/exportFormat.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/exportFormat.ts)) produces output that is *almost* standard `JSON.stringify(v, null, 2)`, with two differences chosen to make this specific shape of data more readable:
 
 1. **Arrays of primitives stay on one line** — `"sourceTokenIds": [0, 1]` rather than one element per line, so ID lists don't dominate the output vertically.
 2. **Arrays of token objects render as a column-aligned table.** A token is recognised by its shape (`id`, `text`, `line`, `type`, all primitive-valued), and each field is padded to the widest value across the array, so the same field lands in the same column on every row:
@@ -45,11 +45,11 @@ A recursive pretty-printer (`formatJson`, in `src/lib/exportFormat.ts`) produces
 
 `undefined` values render as the literal text `undefined` — not valid JSON, but intentional: it makes an un-annotated source character's pinyin visible in the export rather than silently absent. See [[data-and-tokenization/tokens#why-pinyin-has-three-states]].
 
-This formatter has no component dependencies, so its rules — one-lining primitives, the literal `undefined`, column alignment and omission — are unit-tested directly in `exportFormat.spec.ts`.
+This formatter has no component dependencies, so its rules — one-lining primitives, the literal `undefined`, column alignment and omission — are unit-tested directly in [`exportFormat.spec.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/exportFormat.spec.ts).
 
 ## The panel — `JsonExportPanel` + `HighlightedCode`
 
-`JsonExportPanel.svelte` derives `formatExport(alignment.exportData)` and feeds it to `HighlightedCode.svelte`, a generic syntax highlighter built on Shiki (the same highlighting engine VS Code uses).
+[`JsonExportPanel.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/JsonExportPanel.svelte) derives `formatExport(alignment.exportData)` and feeds it to [`HighlightedCode.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/HighlightedCode.svelte), a generic syntax highlighter built on Shiki (the same highlighting engine VS Code uses).
 
 ### Recoloring Shiki to the app palette
 

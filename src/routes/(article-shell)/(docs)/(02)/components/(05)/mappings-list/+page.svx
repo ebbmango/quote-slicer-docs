@@ -11,7 +11,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-`MappingsList.svelte` is the list of [[components/mapping-component|mapping cards]] — one of the two views that can appear in either side panel or the data modal (see [[components/layout]]). It is also where all the card *animation* lives; `Mapping.svelte` itself stays free of GSAP (the animation library the app uses for its heavier motion work).
+[`MappingsList.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/MappingsList.svelte) is the list of [[components/mapping-component|mapping cards]] — one of the two views that can appear in either side panel or the data modal (see [[components/layout]]). It is also where all the card *animation* lives; [`Mapping.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/Mapping.svelte) itself stays free of GSAP (the animation library the app uses for its heavier motion work).
 
 ## What it does beyond rendering cards
 

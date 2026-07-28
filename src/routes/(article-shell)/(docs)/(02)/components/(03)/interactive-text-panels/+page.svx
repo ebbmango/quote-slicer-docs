@@ -10,7 +10,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-`InteractiveSourceText.svelte` and `InteractiveTargetText.svelte` render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of clickable spans the user works with in Link, Line, and View tools. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
+[`InteractiveSourceText.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/InteractiveSourceText.svelte) and [`InteractiveTargetText.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/InteractiveTargetText.svelte) render the source and target [[data-and-tokenization/tokens|tokens]] as the grids of clickable spans the user works with in Link, Line, and View tools. They are a matched pair — built the same way, for the same reasons — so this article covers both together.
 
 ## Why these panels render the same DOM in every tool
 

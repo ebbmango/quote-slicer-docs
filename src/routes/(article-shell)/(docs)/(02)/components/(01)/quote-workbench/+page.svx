@@ -10,7 +10,7 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-Everything you see in Quote Slicer lives under one root component, `+page.svelte`, and its centerpiece, `QuoteWorkbench.svelte`. Think of this article as the map: what each piece is responsible for, and how they are wired together. The *behavior* inside each piece — how the Link tool works, how the Line tool works, how the tools animate into one another — is covered in its own article and linked from here.
+Everything you see in Quote Slicer lives under one root component, [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte), and its centerpiece, [`QuoteWorkbench.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/QuoteWorkbench.svelte). Think of this article as the map: what each piece is responsible for, and how they are wired together. The *behavior* inside each piece — how the Link tool works, how the Line tool works, how the tools animate into one another — is covered in its own article and linked from here.
 
 ## Why one root, one workbench
 
@@ -23,7 +23,7 @@ For that to work, the app needs one place that:
 - knows the current viewport size (to decide the [[components/layout|layout]]), and
 - owns the token data and the mapping data.
 
-That place is `+page.svelte`. It sets up four **contexts** — shared objects any component in the tree can read without props being passed down hand to hand — once, at the root:
+That place is [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte). It sets up four **contexts** — shared objects any component in the tree can read without props being passed down hand to hand — once, at the root:
 
 <!-- src/routes/+page.svelte -->
 
@@ -36,13 +36,13 @@ That place is `+page.svelte`. It sets up four **contexts** — shared objects an
 
 The order matters. `Alignment`'s constructor *takes* the token store, so the store has to exist first. This ordering is also what guarantees there is exactly **one** owner of the token arrays: `QuoteWorkbench` and `Alignment` both read the same store rather than each keeping a copy. See [[data-and-tokenization/token-store]] for why two copies used to be a recurring source of bugs.
 
-Beyond the contexts, `+page.svelte` also:
+Beyond the contexts, [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte) also:
 
 - owns the source / target / authorship text, and the open/closed state of the side panels;
 - owns the **arrow launch** — the one-shot animation that commits the text and advances from Text tool into Link tool (see [[tools-and-mediums/tool-transitions#the-arrow-launch-text--link]]);
 - calls `initAlignmentShortcuts(alignment)` once in `onMount`, registering the document-level keyboard shortcuts (see [[tools-and-mediums/mediums-and-keyboard-navigation#document-level-shortcuts]]).
 
-## `QuoteWorkbench.svelte`
+## [`QuoteWorkbench.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/QuoteWorkbench.svelte)
 
 This is the centre column — the thing the side panels flank. Its job is to render the *right view* for the current tool, using token data it reads from the store:
 

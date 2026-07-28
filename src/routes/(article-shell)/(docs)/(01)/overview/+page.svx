@@ -23,7 +23,7 @@ It does all of this through four **tools**, each described in depth in its own a
 
 ## The four tools
 
-Think of the four tools as four different ways to work with the same text. Only one is ever active at a time, and the current one lives in `ToolContext` (`src/lib/context/tool.svelte.ts`).
+Think of the four tools as four different ways to work with the same text. Only one is ever active at a time, and the current one lives in `ToolContext` ([`src/lib/context/tool.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/tool.svelte.ts)).
 
 | Tool     | Description                                                                                                                           |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |

@@ -13,7 +13,7 @@ A **mapping** is the core unit of the alignment: it links a set of source charac
 
 ## What a mapping carries
 
-Defined in `src/lib/tokenState.ts`:
+Defined in [`src/lib/tokenState.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/tokenState.ts):
 
 ```ts
 type MappingId = string; // crypto.randomUUID()
@@ -32,7 +32,7 @@ The most important design choice here is that a mapping stores **token IDs**, no
 
 ## `MappingView` — the display snapshot
 
-[[components/mapping-component|`Mapping.svelte`]] never reads the raw `Mapping` shape above, and never touches the token arrays directly. Instead it is handed a `MappingView` — a derived, read-only snapshot built specifically for display (`src/lib/context/alignment.svelte.ts`):
+The [[components/mapping-component|mapping component]], [`Mapping.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/Mapping.svelte), never reads the raw `Mapping` shape above, and never touches the token arrays directly. Instead it is handed a `MappingView` — a derived, read-only snapshot built specifically for display ([`src/lib/context/alignment.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/alignment.svelte.ts)):
 
 ```ts
 type MappingView = {
