@@ -100,4 +100,30 @@
 		font-weight: inherit;
 		text-decoration: none;
 	}
+
+	article :global(a:has(> code)) {
+		color: inherit;
+		font-style: normal;
+		text-decoration: none;
+	}
+
+	article :global(a:has(> code)),
+	article :global(a:has(> code) > code) {
+		transition:
+			color var(--article-mono-link-hover-color-duration) ease,
+			background-color var(--theme-color-transition-duration) ease,
+			border-color var(--theme-color-transition-duration) ease;
+	}
+
+	article :global(a:has(> code):is(:hover, :focus-visible)) {
+		color: var(--article-link-color);
+	}
+
+	:global(html.theme-transitioning) article :global(a:has(> code)),
+	:global(html.theme-transitioning) article :global(a:has(> code) > code) {
+		transition:
+			color var(--theme-color-transition-duration) ease,
+			background-color var(--theme-color-transition-duration) ease,
+			border-color var(--theme-color-transition-duration) ease;
+	}
 </style>

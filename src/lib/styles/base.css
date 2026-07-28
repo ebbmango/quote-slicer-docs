@@ -7,6 +7,8 @@ html {
 	--codeblock-bg: #3d3d3d;
 
 	--inline-mono-weight: 400;
+	--theme-color-transition-duration: 500ms;
+	--article-mono-link-hover-color-duration: 220ms;
 	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
 	--article-link-color: light-dark(var(--sugar-token-latin), var(--beeswax-gloss-hanzi));
 	--ul-marker-color: light-dark(var(--color-tin), #4d4d4d);
@@ -17,8 +19,8 @@ html,
 body {
 	background-color: var(--page-bg);
 	transition:
-		background-color 500ms ease,
-		color 500ms ease;
+		background-color var(--theme-color-transition-duration) ease,
+		color var(--theme-color-transition-duration) ease;
 }
 
 html.no-js {
@@ -48,9 +50,9 @@ article,
 article *,
 main {
 	transition:
-		color 500ms ease,
-		background-color 500ms ease,
-		border-color 500ms ease;
+		color var(--theme-color-transition-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
 }
 
 article h5,
@@ -59,7 +61,7 @@ article h6 {
 }
 
 article *::marker {
-	transition: color 500ms ease;
+	transition: color var(--theme-color-transition-duration) ease;
 }
 
 article ol *::marker {

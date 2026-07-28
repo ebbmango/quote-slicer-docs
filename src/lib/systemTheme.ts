@@ -13,6 +13,9 @@ import {
 	type StoredThemeState
 } from './themeState';
 
+const THEME_TRANSITION_DURATION_MS = 500;
+let themeTransitionTimer: ReturnType<typeof setTimeout> | null = null;
+
 function withStorage<T>(callback: (storage: StorageLike) => T, fallback: T): T {
 	try {
 		return callback(window.localStorage);
@@ -22,8 +25,21 @@ function withStorage<T>(callback: (storage: StorageLike) => T, fallback: T): T {
 }
 
 function applyDocumentTheme(themeName: ThemeName) {
-	document.documentElement.classList.toggle('dark', themeName === 'dark');
-	document.documentElement.style.colorScheme = themeName;
+	const root = document.documentElement;
+	const shouldUseDarkTheme = themeName === 'dark';
+	const isChangingTheme = root.classList.contains('dark') !== shouldUseDarkTheme;
+
+	if (isChangingTheme) {
+		root.classList.add('theme-transitioning');
+		if (themeTransitionTimer) clearTimeout(themeTransitionTimer);
+		themeTransitionTimer = setTimeout(() => {
+			root.classList.remove('theme-transitioning');
+			themeTransitionTimer = null;
+		}, THEME_TRANSITION_DURATION_MS);
+	}
+
+	root.classList.toggle('dark', shouldUseDarkTheme);
+	root.style.colorScheme = themeName;
 }
 
 export function adaptiveTheme() {
