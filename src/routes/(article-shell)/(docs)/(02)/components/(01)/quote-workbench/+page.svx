@@ -10,16 +10,20 @@ lastUpdated: 2026-07-03
 
 # {title}
 
-Everything you see in Quote Slicer lives under one root component, [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte), and its centerpiece, [`QuoteWorkbench.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/QuoteWorkbench.svelte). Think of this article as the map: what each piece is responsible for, and how they are wired together. The *behavior* inside each piece — how the Link tool works, how the Line tool works, how the tools animate into one another — is covered in its own article and linked from here.
+Everything you see in Quote Slicer lives under one root component, [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte), and its centerpiece, [`QuoteWorkbench.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/QuoteWorkbench.svelte).
+
+This article is the big picture. Think of it as the map, it shows in general terms what each piece is responsible for, and how they are wired together.
+
+The _behavior_ of each piece is covered in its own article and linked from here.
 
 ## Why one root, one workbench
 
-The four [[overview#the-four-tools|tools]] are not four separate screens. They are four ways of looking at the *same* source text, target text, and token data. So rather than swapping whole pages in and out, the app is built as **one persistent component tree** that changes which parts are interactive and how things look. That single decision is what lets the [[tools-and-mediums/tool-transitions|tool transitions]] feel like continuous motion instead of a page change — you can only animate between two states of a thing that stays on screen.
+The four [[overview#the-four-tools|tools]] are not four separate screens. They are four ways of looking at the _same_ source text, target text, and token data. So rather than swapping whole pages in and out, the app is built as **one persistent component tree** that changes which parts are interactive and how things look. That single decision is what lets the [[tools-and-mediums/tool-transitions|tool transitions]] feel like continuous motion instead of a page change — you can only animate between two states of a thing that stays on screen.
 
 For that to work, the app needs one place that:
 
 - holds the raw text the user typed,
-- holds the *current tool*,
+- holds the _current tool_,
 - knows the current viewport size (to decide the [[components/layout|layout]]), and
 - owns the token data and the mapping data.
 
@@ -27,14 +31,14 @@ That place is [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/mai
 
 <!-- src/routes/+page.svelte -->
 
-| Context | Owns | Read via |
-|---|---|---|
-| `ToolContext` | the current tool (`text` / `link` / `line` / `view`) | `getToolContext` |
-| `BreakpointContext` | the current viewport breakpoint | `getBreakpointContext` |
-| the [[data-and-tokenization/token-store\|token store]] | the source/target token arrays | `getTokenStoreContext` |
-| `Alignment` | the mappings, the active mapping, click handling | `getAlignmentContext` |
+| Context                                                | Owns                                                 | Read via               |
+| ------------------------------------------------------ | ---------------------------------------------------- | ---------------------- |
+| `ToolContext`                                          | the current tool (`text` / `link` / `line` / `view`) | `getToolContext`       |
+| `BreakpointContext`                                    | the current viewport breakpoint                      | `getBreakpointContext` |
+| the [[data-and-tokenization/token-store\|token store]] | the source/target token arrays                       | `getTokenStoreContext` |
+| `Alignment`                                            | the mappings, the active mapping, click handling     | `getAlignmentContext`  |
 
-The order matters. `Alignment`'s constructor *takes* the token store, so the store has to exist first. This ordering is also what guarantees there is exactly **one** owner of the token arrays: `QuoteWorkbench` and `Alignment` both read the same store rather than each keeping a copy. See [[data-and-tokenization/token-store]] for why two copies used to be a recurring source of bugs.
+The order matters. `Alignment`'s constructor _takes_ the token store, so the store has to exist first. This ordering is also what guarantees there is exactly **one** owner of the token arrays: `QuoteWorkbench` and `Alignment` both read the same store rather than each keeping a copy. See [[data-and-tokenization/token-store]] for why two copies used to be a recurring source of bugs.
 
 Beyond the contexts, [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte) also:
 
@@ -44,7 +48,7 @@ Beyond the contexts, [`+page.svelte`](https://github.com/ebbmango/quote-slicer/b
 
 ## [`QuoteWorkbench.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/components/QuoteWorkbench.svelte)
 
-This is the centre column — the thing the side panels flank. Its job is to render the *right view* for the current tool, using token data it reads from the store:
+This is the centre column — the thing the side panels flank. Its job is to render the _right view_ for the current tool, using token data it reads from the store:
 
 - **Text tool** — two plain textareas (source, target), so the user can paste or type freely. The source textarea filters its input live, letting only Han characters and CJK punctuation through. That filter is careful not to break **IME composition** — the input method Chinese typists use, where you type pinyin and pick a character from a menu. Mid-composition the text field briefly holds Latin letters, so the filter skips those moments and re-filters once composition finishes; typing pinyin to produce a character still works.
 - **Link, Line, and View tools** — the token workspace: the source and target panels rendered as a `role="grid"` of interactive tokens. These panels are [[components/interactive-text-panels|`InteractiveSourceText` / `InteractiveTargetText`]], and what is interactive inside them depends on the tool.
@@ -57,11 +61,11 @@ One subtlety worth stating plainly: the workbench does **not** push tokens into 
 
 When the user splits or merges a line in Line tool, the token arrays are re-derived, some tokens move to different lines, and the panel that changed grows or shrinks — which shifts everything below it. Rather than let that land as an abrupt layout jump, the app **animates** the rearrangement: the tokens that move slide to their new positions, and the panel heights tween smoothly.
 
-`QuoteWorkbench` is what makes that animation possible. It tags each panel wrapper with the DOM references the animation needs — bundled into an `editScope()` that includes both panel wrappers, their scroll boxes, *and* the authorship field — and forwards split/merge requests into the [[data-and-tokenization/token-store|token store]], which owns and runs the animation itself. The full mechanism, and why it is one coordinated motion rather than several independent ones, is in [[data-and-tokenization/token-store#the-line-edit-animation-splitmerge]].
+`QuoteWorkbench` is what makes that animation possible. It tags each panel wrapper with the DOM references the animation needs — bundled into an `editScope()` that includes both panel wrappers, their scroll boxes, _and_ the authorship field — and forwards split/merge requests into the [[data-and-tokenization/token-store|token store]], which owns and runs the animation itself. The full mechanism, and why it is one coordinated motion rather than several independent ones, is in [[data-and-tokenization/token-store#the-line-edit-animation-splitmerge]].
 
 ### One navigator for both interactive tools
 
-The Link tool and Line tool both need keyboard navigation between the elements in the token grid — but they navigate *different* things (tokens vs. split/merge controls). Rather than build two navigators, `QuoteWorkbench` creates a single one and reconfigures it per tool. See [[tools-and-mediums/mediums-and-keyboard-navigation]].
+The Link tool and Line tool both need keyboard navigation between the elements in the token grid — but they navigate _different_ things (tokens vs. split/merge controls). Rather than build two navigators, `QuoteWorkbench` creates a single one and reconfigures it per tool. See [[tools-and-mediums/mediums-and-keyboard-navigation]].
 
 ## Where to go next
 

@@ -11,19 +11,27 @@ lastUpdated: 2026-07-03
 
 **Quote Slicer** is a small workbench built to power \[project V's\] core feature: linking the words of a Chinese quote to the words of its English translation.
 
-Here is the problem it solves. Take a short quote and its translation. Which English words correspond to which Chinese characters? A single character can stand for a whole English word, several characters can share one word between them, and one English word can stretch across several characters. Formally, that is a **many-to-many relationship** between two streams of text. Practically, assembling that structure by hand — in a spreadsheet, or in raw JSON — is tedious and error-prone.
+Here is the problem it solves:
 
-Quote Slicer makes building it feel direct instead: you click a character, click the words it corresponds to, and the structure assembles itself behind the scenes. In practice, the app lets you:
+Take a short quote and its translation. Which English words correspond to which Chinese characters?
+
+A single character can stand for a whole English word, several characters can share one word between them, and one English word can stretch across several characters.
+
+Formally, that is a **many-to-many relationship** between two streams of text. Practically, assembling that data structure by hand is tedious and error-prone.
+
+Quote Slicer makes building it feel direct instead: you click a character, click the words it corresponds to, and the structure assembles itself behind the scenes.
+
+In practice, the app lets you:
 
 1. map many-to-many relationships between segments of the original text and of its translation;
 2. organize both sides into paragraphs with clean line breaks; and
 3. instantly preview how the linked display will read.
 
-It does all of this through four **tools**, each described in depth in its own article.
+It does all of this through four **tools**, each described in depth in its own article, and briefly introduced below.
 
 ## The four tools
 
-Think of the four tools as four different ways to work with the same text. Only one is ever active at a time, and the current one lives in `ToolContext` ([`src/lib/context/tool.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/tool.svelte.ts)).
+Think of the four tools as four different ways to work with the same text.
 
 | Tool     | Description                                                                                                                           |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -32,14 +40,22 @@ Think of the four tools as four different ways to work with the same text. Only 
 | `'line'` | Adjust where line breaks fall in source and target _independently_ — split one line into two, or merge two into one.                  |
 | `'view'` | Read the finished alignment; hovering or tapping a mapped token lights up its whole mapping across both panels.                       |
 
-The app **starts** with the Text tool. Clicking the advance arrow commits both texts and proceeds to the Link tool (see [[tools-and-mediums/tool-transitions#the-arrow-launch-text--link|the arrow launch]]); from then on, the bottom toolbar switches freely between the Link, Line, and View tools.
+Only one is ever active at a time, and the current selection lives in `ToolContext` ([`src/lib/context/tool.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/tool.svelte.ts)).
+
+The app **starts up** with the Text tool. Clicking the advance arrow commits both texts and proceeds to the Link tool; from then on, the bottom toolbar switches freely between the Link, Line, and View tools.
 
 ## How it's arranged
 
 The screen is built around a central **workbench** — the source text, the target text, and an attribution line — flanked by up to two side panels: the list of [[components/mappings-list|mapping cards]] (one card per link you have made) and a live [[data-and-tokenization/export|JSON preview]] of the data being built.
 
-How those side panels appear depends on how much room there is. On a wide screen, both sit beside the workbench at once. On a narrower screen, only one shows at a time, toggled from the bottom toolbar. On a phone, they live in a slide-in panel instead, so the workbench keeps the full width.
+How those side panels appear depends on how much room there is:
 
-With the Text tool, the side panels are hidden entirely, as there is still nothing to be shown. As soon as the user advances to the editing tools, the layout updates and the panels will appear as best fits the current viewport, according to the predefined breakpoints.
+- On a wide screen, both sit beside the workbench at once.
+
+- On a narrower screen, only one shows at a time, toggled from the bottom toolbar.
+
+- On a phone, they live in a slide-in panel instead, so the workbench keeps the full width.
+
+On startup, the side panels are hidden entirely, as there is yet no data structure to be shown. As soon as the user advances to the editing tools, the layout updates and the panels will appear as best fits the current viewport.
 
 Please read the article on the [[components/layout]] for the full breakdown.
