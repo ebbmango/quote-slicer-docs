@@ -4,7 +4,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { codeToHtml } from 'shiki';
 import { remarkArticleLinks } from './src/lib/build/articleLinks.js';
 import { rehypeHeadingIds } from './src/lib/build/articleToc.js';
-import { rehypeSourceLinks } from './src/lib/build/sourceLinks.js';
+import { rehypeExternalLinks } from './src/lib/build/externalLinks.js';
 
 const dev = process.argv.includes('dev');
 const basePath = dev ? '' : '/quote-slicer-docs';
@@ -80,7 +80,7 @@ const config = {
 		vitePreprocess(),
 		mdsvex({
 			remarkPlugins: [[remarkArticleLinks, { basePath }]],
-			rehypePlugins: [rehypeHeadingIds, rehypeSourceLinks],
+			rehypePlugins: [rehypeHeadingIds, rehypeExternalLinks],
 			highlight: {
 				highlighter: highlightCode
 			}

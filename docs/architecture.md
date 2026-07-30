@@ -52,3 +52,10 @@ unique.
 entries, then rewrites wiki links into normal markdown links with the configured
 SvelteKit base path. Missing article links are currently rendered as plain text when
 they have a label, and reported as mdsvex warnings.
+
+## External Links
+
+`src/lib/build/externalLinks.js` gives HTTP, HTTPS, and protocol-relative Markdown links
+`target="_blank"` and `rel="noopener noreferrer"`. Article wiki links,
+fragments, relative paths, `mailto:`, and `tel:` stay in the current tab. Hand-written
+Svelte or HTML anchors are outside the transform and must declare their own policy.
