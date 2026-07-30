@@ -50,6 +50,7 @@ export default defineConfig({
 				],
 				test: {
 					name: 'storybook',
+					expect: { requireAssertions: false },
 					browser: {
 						enabled: true,
 						headless: true,

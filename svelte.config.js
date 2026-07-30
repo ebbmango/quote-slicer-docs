@@ -6,8 +6,7 @@ import { remarkArticleLinks } from './src/lib/build/articleLinks.js';
 import { rehypeHeadingIds } from './src/lib/build/articleToc.js';
 import { rehypeExternalLinks } from './src/lib/build/externalLinks.js';
 
-const dev = process.argv.includes('dev');
-const basePath = dev ? '' : '/quote-slicer-docs';
+const basePath = process.argv.includes('dev') || process.env.VITEST ? '' : '/quote-slicer-docs';
 
 // good ones: kanagawa-wave, catppuccin-frappe
 
