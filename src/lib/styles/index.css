@@ -10,6 +10,7 @@
 @import './colors/tokens.css';
 @import './colors/verse.css';
 @import './article.css';
+@import './theme-motion.css';
 
 /* Tailwind reads this plugin option case-sensitively. */
 /* prettier-ignore */

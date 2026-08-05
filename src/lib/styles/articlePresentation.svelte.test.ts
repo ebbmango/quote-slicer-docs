@@ -16,7 +16,7 @@ beforeEach(() => {
 	document.documentElement.className = 'js';
 
 	fixture = document.createElement('section');
-	fixture.style.setProperty('--theme-color-transition-duration', '0ms');
+	fixture.style.setProperty('--theme-color-transition-duration', '37ms');
 	fixture.innerHTML = `
 		<article data-plain>
 			<p><code>plain code</code></p>
@@ -96,7 +96,7 @@ describe('article presentation', () => {
 		expect(codeLinkStyle.fontWeight).toBe('400');
 		expect(codeLinkCodeStyle.fontWeight).toBe('400');
 		expect(codeLinkCodeStyle.color).toBe(codeLinkStyle.color);
-		expect(codeLinkStyle.transitionDuration).toBe('0.11s, 0s, 0s');
+		expect(codeLinkStyle.transitionDuration).toBe('0.11s');
 		expect(metadataStyle.marginTop).toBe('0px');
 		expect(metadataStyle.marginBottom).toBe('0px');
 	});
@@ -115,7 +115,27 @@ describe('article presentation', () => {
 		expect(parentheticalCodeLinkCodeStyle.color).toBe(parentheticalCodeLinkStyle.color);
 		expect(parentheticalCodeLinkCodeStyle.color).toBe(getComputedStyle(codeLink).color);
 		expect(parentheticalCodeLinkCodeStyle.fontWeight).toBe('400');
-		expect(parentheticalCodeLinkCodeStyle.transitionDuration).toBe('0.11s, 0s, 0s');
+		expect(parentheticalCodeLinkCodeStyle.transitionDuration).toBe('0.11s');
+	});
+
+	it('enables theme motion only during an explicit theme change', () => {
+		const article = element<HTMLElement>('[data-default]');
+		const heading = element<HTMLElement>('[data-default] h1');
+		const inlineCode = element<HTMLElement>('[data-inline-code]');
+		const codeLink = element<HTMLElement>('[data-code-link]');
+
+		expect(getComputedStyle(article).transitionDuration).toBe('0s');
+		expect(getComputedStyle(heading).transitionDuration).toBe('0s');
+		expect(getComputedStyle(inlineCode).transitionDuration).toBe('0s');
+		expect(getComputedStyle(codeLink).transitionDuration).toBe('0.11s');
+
+		document.documentElement.classList.add('theme-transitioning');
+
+		for (const surface of [article, heading, inlineCode, codeLink]) {
+			const style = getComputedStyle(surface);
+			expect(style.transitionProperty).toBe('color, background-color, border-color');
+			expect(style.transitionDuration).toBe('0.037s, 0.037s, 0.037s');
+		}
 	});
 
 	it('resolves article tokens for dark mode', () => {

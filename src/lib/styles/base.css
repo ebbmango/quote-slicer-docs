@@ -9,9 +9,6 @@ html {
 html,
 body {
 	background-color: var(--page-bg);
-	transition:
-		background-color var(--theme-color-transition-duration) ease,
-		color var(--theme-color-transition-duration) ease;
 }
 
 html.no-js {
@@ -20,13 +17,6 @@ html.no-js {
 
 html.dark {
 	color-scheme: dark;
-}
-
-main {
-	transition:
-		color var(--theme-color-transition-duration) ease,
-		background-color var(--theme-color-transition-duration) ease,
-		border-color var(--theme-color-transition-duration) ease;
 }
 
 /* CUSTOM CLASSES */

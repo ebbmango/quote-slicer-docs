@@ -1,0 +1,18 @@
+/*
+ * Theme motion only exists while systemTheme.ts changes the document theme.
+ * Interaction transitions remain with the components that own them.
+ */
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning main,
+html.theme-transitioning .article-presentation,
+html.theme-transitioning .article-presentation * {
+	transition:
+		color var(--theme-color-transition-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
+}
+
+html.theme-transitioning .article-presentation *::marker {
+	transition: color var(--theme-color-transition-duration) ease;
+}

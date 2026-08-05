@@ -6,7 +6,7 @@
 	--article-code-block-background: light-dark(#3d3d3d, #242424);
 	--article-inline-code-size: 0.85em;
 	--article-inline-code-weight: 400;
-	--article-inline-code-color-transition-duration: var(--theme-color-transition-duration);
+	--article-inline-code-color-transition-duration: 0ms;
 	--article-code-link-hover-duration: 110ms;
 	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
 	--article-link-color: light-dark(var(--sugar-token-latin), var(--beeswax-gloss-hanzi));
@@ -16,22 +16,6 @@
 	--article-ordered-marker-color: light-dark(#a2a2a2, #4d4d4d);
 	--article-parenthetical-background: light-dark(#f7f7f7, #242424);
 	--article-parenthetical-code-background: light-dark(#e0e0e0, #3d3d3d);
-
-	transition:
-		color var(--theme-color-transition-duration) ease,
-		background-color var(--theme-color-transition-duration) ease,
-		border-color var(--theme-color-transition-duration) ease;
-}
-
-.article-presentation * {
-	transition:
-		color var(--theme-color-transition-duration) ease,
-		background-color var(--theme-color-transition-duration) ease,
-		border-color var(--theme-color-transition-duration) ease;
-}
-
-.article-presentation *::marker {
-	transition: color var(--theme-color-transition-duration) ease;
 }
 
 html.dark .article-presentation {
@@ -112,10 +96,7 @@ html.dark .article-presentation {
 	font-size: var(--article-inline-code-size);
 	font-weight: var(--article-inline-code-weight);
 	overflow-wrap: anywhere;
-	transition:
-		color var(--article-inline-code-color-transition-duration) ease,
-		background-color var(--theme-color-transition-duration) ease,
-		border-color var(--theme-color-transition-duration) ease;
+	transition: color var(--article-inline-code-color-transition-duration) ease;
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
 }
@@ -199,17 +180,5 @@ html.dark .article-presentation :where(pre.shiki span) {
 	font-style: normal;
 	font-weight: 400;
 	text-decoration: none;
-	transition:
-		color var(--article-code-link-hover-duration) ease,
-		background-color var(--theme-color-transition-duration) ease,
-		border-color var(--theme-color-transition-duration) ease;
-}
-
-html.theme-transitioning .article-presentation--longform a:has(> code) {
-	--article-inline-code-color-transition-duration: var(--theme-color-transition-duration);
-
-	transition:
-		color var(--theme-color-transition-duration) ease,
-		background-color var(--theme-color-transition-duration) ease,
-		border-color var(--theme-color-transition-duration) ease;
+	transition: color var(--article-code-link-hover-duration) ease;
 }
