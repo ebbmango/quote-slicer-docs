@@ -6,7 +6,7 @@ tags:
   - mappings
   - animation
   - gsap
-lastUpdated: 2026-07-03
+lastUpdated: 2026-08-05
 ---
 
 # {title}
@@ -15,7 +15,7 @@ lastUpdated: 2026-07-03
 
 ## What it does beyond rendering cards
 
-The list is a responsive grid: a single column on narrow panels, two columns once the panel is wide enough (at the tablet and wide-modal breakpoints). Beyond the grid, it owns a few pieces of list-level behavior:
+The list is a responsive grid: one column by default, two in the published `bottom` layout (`bottom-layout`) or in a `drawer` viewport that is at least `600px` wide (`modal-wide`). Beyond the grid, it owns a few pieces of list-level behavior:
 
 - **Keeping the active card visible.** Whenever the active mapping changes, the list scrolls the corresponding card into view, so selecting a mapping from the token panels or the keyboard never leaves its card off-screen. The scroll is issued the moment the card becomes active — before the animation transforms begin — because the browser already knows where the card will land, which shaves a few hundred milliseconds of latency off the old "scroll after the animation settles" approach.
 - **Tab handling within the list**, so keyboard users move between cards in a predictable order.

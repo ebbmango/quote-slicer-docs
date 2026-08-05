@@ -1,64 +1,182 @@
 ---
 title: Layout
-summary: The responsive grid — which panels are visible in each layout mode, how the same two side views are routed between asides and a slide-in modal, and why viewport facts live in JS as well as CSS.
+summary: The responsive grid — which panels are visible in each layout mode, how the same two side views are routed between asides and a slide-in modal, and how one runtime decision is shared by Svelte and CSS.
 tags:
   - components
   - layout
   - responsive
-lastUpdated: 2026-07-28
+lastUpdated: 2026-08-05
 ---
 
 # {title}
 
-The app is a single page, but how much is visible at once depends on the current viewport.
+The app is a single page, but how much of that page is visible at once depends on the viewport.
 
-This article covers the responsive arrangement: which panels are visible and when, where they go, and how the same content moves between a side panel and a slide-in modal.
+This article explains the responsive arrangement: why and how exactly the layout changes in response to the viewport, and the implementation details.
 
 ## Why the layout has to flex
 
 The app has up to three things to display at once:
 
-- the quote workbench,
-- the list of mapping cards,
-- the live JSON preview.
+- the [[components/quote-workbench|Quote Workbench]],
+- the [[components/mappings-list|list of Mapping Cards]],
+- the live [[data-and-tokenization/export|JSON preview]].
 
-On a desktop monitor all three sit side by side comfortably. On a mobile phone, all three cannot possibly fit the same screen at once.
+On a desktop monitor all three sit side by side comfortably. On a mobile phone, they cannot possibly fit the same screen all at once.
 
-Instead, the **two side views** — mapping cards and JSON export — get routed to different homes according to one of four layout modes:
+Instead, the **two side views** — mapping cards and JSON export — move between different surfaces according to one of four layout modes:
 
-| Layout mode | What's visible                   | Side content lives in                         |
-| ----------- | -------------------------------- | --------------------------------------------- |
-| `mini`      | workbench only                   | a slide-in **modal**, opened from the toolbar |
-| `stacked`   | workbench above a bottom panel   | bottom panel, toggled from the toolbar        |
-| `single`    | side panel beside the workbench  | side panel, toggled from the toolbar          |
-| `dual`      | workbench between two side panels | both panels at once, no toggle needed         |
+| Layout   | What's visible                    | Content lives in                          | Designed for         |
+| -------- | --------------------------------- | ----------------------------------------- | -------------------- |
+| `drawer` | workbench only                    | a slide-in modal, opened from the toolbar | Mobile               |
+| `bottom` | workbench above a bottom panel    | bottom panel, toggled from the toolbar    | Tablets (Vertical)   |
+| `single` | side panel beside the workbench   | side panel, toggled from the toolbar      | Tablets (Horizontal) |
+| `double` | workbench between two side panels | both panels at once, no toggle needed     | Desktops             |
+
+<!-- add interactive layout preview widget here -->
 
 Normally, responsive layouts are handled by CSS alone.
 
-However, because some components need to _branch_ on viewport size rather than merely restyle, here **the media-query facts are also mirrored in JavaScript.**
+That works when the changes are visual, as opposed to structural; that is, when a same UI persists on the page and only changes size, position, or visibility.
 
-`BreakpointContext` keeps those facts separate from the layout decision:
+Here, some viewport changes affect which UI surface exists at all:
 
-| Viewport fact          | Media query                                                                            |
-| ---------------------- | -------------------------------------------------------------------------------------- |
-| `isWide`               | `(min-width: 1200px)`                                                                  |
-| `isNarrow`             | `(max-width: 899px)`                                                                   |
-| `isTallNarrowPortrait` | `(orientation: portrait) and (min-height: 1000px) and (max-width: 899px)`               |
+- in `drawer`, the side content moves into `DataModal`;
 
-These booleans describe what the viewport matches; none of them names a complete layout. The derived `layoutMode` combines them:
+- in `bottom` and `single`, it lives in one panel;
 
-| `layoutMode` | Derivation                                  |
-| ------------ | ------------------------------------------- |
-| `dual`       | `isWide`                                    |
-| `single`     | neither `isWide` nor `isNarrow` (900–1199px) |
-| `stacked`    | `isNarrow && isTallNarrowPortrait`          |
-| `mini`       | `isNarrow && !isTallNarrowPortrait`         |
+- in `double`, both side panels are available.
 
-The components branch on `layoutMode`, not on an individual width threshold. For example, `mini` is the one layout with no aside to host the side content, so the modal takes over. `ToolToolbar` uses the same decision to show a modal toggle in `mini`, an aside toggle in `single` and `stacked`, and no toggle in `dual`.
+Because Svelte must [conditionally render](https://svelte.dev/docs/svelte/if) those surfaces, the current layout also has to be available in JavaScript. The app represents that decision with `layoutMode`.
 
-> The three `matchMedia` queries in `BreakpointContext` must stay in step with the layout `@media` blocks in [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte). The tall-narrow-portrait predicate is also repeated by the `tablet` custom variant in [`layout.css`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/layout.css) for the mappings grid. `ToolToolbar` does not encode viewport thresholds itself; it consumes `layoutMode`.
+CSS does not classify the viewport a second time. The page publishes that same `layoutMode` on its root element, so conditional rendering and grid geometry consume one runtime decision.
 
-The separate `modal-wide` custom variant, from 600px through 899px, only changes the mappings grid inside its available surface. It is a component-level breakpoint, not an input to `layoutMode`.
+See [`breakpoints.svelte.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/lib/context/breakpoints.svelte.ts) for the implementation.
+
+## How the layout flexes
+
+We start by making a few key media-query results available to JavaScript state through Svelte's reactive [`MediaQuery`](https://svelte.dev/docs/svelte/svelte-reactivity#MediaQuery) class:
+
+<!-- The current layout is communicated to the rest of the app by `BreakpointContext`, which observes three key viewport facts through Svelte’s reactive  -->
+
+| Reactive value      | Media query            |
+| ------------------- | ---------------------- |
+| `#isWide.current`   | `(min-width: 1200px)`  |
+| `#isNarrow.current` | `(width < 900px)`      |
+| `#isTall.current`   | `(min-height: 1000px)` |
+
+<!-- `isTall` is deliberately independent from width. It only becomes a layout rule after the derivation has established that the viewport is also narrow. At the current limits, a viewport that is at least `1000px` tall and strictly less than `900px` wide is necessarily portrait, so an explicit orientation check would be redundant. That implication depends on the height threshold remaining above the narrow-width threshold; if either changes, it must be checked again. -->
+
+Please note that these values merely describe the viewport; they **do not drive any layout changes** on their own.
+
+That is because, for instance, knowing that the viewport `isNarrow` is not enough to determine exactly what to render.
+
+Apart from being narrow, it can also be:
+
+- tall enough to accommodate a bottom panel for the side content, and so use the `bottom` layout; or
+
+- short, thus following the `drawer` layout and moving the side content into a modal instead.
+
+The `layoutMode` is then derived from these combined viewport facts:
+
+| `layoutMode` | Derivation from viewport facts           |
+| ------------ | ---------------------------------------- |
+| `double`     | `isWide`                                 |
+| `single`     | `!isWide` `&&` `!isNarrow`               |
+| `bottom`     | `!isWide` `&&` `isNarrow` `&&` `isTall`  |
+| `drawer`     | `!isWide` `&&` `isNarrow` `&&` `!isTall` |
+
+From here on out, **conditional renders depend entirely on `layoutMode`**, and not on any of the individual media-query results alone.
+
+The `layoutMode` is made available to the rest of the application by means of the `BreakpointContext`.
+
+### Why derive the mode?
+
+<!-- make this a card -->
+
+This raises a question:
+
+If components ultimately consume only `layoutMode`, why keep `isWide`, `isNarrow`, and `isTall` as reactive state at all?
+
+Why not define one media query for each mode and expose `isDrawer`, `isBottom`, `isSingle`, and `isDouble` directly?
+
+To answer this question, let's see how `layoutMode` is currently derived:
+
+```ts
+// src/lib/context/breakpoints.svelte.ts
+layoutMode: LayoutMode = $derived.by(() => {
+	if (!this.#mounted) return 'single';
+	if (this.#isWide.current) return 'double';
+	if (!this.#isNarrow.current) return 'single';
+	return this.#isTall.current ? 'bottom' : 'drawer';
+});
+```
+
+The mounted guard preserves the prerendered `single` fallback through hydration. Once `onMount` marks the context as mounted, the reactive media queries classify the real viewport. That fallback is visually safe because Text is always the startup tool and every mode collapses its data panels, leaving the same full-size workbench. If a future feature persists or deep-links into another startup tool, this assumption must be revisited before shipping; that state could require a prepaint classifier.
+
+Compare that with the queries those four variables would require:
+
+```ts
+// Hypothetical alternative: one media query per layout mode
+#isDouble = new MediaQuery(
+  '(min-width: 1200px)'
+);
+#isSingle = new MediaQuery(
+  '(width >= 900px) and (width < 1200px)'
+);
+#isBottom = new MediaQuery(
+  '(width < 900px) and (min-height: 1000px)'
+);
+#isDrawer = new MediaQuery(
+  '(width < 900px) and (height < 1000px)'
+);
+```
+
+Those queries repeat the narrow predicate in both narrow modes and introduce a separately stated opposite predicate for `single`. Even when two endpoint queries look complementary, scaled browsers can round them differently at fractional CSS-pixel widths. The app instead asks the canonical narrow question once, then treats “not narrow” as the `single` branch after ruling out `double`.
+
+Deriving one mode from three viewport facts has five related benefits.
+
+###### Robustness
+
+The derived union value makes the JavaScript state structurally one-hot: a component observes exactly one `layoutMode` at a time. Four exposed booleans would only be one-hot if their query ranges remained perfectly complementary; a misconfigured overlap or gap could otherwise produce several active modes, or none.
+
+###### Expressivity
+
+Each media query names one independent fact. In particular, `isTall` means only “at least `1000px` tall”; it does not smuggle width, orientation, or a chosen layout into the name. The derivation combines it with `isNarrow` only in the branch where height matters.
+
+The alternative repeats `(width < 900px)` in both narrow-layout queries. Keeping the facts separate makes the meaningful difference between those modes explicit: both are narrow, but only `bottom` is tall.
+
+###### Organization
+
+The media queries describe the viewport, while `layoutMode` prescribes a layout. Keeping those concerns separate lets components consume the app-level decision without learning any pixel boundaries, while the context remains the one place that translates viewport facts into that decision.
+
+###### Resilience
+
+Moving a boundary still leaves one decision to follow from top to bottom. The breakpoint changes only in the context; the CSS mapping from mode names to geometry remains unchanged. Adding a fifth mode requires a new derivation branch and a matching geometry selector, but does not require restating its viewport predicate in CSS.
+
+###### Readability
+
+The derivation can be read from top to bottom: wide becomes `double`; the middle range becomes `single`; among narrow viewports, tall becomes `bottom`; and the remaining narrow viewports become `drawer`. Four separate queries make the reader compare several ranges to discover the same order.
+
+The media queries describe the viewport as wide, narrow, or tall. `layoutMode` says which layout the app chooses for that combination.
+
+#### Sharing the decision with CSS
+
+The context determines which Svelte surfaces are rendered, while CSS determines the grid arrangement. Those are different consumers, but they no longer classify the viewport independently.
+
+In [`+page.svelte`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/%2Bpage.svelte), the root `.layout` binds `data-layout-mode={breakpoints.layoutMode}`. CSS selectors such as `[data-layout-mode='bottom']` and `[data-layout-mode='double']` map each published value to its closed and open grid tracks, sidebar visibility, and slide direction. The `900px`, `1000px`, and `1200px` macro thresholds do not appear in those styles.
+
+The mappings grid follows the same contract. Its `bottom-layout` custom variant in [`layout.css`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/layout.css) selects descendants of the published `bottom` mode. The separate `modal-wide` variant requires the published `drawer` mode, then uses `min-width: 600px` to answer one local question: whether that already-selected modal has room for two card columns. It can adapt the modal's contents, but it cannot select a macro layout.
+
+[`page.svelte.e2e.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/page.svelte.e2e.ts) protects the root contract: exact boundaries, attribute-driven geometry, live transitions through all four modes, and the JavaScript-disabled fallback. The scaled-window cases in [`data-modal.e2e.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/data-modal.e2e.ts) still exercise fractional and browser-rounded widths, but now assert that routing and geometry both follow the published mode instead of comparing two classifiers.
+
+#### Why a context
+
+The page creates one `BreakpointContext` and descendants consume that shared decision. For example, `ToolToolbar` uses it to show a modal toggle in `drawer`, an aside toggle in `single` and `bottom`, and no toggle in `double`. Sharing the derived mode prevents each component from rebuilding the same breakpoint logic independently.
+
+In summary, because components need to conditionally render different UI surfaces, **the current layout has to be available in JavaScript state.** The app derives one `layoutMode` from three primitive media-query results and publishes it as a DOM contract. Svelte branches consume the value directly; CSS consumes the root attribute. There is one classifier and a one-way dependency, not two truths to synchronize.
+
+`layoutMode` only controls the large surfaces: which panels exist, and whether the mapping cards and JSON export live in side panels, a bottom panel, or the modal. Local breakpoints can still adapt content inside whichever surface already exists. For example, `modal-wide` changes the drawer's mapping cards from one column to two at `600px`; it does not decide whether the app is in `drawer`, `bottom`, `single`, or `double`. The separate `bottom-layout` variant is not a breakpoint at all—it is another consumer of the published macro mode.
 
 ## The shared rendering surface
 
@@ -67,15 +185,15 @@ Both side panels show the same two possible views — the [[components/mappings-
 Because exactly one place decides "maps or json, faded how", the three homes for that content can never visually drift apart.
 
 - The **right panel**, when visible (desktop only), always shows the JSON export.
-- The **left panel** shows the mapping cards by default, but can be toggled to show the JSON export — except in the `mini` layout, where it renders nothing at all and the **modal** takes over instead. That way the same content never exists in two places at once.
+- The **left panel** shows the mapping cards by default, but can be toggled to show the JSON export — except in the `drawer` layout, where it renders nothing at all and the **modal** takes over instead. That way the same content never exists in two places at once.
 
 ## The data modal
 
-In the `mini` layout, the toggle in the toolbar opens `DataModal` — a panel that slides in **over** the workbench rather than beside it. A few details keep it feeling native rather than jarring:
+In the `drawer` layout, the toggle in the toolbar opens `DataModal` — a panel that slides in **over** the workbench rather than beside it. A few details keep it feeling native rather than jarring:
 
 - Opening the modal pushes a browser history entry (via SvelteKit's router, deliberately, rather than raw `history.*`), so the device's back button closes it — the gesture a user expects for any overlay. A `popstate` listener closes the modal on back-nav without itself popping again, so a back-close can't double-unwind.
 - Switching between "maps" and "json" while the modal is already open does **not** replay the slide-in. Calling open again just reassigns the view and returns early; only the content swaps. The two views fly in from opposite edges — maps from the left, json from the right — so the direction itself hints at which view you are looking at. (Svelte reads transition params only at the _start_ of a transition, which is exactly why swapping mid-open never re-animates.)
-- If the viewport leaves the `mini` layout while the modal is open — rotating a tablet, resizing a window — an `$effect` force-closes it **instantly**, with a `forceClose` flag driving the exit duration to `0`. The aside the content belongs in has just become available, so the modal steps out of the way without ceremony.
+- If the viewport leaves the `drawer` layout while the modal is open — rotating a tablet, resizing a window — an `$effect` force-closes it **instantly**, with a `forceClose` flag driving the exit duration to `0`. The aside the content belongs in has just become available, so the modal steps out of the way without ceremony.
 
 ## Side panels and Text tool
 
