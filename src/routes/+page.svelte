@@ -4,9 +4,7 @@
 </script>
 
 <main class="flex min-w-0 flex-1 flex-col items-center">
-	<article
-		class="prose prose-xl w-full min-w-0 px-8 pt-7 pb-[10dvh] font-inter font-light dark:prose-invert prose-headings:font-dm-serif prose-headings:font-light prose-headings:tracking-normal prose-h1:normal-case prose-code:font-mono prose-pre:font-mono"
-	>
+	<article class="article-presentation px-8 pt-7 pb-[10dvh]">
 		<h1>Quote Slicer Docs</h1>
 
 		<p>

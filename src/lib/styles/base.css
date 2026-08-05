@@ -3,16 +3,7 @@ html {
 	scrollbar-gutter: stable;
 	--page-edge-gutter: 1.25rem;
 	--page-bg: light-dark(white, var(--color-noctis));
-	--inline-mono-bg: light-dark(#ededed, #3d3d3d);
-	--codeblock-bg: #3d3d3d;
-
-	--inline-mono-weight: 400;
 	--theme-color-transition-duration: 500ms;
-	--article-mono-link-hover-color-duration: 220ms;
-	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
-	--article-link-color: light-dark(var(--sugar-token-latin), var(--beeswax-gloss-hanzi));
-	--ul-marker-color: light-dark(var(--color-tin), #4d4d4d);
-	--ol-marker-color: light-dark(#a2a2a2, #4d4d4d);
 }
 
 html,
@@ -29,120 +20,13 @@ html.no-js {
 
 html.dark {
 	color-scheme: dark;
-	--inline-mono-weight: 300;
 }
 
-@media (prefers-color-scheme: dark) {
-	html.no-js {
-		--inline-mono-weight: 300;
-	}
-}
-
-/* Titles */
-h1.title {
-	hyphens: auto;
-	overflow-wrap: break-word;
-	word-break: normal;
-}
-
-/* ARTICLE */
-article,
-article *,
 main {
 	transition:
 		color var(--theme-color-transition-duration) ease,
 		background-color var(--theme-color-transition-duration) ease,
 		border-color var(--theme-color-transition-duration) ease;
-}
-
-article h5,
-article h6 {
-	color: var(--tw-prose-headings);
-}
-
-article *::marker {
-	transition: color var(--theme-color-transition-duration) ease;
-}
-
-article ol *::marker {
-	color: var(--ol-marker-color);
-}
-
-/* divisory lines and quotes */
-article *,
-article blockquote {
-	border-color: var(--article-border-color);
-}
-
-/* blockquotes */
-article blockquote {
-	font-family: serif;
-	font-style: normal;
-	font-size: larger;
-}
-
-article blockquote :where(:not(pre) > code) {
-	font-weight: 400;
-	font-size: large;
-}
-
-/* bulletpoints */
-article *::marker {
-	color: var(--ul-marker-color);
-}
-
-/* INLINE MONOSPACE */
-article :where(:not(pre) > code) {
-	font-family: var(--font-mono);
-	font-size: 0.85em;
-	border-radius: 0.3rem;
-	padding: 0.08em 0.4em;
-	background-color: var(--inline-mono-bg);
-	font-weight: var(--inline-mono-weight);
-	overflow-wrap: anywhere;
-	-webkit-box-decoration-break: clone;
-	box-decoration-break: clone;
-}
-
-article table :where(:not(pre) > code) {
-	white-space: nowrap;
-	overflow-wrap: normal;
-	word-break: normal;
-}
-
-/* removes backticks */
-article :where(code)::before,
-article :where(code)::after {
-	content: none;
-}
-
-/* CODE BLOCKS */
-.prose :where(pre.shiki code) {
-	display: grid;
-	width: max-content;
-	min-width: 100%;
-	padding-right: 0.2rem;
-}
-
-/* Codeblock Background Color */
-.prose :where(pre.shiki) {
-	background-color: var(--codeblock-bg);
-	max-width: 100%;
-	overflow-x: auto;
-}
-
-.prose :where(pre.shiki span) {
-	color: var(--shiki-light);
-}
-
-html.dark .prose :where(pre.shiki span) {
-	color: var(--shiki-dark);
-}
-
-@media (prefers-color-scheme: dark) {
-	html.no-js .prose :where(pre.shiki span) {
-		color: var(--shiki-dark);
-	}
 }
 
 /* CUSTOM CLASSES */

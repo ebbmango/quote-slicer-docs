@@ -10,9 +10,7 @@
 
 <main class="hidebar h-full w-full overflow-y-auto bg-white px-8 pt-7 pb-[10dvh] dark:bg-umbra">
 	<div class="mx-auto flex w-full max-w-4xl flex-col text-noctis dark:text-gray-100">
-		<article
-			class="prose-transition prose prose-xl w-full min-w-0 font-inter font-light dark:prose-invert prose-headings:font-dm-serif prose-headings:font-light prose-headings:tracking-normal prose-h1:normal-case prose-code:font-mono prose-pre:font-mono"
-		>
+		<article class="article-presentation">
 			<h1 class="title">Develop&shy;ment Diary</h1>
 		</article>
 

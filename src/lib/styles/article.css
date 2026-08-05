@@ -1,0 +1,214 @@
+.article-presentation {
+	@apply article-presentation-xl w-full min-w-0 font-inter font-light dark:article-presentation-invert article-presentation-headings:font-dm-serif article-presentation-headings:font-light article-presentation-headings:tracking-normal article-presentation-h1:normal-case article-presentation-code:font-mono article-presentation-pre:font-mono;
+
+	--article-inline-code-background: light-dark(#ededed, #3d3d3d);
+	--article-code-block-background: light-dark(#3d3d3d, #242424);
+	--article-inline-code-weight: 400;
+	--article-code-link-hover-duration: 110ms;
+	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
+	--article-link-color: light-dark(var(--sugar-token-latin), var(--beeswax-gloss-hanzi));
+	--article-code-link-color: light-dark(#b763b9, #ffe16d);
+	--article-code-link-background: light-dark(#fce9fc, var(--article-inline-code-background));
+	--article-unordered-marker-color: light-dark(var(--color-tin), #4d4d4d);
+	--article-ordered-marker-color: light-dark(#a2a2a2, #4d4d4d);
+	--article-parenthetical-background: light-dark(#f7f7f7, #242424);
+	--article-parenthetical-code-background: light-dark(#e0e0e0, #3d3d3d);
+
+	transition:
+		color var(--theme-color-transition-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
+}
+
+.article-presentation * {
+	transition:
+		color var(--theme-color-transition-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
+}
+
+.article-presentation *::marker {
+	transition: color var(--theme-color-transition-duration) ease;
+}
+
+html.dark .article-presentation {
+	--article-inline-code-weight: 300;
+}
+
+@media (prefers-color-scheme: dark) {
+	html.no-js .article-presentation {
+		--article-inline-code-weight: 300;
+	}
+}
+
+.article-presentation > :first-child {
+	margin-top: 0;
+}
+
+.article-presentation > :last-child {
+	margin-bottom: 0;
+}
+
+.article-presentation h1.title {
+	hyphens: auto;
+	overflow-wrap: break-word;
+	word-break: normal;
+}
+
+.article-presentation h5,
+.article-presentation h6 {
+	color: var(--tw-prose-headings);
+}
+
+.article-presentation *::marker {
+	color: var(--article-unordered-marker-color);
+}
+
+.article-presentation ol *::marker {
+	color: var(--article-ordered-marker-color);
+}
+
+.article-presentation * {
+	border-color: var(--article-border-color);
+}
+
+.article-presentation blockquote {
+	font-family: serif;
+	font-size: larger;
+	font-style: normal;
+}
+
+.article-presentation blockquote :where(:not(pre) > code) {
+	font-size: large;
+	font-weight: 400;
+}
+
+.article-presentation aside.parenthetical {
+	margin-block: 2.5em;
+	padding: clamp(1.25rem, 3vw, 1.75rem);
+	border-radius: 0.6rem;
+	background: var(--article-parenthetical-background);
+	font-size: 0.94em;
+}
+
+.article-presentation aside.parenthetical > :first-child {
+	margin-top: 0;
+}
+
+.article-presentation aside.parenthetical > :last-child {
+	margin-bottom: 0;
+}
+
+.article-presentation aside.parenthetical :where(:not(pre) > code) {
+	background-color: var(--article-parenthetical-code-background);
+}
+
+.article-presentation :where(:not(pre) > code) {
+	padding: 0.08em 0.4em;
+	border-radius: 0.3rem;
+	background-color: var(--article-inline-code-background);
+	font-family: var(--font-mono);
+	font-size: 0.85em;
+	font-weight: var(--article-inline-code-weight);
+	overflow-wrap: anywhere;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+.article-presentation table :where(:not(pre) > code) {
+	white-space: nowrap;
+	word-break: normal;
+	overflow-wrap: normal;
+}
+
+.article-presentation :where(code)::before,
+.article-presentation :where(code)::after {
+	content: none;
+}
+
+.article-presentation :where(pre.shiki code) {
+	display: grid;
+	width: max-content;
+	min-width: 100%;
+	padding-right: 0.2rem;
+}
+
+.article-presentation :where(pre.shiki) {
+	max-width: 100%;
+	background-color: var(--article-code-block-background);
+	overflow-x: auto;
+}
+
+.article-presentation :where(pre.shiki span) {
+	color: var(--shiki-light);
+}
+
+html.dark .article-presentation :where(pre.shiki span) {
+	color: var(--shiki-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+	html.no-js .article-presentation :where(pre.shiki span) {
+		color: var(--shiki-dark);
+	}
+}
+
+.article-presentation--longform :is(h1, h2, h3, h4, h5, h6) {
+	scroll-margin-top: 6.75rem;
+}
+
+@media (min-width: 800px) {
+	.article-presentation--longform :is(h1, h2, h3, h4, h5, h6) {
+		scroll-margin-top: 1rem;
+	}
+}
+
+.article-presentation--longform h4 {
+	font-size: 1.35em;
+	line-height: 1.45;
+}
+
+.article-presentation--longform h5 {
+	font-size: 1.15em;
+	line-height: 1.6;
+}
+
+.article-presentation--longform h6 {
+	font-size: 1em;
+}
+
+.article-presentation--longform a {
+	color: var(--article-link-color);
+	font-style: italic;
+	font-weight: inherit;
+	text-decoration: none;
+}
+
+.article-presentation--longform a:has(> code) {
+	color: var(--article-code-link-color);
+	font-style: normal;
+	font-weight: 400;
+	text-decoration: none;
+}
+
+.article-presentation--longform a:has(> code) > code {
+	background-color: var(--article-code-link-background);
+	color: inherit;
+	font-weight: inherit;
+}
+
+.article-presentation--longform a:has(> code),
+.article-presentation--longform a:has(> code) > code {
+	transition:
+		color var(--article-code-link-hover-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
+}
+
+html.theme-transitioning .article-presentation--longform a:has(> code),
+html.theme-transitioning .article-presentation--longform a:has(> code) > code {
+	transition:
+		color var(--theme-color-transition-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
+}

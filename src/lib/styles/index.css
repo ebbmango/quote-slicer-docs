@@ -9,8 +9,13 @@
 @import './colors/group.css';
 @import './colors/tokens.css';
 @import './colors/verse.css';
+@import './article.css';
 
-@plugin '@tailwindcss/typography';
+/* Tailwind reads this plugin option case-sensitively. */
+/* prettier-ignore */
+@plugin '@tailwindcss/typography' {
+	className: article-presentation;
+}
 
 @custom-variant js-only (&:where(html.js, html.js *));
 @custom-variant no-js (&:where(html.no-js, html.no-js *));

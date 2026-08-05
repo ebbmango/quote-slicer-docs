@@ -29,12 +29,10 @@
 
 <!-- todo: keep scrollbar if content sidebar doesn't exist -->
 <main class="flex min-w-0 flex-1 flex-col items-center">
-	<article
-		class="prose-transition prose prose-xl w-full min-w-0 px-8 pt-7 pb-[10dvh] font-inter font-light dark:prose-invert prose-headings:font-dm-serif prose-headings:font-light prose-headings:tracking-normal prose-h1:normal-case prose-code:font-mono prose-pre:font-mono"
-	>
+	<article class="article-presentation--longform article-presentation px-8 pt-7 pb-[10dvh]">
 		{#if articleMetadataItems.length > 0 || articleMetadata?.tags?.length}
 			<aside
-				class="not-prose mb-6 flex flex-nowrap items-center justify-between gap-x-4 gap-y-2 font-mono text-xs tracking-[0.18em] uppercase opacity-50"
+				class="not-article-presentation mb-6 flex flex-nowrap items-center justify-between gap-x-4 gap-y-2 font-mono text-xs tracking-[0.18em] uppercase opacity-50"
 				aria-label="Article metadata"
 			>
 				<span id="published" class="inline-flex items-center gap-2">
@@ -61,16 +59,6 @@
 <Sidebar headings={data.toc} />
 
 <style>
-	article :global(:is(h1, h2, h3, h4, h5, h6)) {
-		scroll-margin-top: 6.75rem;
-	}
-
-	@media (min-width: 800px) {
-		article :global(:is(h1, h2, h3, h4, h5, h6)) {
-			scroll-margin-top: 1rem;
-		}
-	}
-
 	@media (max-width: 450px) {
 		#published {
 			display: none;
@@ -78,60 +66,5 @@
 		#updated :first-child {
 			display: none;
 		}
-	}
-
-	article :global(h4) {
-		font-size: 1.35em;
-		line-height: 1.45;
-	}
-
-	article :global(h5) {
-		font-size: 1.15em;
-		line-height: 1.6;
-	}
-
-	article :global(h6) {
-		font-size: 1em;
-	}
-
-	article :global(a) {
-		color: var(--article-link-color);
-		font-style: italic;
-		font-weight: inherit;
-		text-decoration: none;
-	}
-
-	article :global(a:has(> code)) {
-		color: inherit;
-		font-style: normal;
-		text-decoration: none;
-	}
-
-	article :global(a:has(> code) > code) {
-		color: var(--tw-prose-code);
-	}
-
-	article :global(a:has(> code)),
-	article :global(a:has(> code) > code) {
-		transition:
-			color var(--article-mono-link-hover-color-duration) ease,
-			background-color var(--theme-color-transition-duration) ease,
-			border-color var(--theme-color-transition-duration) ease;
-	}
-
-	article :global(a:has(> code):is(:hover, :focus-visible)) {
-		color: var(--article-link-color);
-	}
-
-	article :global(a:has(> code):is(:hover, :focus-visible) > code) {
-		color: inherit;
-	}
-
-	:global(html.theme-transitioning) article :global(a:has(> code)),
-	:global(html.theme-transitioning) article :global(a:has(> code) > code) {
-		transition:
-			color var(--theme-color-transition-duration) ease,
-			background-color var(--theme-color-transition-duration) ease,
-			border-color var(--theme-color-transition-duration) ease;
 	}
 </style>
