@@ -69,6 +69,10 @@ We start by making a few key media-query results available to JavaScript state t
 
 Please note that these values merely describe the viewport; they **do not drive any layout changes** on their own.
 
+Instead, conditional renders depend solely on the value of `layoutMode`, which is derived from a combination of these media queries.
+
+<aside class="parenthetical">
+
 That is because, for instance, knowing that the viewport `isNarrow` is not enough to determine exactly what to render.
 
 Apart from being narrow, it can also be:
@@ -77,18 +81,11 @@ Apart from being narrow, it can also be:
 
 - short, thus following the `drawer` layout and moving the side content into a modal instead.
 
-The `layoutMode` is then derived from these combined viewport facts:
+</aside>
 
-| `layoutMode` | Derivation from viewport facts           |
-| ------------ | ---------------------------------------- |
-| `double`     | `isWide`                                 |
-| `single`     | `!isWide` `&&` `!isNarrow`               |
-| `bottom`     | `!isWide` `&&` `isNarrow` `&&` `isTall`  |
-| `drawer`     | `!isWide` `&&` `isNarrow` `&&` `!isTall` |
+<!-- The `layoutMode` is derived from these combined viewport facts, and from here on out, **conditional renders depend entirely on `layoutMode`**, and not on any of the individual media-query results alone. -->
 
-From here on out, **conditional renders depend entirely on `layoutMode`**, and not on any of the individual media-query results alone.
-
-The `layoutMode` is made available to the rest of the application by means of the `BreakpointContext`.
+The `layoutMode` is then made available to the rest of the application through the `BreakpointContext`.
 
 ### Why derive the mode?
 
@@ -112,7 +109,9 @@ layoutMode: LayoutMode = $derived.by(() => {
 });
 ```
 
-The mounted guard preserves the prerendered `single` fallback through hydration. Once `onMount` marks the context as mounted, the reactive media queries classify the real viewport. That fallback is visually safe because Text is always the startup tool and every mode collapses its data panels, leaving the same full-size workbench. If a future feature persists or deep-links into another startup tool, this assumption must be revisited before shipping; that state could require a prepaint classifier.
+<!-- The mounted guard preserves the prerendered `single` fallback through hydration. Once `onMount` marks the context as mounted, the reactive media queries classify the real viewport. That fallback is visually safe because Text is always the startup tool and every mode collapses its data panels, leaving the same full-size workbench. If a future feature persists or deep-links into another startup tool, this assumption must be revisited before shipping; that state could require a prepaint classifier. -->
+
+<!-- This is a deliberate exception to [Svelte's guidance](https://svelte.dev/docs/svelte/svelte-reactivity#MediaQuery:~:text=If%20you%20can%20use%20the%20media%20query%20in%20CSS%20to%20achieve%20the%20same%20effect%2C%20do%20that) on `MediaQuery`: prefer CSS media queries when CSS alone can express the behavior. Here, JavaScript has to choose which surfaces exist, and CSS has to lay out that same choice, so the app derives one shared `layoutMode` instead of splitting the decision across two classifiers. -->
 
 Compare that with the queries those four variables would require:
 
@@ -160,7 +159,7 @@ The derivation can be read from top to bottom: wide becomes `double`; the middle
 
 The media queries describe the viewport as wide, narrow, or tall. `layoutMode` says which layout the app chooses for that combination.
 
-#### Sharing the decision with CSS
+### Sharing the decision with CSS
 
 The context determines which Svelte surfaces are rendered, while CSS determines the grid arrangement. Those are different consumers, but they no longer classify the viewport independently.
 
@@ -170,7 +169,7 @@ The mappings grid follows the same contract. Its `bottom-layout` custom variant 
 
 [`page.svelte.e2e.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/page.svelte.e2e.ts) protects the root contract: exact boundaries, attribute-driven geometry, live transitions through all four modes, and the JavaScript-disabled fallback. The scaled-window cases in [`data-modal.e2e.ts`](https://github.com/ebbmango/quote-slicer/blob/main/src/routes/data-modal.e2e.ts) still exercise fractional and browser-rounded widths, but now assert that routing and geometry both follow the published mode instead of comparing two classifiers.
 
-#### Why a context
+### Why a context
 
 The page creates one `BreakpointContext` and descendants consume that shared decision. For example, `ToolToolbar` uses it to show a modal toggle in `drawer`, an aside toggle in `single` and `bottom`, and no toggle in `double`. Sharing the derived mode prevents each component from rebuilding the same breakpoint logic independently.
 

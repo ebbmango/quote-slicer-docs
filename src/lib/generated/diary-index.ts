@@ -20,8 +20,8 @@ export const diaryEntries: DiaryIndexEntry[] = [
 		"title": "Reactive Theme",
 		"date": "2026-04-26",
 		"timestamp": 1777161600000,
-		"lastUpdated": "2026-07-01",
-		"lastUpdatedTimestamp": 1782864000000,
+		"lastUpdated": "2026-07-08",
+		"lastUpdatedTimestamp": 1783468800000,
 		"summary": "How the documentation site theme reacts to OS and user changes without losing synchronization across tabs.",
 		"tags": [
 			"theme",

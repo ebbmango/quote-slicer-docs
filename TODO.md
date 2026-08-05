@@ -1,3 +1,11 @@
+## katya's notes
+
+- `/overview`: what is an attribution line?
+
+## manya's notes
+
+- `/layout`: make an interactive layout example directly underneath the table
+
 ## Functionalities
 
 - figure out easy page/article title hyphenation
@@ -27,6 +35,6 @@ own articles here:
 
 - **The app's dark theme** — prepaint no-flash, cross-tab `BroadcastChannel` sync,
   per-scheme palette. Distinct from the reactive-theme diary entry, which documents
-  *this site's* theme, not the app's.
+  _this site's_ theme, not the app's.
 - **Build & deploy** — static prerender, base path, GitHub Pages, the `icons.json`
   secret injection. (Overlaps the `icons.json` bullet above.)
