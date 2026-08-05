@@ -2,8 +2,11 @@
 	@apply article-presentation-xl w-full min-w-0 font-inter font-light dark:article-presentation-invert article-presentation-headings:font-dm-serif article-presentation-headings:font-light article-presentation-headings:tracking-normal article-presentation-h1:normal-case article-presentation-code:font-mono article-presentation-pre:font-mono;
 
 	--article-inline-code-background: light-dark(#ededed, #3d3d3d);
+	--article-inline-code-color: var(--tw-prose-code);
 	--article-code-block-background: light-dark(#3d3d3d, #242424);
+	--article-inline-code-size: 0.85em;
 	--article-inline-code-weight: 400;
+	--article-inline-code-color-transition-duration: var(--theme-color-transition-duration);
 	--article-code-link-hover-duration: 110ms;
 	--article-border-color: light-dark(var(--color-tin), #3d3d3d);
 	--article-link-color: light-dark(var(--sugar-token-latin), var(--beeswax-gloss-hanzi));
@@ -73,17 +76,18 @@ html.dark .article-presentation {
 }
 
 .article-presentation blockquote {
+	--article-inline-code-color: currentColor;
+	--article-inline-code-size: large;
+	--article-inline-code-weight: 400;
+
 	font-family: serif;
 	font-size: larger;
 	font-style: normal;
 }
 
-.article-presentation blockquote :where(:not(pre) > code) {
-	font-size: large;
-	font-weight: 400;
-}
-
 .article-presentation aside.parenthetical {
+	--article-inline-code-background: var(--article-parenthetical-code-background);
+
 	margin-block: 2.5em;
 	padding: clamp(1.25rem, 3vw, 1.75rem);
 	border-radius: 0.6rem;
@@ -99,18 +103,19 @@ html.dark .article-presentation {
 	margin-bottom: 0;
 }
 
-.article-presentation aside.parenthetical :where(:not(pre) > code) {
-	background-color: var(--article-parenthetical-code-background);
-}
-
 .article-presentation :where(:not(pre) > code) {
 	padding: 0.08em 0.4em;
 	border-radius: 0.3rem;
 	background-color: var(--article-inline-code-background);
+	color: var(--article-inline-code-color);
 	font-family: var(--font-mono);
-	font-size: 0.85em;
+	font-size: var(--article-inline-code-size);
 	font-weight: var(--article-inline-code-weight);
 	overflow-wrap: anywhere;
+	transition:
+		color var(--article-inline-code-color-transition-duration) ease,
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
 }
@@ -185,28 +190,24 @@ html.dark .article-presentation :where(pre.shiki span) {
 }
 
 .article-presentation--longform a:has(> code) {
+	--article-inline-code-background: var(--article-code-link-background);
+	--article-inline-code-color: var(--article-code-link-color);
+	--article-inline-code-weight: 400;
+	--article-inline-code-color-transition-duration: var(--article-code-link-hover-duration);
+
 	color: var(--article-code-link-color);
 	font-style: normal;
 	font-weight: 400;
 	text-decoration: none;
-}
-
-.article-presentation--longform a:has(> code) > code {
-	background-color: var(--article-code-link-background);
-	color: inherit;
-	font-weight: inherit;
-}
-
-.article-presentation--longform a:has(> code),
-.article-presentation--longform a:has(> code) > code {
 	transition:
 		color var(--article-code-link-hover-duration) ease,
 		background-color var(--theme-color-transition-duration) ease,
 		border-color var(--theme-color-transition-duration) ease;
 }
 
-html.theme-transitioning .article-presentation--longform a:has(> code),
-html.theme-transitioning .article-presentation--longform a:has(> code) > code {
+html.theme-transitioning .article-presentation--longform a:has(> code) {
+	--article-inline-code-color-transition-duration: var(--theme-color-transition-duration);
+
 	transition:
 		color var(--theme-color-transition-duration) ease,
 		background-color var(--theme-color-transition-duration) ease,
