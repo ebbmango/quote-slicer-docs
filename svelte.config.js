@@ -26,7 +26,8 @@ const shikiOptions = {
 		dracula: {
 			'#50fa7b': '#8ae1b2',
 			'#ff79c6': '#df9de1',
-			'#f1fa8c': '#f3df8d'
+			'#f1fa8c': '#f3df8d',
+			'#6272a4': '#7b7f8b' // comments
 		}
 
 		// laserwave: {
