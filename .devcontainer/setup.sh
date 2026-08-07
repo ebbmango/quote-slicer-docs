@@ -17,3 +17,4 @@ umask 077
 
 echo "Configured the ignored project .npmrc for Font Awesome packages."
 npm ci
+npx playwright install --with-deps chromium
