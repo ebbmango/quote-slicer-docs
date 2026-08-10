@@ -180,7 +180,6 @@
 		--theme-toggle-initial-counter-rotation: 0deg;
 
 		rotate: var(--theme-toggle-initial-rotation);
-		transition: color 400ms;
 	}
 
 	:global(html.dark) .theme-toggle {
@@ -190,21 +189,16 @@
 
 	.theme-toggle-counter {
 		rotate: var(--theme-toggle-initial-counter-rotation);
-		transition: color 400ms;
 	}
 
 	.theme-toggle[data-hydrated='true'] {
 		rotate: var(--theme-toggle-rotation);
-		transition:
-			rotate 800ms,
-			color 400ms;
+		transition: rotate 800ms;
 	}
 
 	.theme-toggle[data-hydrated='true'] .theme-toggle-counter {
 		rotate: var(--theme-toggle-counter-rotation);
-		transition:
-			rotate 800ms,
-			color 400ms;
+		transition: rotate 800ms;
 	}
 
 	:global(.theme-toggle-icon) {

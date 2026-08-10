@@ -14,6 +14,7 @@ import {
 } from './themeState';
 
 const THEME_TRANSITION_DURATION_MS = 500;
+const THEME_TRANSITION_CLEANUP_DELAY_MS = THEME_TRANSITION_DURATION_MS + 50;
 let themeTransitionTimer: ReturnType<typeof setTimeout> | null = null;
 
 function withStorage<T>(callback: (storage: StorageLike) => T, fallback: T): T {
@@ -35,7 +36,7 @@ function applyDocumentTheme(themeName: ThemeName) {
 		themeTransitionTimer = setTimeout(() => {
 			root.classList.remove('theme-transitioning');
 			themeTransitionTimer = null;
-		}, THEME_TRANSITION_DURATION_MS);
+		}, THEME_TRANSITION_CLEANUP_DELAY_MS);
 	}
 
 	root.classList.toggle('dark', shouldUseDarkTheme);

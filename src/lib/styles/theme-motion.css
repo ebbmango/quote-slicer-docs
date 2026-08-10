@@ -1,18 +1,231 @@
 /*
- * Theme motion only exists while systemTheme.ts changes the document theme.
- * Interaction transitions remain with the components that own them.
+ * Animate inherited theme tokens at their owner. Transitioning color on every
+ * ancestor and descendant makes Chromium restart nested transitions each frame.
  */
-html.theme-transitioning,
-html.theme-transitioning body,
-html.theme-transitioning main,
-html.theme-transitioning .article-presentation,
-html.theme-transitioning .article-presentation * {
+@property --page-foreground {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: #000;
+}
+
+@property --tw-prose-body {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-headings {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-lead {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-links {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-bold {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-counters {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-bullets {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-hr {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-quotes {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-quote-borders {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-captions {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-kbd {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-code {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-pre-code {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-pre-bg {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-th-borders {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --tw-prose-td-borders {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-inline-code-background {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-code-block-background {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-border-color {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-link-color {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-code-link-color {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-code-link-background {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-unordered-marker-color {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-ordered-marker-color {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-parenthetical-background {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --article-parenthetical-code-background {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+@property --shiki-theme-color {
+	syntax: '<color>';
+	inherits: false;
+	initial-value: transparent;
+}
+
+html.theme-transitioning {
 	transition:
-		color var(--theme-color-transition-duration) ease,
+		--page-foreground var(--theme-color-transition-duration) ease,
 		background-color var(--theme-color-transition-duration) ease,
 		border-color var(--theme-color-transition-duration) ease;
 }
 
-html.theme-transitioning .article-presentation *::marker {
-	transition: color var(--theme-color-transition-duration) ease;
+html.theme-transitioning body,
+html.theme-transitioning main {
+	transition:
+		background-color var(--theme-color-transition-duration) ease,
+		border-color var(--theme-color-transition-duration) ease;
+}
+
+html.theme-transitioning .article-presentation {
+	transition:
+		--tw-prose-body var(--theme-color-transition-duration) ease,
+		--tw-prose-headings var(--theme-color-transition-duration) ease,
+		--tw-prose-lead var(--theme-color-transition-duration) ease,
+		--tw-prose-links var(--theme-color-transition-duration) ease,
+		--tw-prose-bold var(--theme-color-transition-duration) ease,
+		--tw-prose-counters var(--theme-color-transition-duration) ease,
+		--tw-prose-bullets var(--theme-color-transition-duration) ease,
+		--tw-prose-hr var(--theme-color-transition-duration) ease,
+		--tw-prose-quotes var(--theme-color-transition-duration) ease,
+		--tw-prose-quote-borders var(--theme-color-transition-duration) ease,
+		--tw-prose-captions var(--theme-color-transition-duration) ease,
+		--tw-prose-kbd var(--theme-color-transition-duration) ease,
+		--tw-prose-code var(--theme-color-transition-duration) ease,
+		--tw-prose-pre-code var(--theme-color-transition-duration) ease,
+		--tw-prose-pre-bg var(--theme-color-transition-duration) ease,
+		--tw-prose-th-borders var(--theme-color-transition-duration) ease,
+		--tw-prose-td-borders var(--theme-color-transition-duration) ease,
+		--article-inline-code-background var(--theme-color-transition-duration) ease,
+		--article-code-block-background var(--theme-color-transition-duration) ease,
+		--article-border-color var(--theme-color-transition-duration) ease,
+		--article-link-color var(--theme-color-transition-duration) ease,
+		--article-code-link-color var(--theme-color-transition-duration) ease,
+		--article-code-link-background var(--theme-color-transition-duration) ease,
+		--article-unordered-marker-color var(--theme-color-transition-duration) ease,
+		--article-ordered-marker-color var(--theme-color-transition-duration) ease,
+		--article-parenthetical-background var(--theme-color-transition-duration) ease,
+		--article-parenthetical-code-background var(--theme-color-transition-duration) ease;
+}
+
+/* Descendants consume the animated tokens without starting a second timeline. */
+html.theme-transitioning .article-presentation * {
+	transition: none;
+}
+
+html.theme-transitioning .article-presentation :where(pre.shiki span[style*='--shiki-light']) {
+	transition: --shiki-theme-color var(--theme-color-transition-duration) ease;
 }

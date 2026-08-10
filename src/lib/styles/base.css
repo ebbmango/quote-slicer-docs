@@ -3,7 +3,9 @@ html {
 	scrollbar-gutter: stable;
 	--page-edge-gutter: 1.25rem;
 	--page-bg: light-dark(white, var(--color-noctis));
+	--page-foreground: light-dark(#000, #fff);
 	--theme-color-transition-duration: 500ms;
+	color: var(--page-foreground);
 }
 
 html,

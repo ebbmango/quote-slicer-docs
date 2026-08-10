@@ -84,6 +84,10 @@
 			translate 500ms ease;
 	}
 
+	:global(html.theme-transitioning) .nav-section-link {
+		transition-property: opacity, padding-inline-start, transform, translate;
+	}
+
 	@media (hover: none) and (pointer: coarse) {
 		.nav-section-link {
 			width: auto;

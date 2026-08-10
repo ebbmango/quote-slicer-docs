@@ -166,6 +166,11 @@
 		--toc-link-opacity: 0.9;
 	}
 
+	:global(html.theme-transitioning) .toc-link,
+	:global(html.theme-transitioning) .toc-link * {
+		transition-property: opacity, transform, translate;
+	}
+
 	:global(html.dark) .toc-link:is(:hover, :focus-visible) {
 		--toc-link-opacity: 0.9;
 	}

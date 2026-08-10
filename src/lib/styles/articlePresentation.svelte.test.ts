@@ -3,6 +3,7 @@ import './index.css';
 
 let fixture: HTMLElement;
 let originalHtmlClass: string;
+let originalColorScheme: string;
 
 function element<T extends Element>(selector: string): T {
 	const match = fixture.querySelector<T>(selector);
@@ -13,7 +14,9 @@ function element<T extends Element>(selector: string): T {
 
 beforeEach(() => {
 	originalHtmlClass = document.documentElement.className;
+	originalColorScheme = document.documentElement.style.colorScheme;
 	document.documentElement.className = 'js';
+	document.documentElement.style.colorScheme = 'light';
 
 	fixture = document.createElement('section');
 	fixture.style.setProperty('--theme-color-transition-duration', '37ms');
@@ -29,7 +32,7 @@ beforeEach(() => {
 			<aside class="parenthetical">
 				<p>Aside with <code data-parenthetical-code>code</code></p>
 			</aside>
-			<pre class="shiki"><code><span>const answer = 42;</span></code></pre>
+			<pre class="shiki"><code><span data-shiki-token style="--shiki-light: #151515; --shiki-dark: #efefef">const answer = 42;</span></code></pre>
 		</article>
 		<article class="article-presentation article-presentation--longform" data-longform>
 			<h2>Long-form article</h2>
@@ -49,7 +52,11 @@ beforeEach(() => {
 
 afterEach(() => {
 	fixture.remove();
+	document.documentElement
+		.getAnimations({ subtree: true })
+		.forEach((animation) => animation.cancel());
 	document.documentElement.className = originalHtmlClass;
+	document.documentElement.style.colorScheme = originalColorScheme;
 });
 
 describe('article presentation', () => {
@@ -123,23 +130,97 @@ describe('article presentation', () => {
 		const heading = element<HTMLElement>('[data-default] h1');
 		const inlineCode = element<HTMLElement>('[data-inline-code]');
 		const codeLink = element<HTMLElement>('[data-code-link]');
+		const shikiToken = element<HTMLElement>('[data-shiki-token]');
 
 		expect(getComputedStyle(article).transitionDuration).toBe('0s');
 		expect(getComputedStyle(heading).transitionDuration).toBe('0s');
 		expect(getComputedStyle(inlineCode).transitionDuration).toBe('0s');
 		expect(getComputedStyle(codeLink).transitionDuration).toBe('0.11s');
+		expect(getComputedStyle(shikiToken).transitionDuration).toBe('0s');
 
 		document.documentElement.classList.add('theme-transitioning');
 
-		for (const surface of [article, heading, inlineCode, codeLink]) {
-			const style = getComputedStyle(surface);
-			expect(style.transitionProperty).toBe('color, background-color, border-color');
-			expect(style.transitionDuration).toBe('0.037s, 0.037s, 0.037s');
+		const articleStyle = getComputedStyle(article);
+		const articleTransitionProperties = articleStyle.transitionProperty.split(', ');
+		expect(articleTransitionProperties).toEqual(
+			expect.arrayContaining([
+				'--tw-prose-body',
+				'--tw-prose-headings',
+				'--tw-prose-bold',
+				'--tw-prose-code',
+				'--article-inline-code-background',
+				'--article-link-color'
+			])
+		);
+		expect(articleTransitionProperties).not.toContain('color');
+		expect(
+			articleStyle.transitionDuration.split(', ').every((duration) => duration === '0.037s')
+		).toBe(true);
+
+		for (const descendant of [heading, inlineCode, codeLink]) {
+			expect(getComputedStyle(descendant).transitionProperty).toBe('none');
+		}
+
+		const shikiTokenStyle = getComputedStyle(shikiToken);
+		expect(shikiTokenStyle.transitionProperty).toBe('--shiki-theme-color');
+		expect(shikiTokenStyle.transitionDuration).toBe('0.037s');
+	});
+
+	it('runs every article color token on one transition timeline', async () => {
+		fixture.style.setProperty('--theme-color-transition-duration', '500ms');
+
+		const root = document.documentElement;
+		const article = element<HTMLElement>('[data-default]');
+		const heading = element<HTMLElement>('[data-default] h1');
+		const inlineCode = element<HTMLElement>('[data-inline-code]');
+		const codeLink = element<HTMLElement>('[data-code-link]');
+		const shikiToken = element<HTMLElement>('[data-shiki-token]');
+		const lightHeadingColor = getComputedStyle(heading).color;
+
+		root.classList.add('theme-transitioning');
+		getComputedStyle(article);
+		root.classList.add('dark');
+		root.style.colorScheme = 'dark';
+
+		await new Promise<void>((resolve) => {
+			requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+		});
+
+		const transitionFor = (target: Element, property: string) =>
+			target
+				.getAnimations()
+				.find((animation) => (animation as CSSTransition).transitionProperty === property) as
+				| CSSTransition
+				| undefined;
+
+		const synchronizedTransitions = [
+			transitionFor(root, '--page-foreground'),
+			transitionFor(article, '--tw-prose-body'),
+			transitionFor(article, '--tw-prose-headings'),
+			transitionFor(article, '--tw-prose-bold'),
+			transitionFor(article, '--tw-prose-code'),
+			transitionFor(article, '--article-inline-code-background'),
+			transitionFor(article, '--article-link-color'),
+			transitionFor(shikiToken, '--shiki-theme-color')
+		];
+
+		expect(synchronizedTransitions.every(Boolean)).toBe(true);
+
+		const progress = synchronizedTransitions.map(
+			(transition) => transition!.effect?.getComputedTiming().progress ?? Number.NaN
+		);
+		expect(progress.every(Number.isFinite)).toBe(true);
+		expect(Math.max(...progress) - Math.min(...progress)).toBeLessThan(0.001);
+		expect(getComputedStyle(heading).color).not.toBe(lightHeadingColor);
+
+		for (const descendant of [heading, inlineCode, codeLink]) {
+			expect(transitionFor(descendant, 'color')).toBeUndefined();
 		}
 	});
 
 	it('resolves article tokens for dark mode', () => {
 		document.documentElement.className = 'js dark';
+		document.documentElement.style.colorScheme = 'dark';
 
 		const articleStyle = getComputedStyle(element('[data-default]'));
 		const inlineCodeStyle = getComputedStyle(element('[data-inline-code]'));

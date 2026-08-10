@@ -39,11 +39,4 @@
 		transition-duration: 300ms;
 		transition-timing-function: ease;
 	}
-
-	.opacity-transition :global(.ui-colors-transition) {
-		transition:
-			color 500ms ease,
-			background-color 500ms ease,
-			border-color 500ms ease;
-	}
 </style>

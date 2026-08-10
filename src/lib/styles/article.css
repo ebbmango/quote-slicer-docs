@@ -125,17 +125,19 @@ html.dark .article-presentation {
 	overflow-x: auto;
 }
 
-.article-presentation :where(pre.shiki span) {
-	color: var(--shiki-light);
+.article-presentation :where(pre.shiki span[style*='--shiki-light']) {
+	--shiki-theme-color: var(--shiki-light);
+
+	color: var(--shiki-theme-color);
 }
 
-html.dark .article-presentation :where(pre.shiki span) {
-	color: var(--shiki-dark);
+html.dark .article-presentation :where(pre.shiki span[style*='--shiki-light']) {
+	--shiki-theme-color: var(--shiki-dark);
 }
 
 @media (prefers-color-scheme: dark) {
-	html.no-js .article-presentation :where(pre.shiki span) {
-		color: var(--shiki-dark);
+	html.no-js .article-presentation :where(pre.shiki span[style*='--shiki-light']) {
+		--shiki-theme-color: var(--shiki-dark);
 	}
 }
 
